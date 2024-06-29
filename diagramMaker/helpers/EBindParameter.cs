@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace diagramMaker.helpers
 {
-    public enum EParameter
+    public enum EBindParameter
     {
-        Border,
-        Content,
-        Event,
-        Image,
-        Item
+        None,
+        Name,
+        Content
     }
 }

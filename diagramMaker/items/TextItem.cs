@@ -10,23 +10,24 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using diagramMaker.parameters;
+using System.Reflection.Metadata;
 
 namespace diagramMaker.items
 {
-    public class TextItem:DefaultItem
+    public class TextItem : DefaultItem
     {
         public TextBox item;
 
         public TextItem(DataHub data, Canvas appCanvas, int parentId = -1) : base(data, appCanvas, parentId)
         {
             item = new TextBox();
-            item.Text = "";          
+            item.Text = "";
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);                    
+                    appCanvas.Children.Add(item);
                 }
                 else
                 {
@@ -42,8 +43,9 @@ namespace diagramMaker.items
         public override void setParameters(
             ItemParameter iParam,
             ContentParameter? content = null,
-            BorderParameter? bParam = null, 
-            EventParameter? eParam = null)
+            BorderParameter? bParam = null,
+            EventParameter? eParam = null,
+            ImageParameter? imgParam = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -115,6 +117,10 @@ namespace diagramMaker.items
                 {
                     item.VerticalContentAlignment = content.verAlign ?? VerticalAlignment.Top;
                 }
+                if (content.IsTextChanged)
+                {
+                    item.TextChanged += Item_TextChanged;
+                }
             }
         }
         protected void handlerBParam()
@@ -139,11 +145,34 @@ namespace diagramMaker.items
             }
         }
 
+        private void Item_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (content !=null && content.BindID !=0)
+            {
+                data.items[data.GetItemByID(content.BindID)].ValueChanger(content.BindParameter, item.Text);                
+            }
+        }
 
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Name:
+                    name = txt;
+                    break;
+                case EBindParameter.Content:
+                    item.Text = txt;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         public void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Trace.WriteLine("Item_MouseDown");
         }
-}
+    }
 }

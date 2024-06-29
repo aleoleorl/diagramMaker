@@ -1,5 +1,6 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.items;
+using diagramMaker.managers;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace diagramMaker
     public partial class MainWindow : Window
     {        
         private DataHub data;
+        public diagramMaker.managers.EventManager eventner;
         private Initiator initiator;
 
         public delegate void CommonInfoHandler(string message, ItemParameter iParam);
@@ -55,6 +57,7 @@ namespace diagramMaker
             data.winWidth = 1024;
             data.winHeight = 768;
 
+            eventner = new managers.EventManager(data);
             initiator = new Initiator(data, this);
             initiator.Prepare();
         }
@@ -104,6 +107,13 @@ namespace diagramMaker
                 data.tapped = -1;
                 data.tapXX = 0;
                 data.tapYY = 0;
+            }
+            if (data.IsMenuItem)
+            { 
+                ((CanvasItem)data.items[data.GetItemByID(data.MenuItemParametersID)]).item.Visibility = Visibility.Hidden;
+                data.IsMenuItem = false;
+                eventner.ItemParametersMenuDelete();
+                data.ChoosenItemID = -1;
             }
         }
     }

@@ -63,7 +63,8 @@ namespace diagramMaker.items
             ItemParameter? iParam,
             ContentParameter? content = null, 
             BorderParameter? bParam = null,
-            EventParameter? eParam = null)
+            EventParameter? eParam = null,
+            ImageParameter? imgParam = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -157,6 +158,24 @@ namespace diagramMaker.items
                 {
                     item.MouseDown += Item_MouseDown;
                 }
+                item.IsHitTestVisible = eParam.IsHitTestVisible;
+            }
+        }
+
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Name:                        
+                    name = txt;
+                    break;
+                case EBindParameter.Content:
+                    item.Content = txt;
+                    break;
+                default:
+                    break;
             }
         }
 

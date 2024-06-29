@@ -12,11 +12,12 @@ using diagramMaker.items;
 using System.Reflection;
 using diagramMaker.parameters;
 using diagramMaker.helpers;
+using System.Windows.Interop;
 
 namespace diagramMaker.items
 {
     public class CanvasItem : DefaultItem
-    {
+    {     
         public Canvas item;
         public Border? border;
 
@@ -46,7 +47,8 @@ namespace diagramMaker.items
             ItemParameter? iParam = null,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
-            EventParameter? eParam = null)
+            EventParameter? eParam = null,
+            ImageParameter? imgParam = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -86,7 +88,7 @@ namespace diagramMaker.items
 
         protected void handlerIParam()
         {
-            if (iParam != null) 
+            if (iParam != null)
             {
                 if (iParam.bgColor != null)
                 {
@@ -126,6 +128,24 @@ namespace diagramMaker.items
                 {
                     item.MouseDown += Item_MouseDown;
                 }
+                if (eParam.mouseUp)
+                {
+                    item.MouseUp += Default_MouseUp;
+                }
+            }
+        }
+
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Name:
+                    name = txt;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -138,5 +158,6 @@ namespace diagramMaker.items
 
             e.Handled = true;
         }
+        
     }
 }

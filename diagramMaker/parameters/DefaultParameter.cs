@@ -12,5 +12,10 @@ namespace diagramMaker.parameters
         {
 
         }
+
+        public virtual void handle01()
+        {
+
+        }
     }
 }

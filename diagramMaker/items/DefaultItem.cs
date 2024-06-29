@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Input;
 using diagramMaker.helpers;
 using diagramMaker.parameters;
 
@@ -17,6 +18,8 @@ namespace diagramMaker.items
         public int id;
         private static int ID = 1;
         public int parentId;
+        public string name;
+
         protected DataHub data;
 
         protected Canvas? appCanvas;
@@ -25,6 +28,12 @@ namespace diagramMaker.items
         public ContentParameter? content;
         public BorderParameter? bParam;
         public EventParameter? eParam;
+        public ImageParameter? imgParam;
+
+        public delegate void MouseAppHandler(string item);
+        public event MouseAppHandler? MouseAppHandlerNotify;
+        public delegate void MouseAppIdHandler(int id);
+        public event MouseAppIdHandler? MouseAppIdHandlerNotify;
 
         public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1)
         {
@@ -35,8 +44,7 @@ namespace diagramMaker.items
             this.parentId = parentId;
             SetId();
             iParam = new ItemParameter(0, 0, 0, 0, null, null);
-
-            //this.MouseUp += MainWindow_MouseUp;
+            name = "item_" + id;
         }
 
         private void SetId()
@@ -48,12 +56,14 @@ namespace diagramMaker.items
             ItemParameter? iParam = null, 
             ContentParameter? content = null, 
             BorderParameter? bParam = null,
-            EventParameter? eParam = null)
+            EventParameter? eParam = null,
+            ImageParameter? imgParam = null)
         {
             this.iParam = iParam;
             this.content = content;
             this.bParam = bParam;
             this.eParam = eParam;
+            this.imgParam = imgParam;
         }
 
         public virtual void setParameter(EParameter type, DefaultParameter dParam)
@@ -71,6 +81,9 @@ namespace diagramMaker.items
                     case EParameter.Event:
                         this.eParam = (EventParameter)dParam;
                         break;
+                    case EParameter.Image:
+                        this.imgParam = (ImageParameter)dParam;
+                        break;
                     case EParameter.Item:
                         this.iParam = (ItemParameter)dParam;
                         break;
@@ -83,23 +96,27 @@ namespace diagramMaker.items
             }
         }
 
-        //private void MainWindow_MouseUp(object sender, MouseEventArgs e)
-        //{
-        //    Trace.WriteLine("MainWindow_MouseUp");
-        //    tapped = false;
-        //}
+        public void Default_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (eParam != null)
+            {
+                MouseAppHandlerNotify?.Invoke(item: eParam.MouseUpInfo);
+                MouseAppIdHandlerNotify?.Invoke(id: id);
+            }
+            if (data.tapped != -1)
+            {
+                data.tapped = -1;
+                data.tapXX = 0;
+                data.tapYY = 0;
+            }
+            e.Handled = true;
+        }
 
-        //public void MyCanvas_MouseDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    Trace.WriteLine("MyCanvas_MouseDown");
-        //    Point mousePosition = e.GetPosition(myCanvas);
-        //    double mouseX = mousePosition.X;
-        //    double canvasX = Canvas.GetLeft(myCanvas);
-        //    xx = Math.Abs(mouseX - canvasX);
-        //    double mouseY = mousePosition.Y;
-        //    double canvasY = Canvas.GetLeft(myCanvas);
-        //    yy = Math.Abs(mouseY - canvasY);
-        //    tapped = true;
-        //}
+        public virtual void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+
+        }
     }
 }

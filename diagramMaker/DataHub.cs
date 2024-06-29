@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using diagramMaker.helpers;
 using diagramMaker.items;
 using diagramMaker.parameters;
 
@@ -21,6 +22,7 @@ namespace diagramMaker
     {
         public List<DefaultItem> items;
         public Dictionary<string, DefaultParameter> parameters;
+        public Dictionary<string, ItemMaker> itemCollection;
         
         public int tapped;
         public double tapXX;
@@ -36,7 +38,11 @@ namespace diagramMaker
         public int appCanvasID = -1;
         public int informer = -1;
         public int menuCreation = -1;
-        public int menuCreationCanvas = -1;
+        public int menuCreationCanvasID = -1;
+
+        public int MenuItemParametersID = -1;
+        public bool IsMenuItem = false;
+        public int ChoosenItemID = -1;
 
         public double oldMouseX;
         public double oldMouseY;
@@ -47,6 +53,8 @@ namespace diagramMaker
         {
             items = new List<DefaultItem>();
             parameters = new Dictionary<string, DefaultParameter>();
+            itemCollection = new Dictionary<string, ItemMaker>();
+
             tapped = -1;
             screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             screenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
