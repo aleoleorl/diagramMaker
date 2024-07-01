@@ -44,6 +44,10 @@ namespace diagramMaker
         public bool IsMenuItem = false;
         public int ChoosenItemID = -1;
 
+        public int MenuItemPaintMakerID = -1;
+        public bool IsMenuPainter = false;
+        public EPainterTool PainterTool = EPainterTool.Move;
+
         public double oldMouseX;
         public double oldMouseY;
 

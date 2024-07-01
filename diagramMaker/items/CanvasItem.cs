@@ -21,7 +21,8 @@ namespace diagramMaker.items
         public Canvas item;
         public Border? border;
 
-        public CanvasItem(DataHub data, Canvas? appCanvas, int parentId = -1) : base(data, appCanvas, parentId)
+        public CanvasItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
+            base(data, appCanvas, parentId, EItem.Canvas)
         {
             item = new Canvas();
             item.Background = Brushes.White;
@@ -59,9 +60,6 @@ namespace diagramMaker.items
         public override void setParameter(EParameter type, DefaultParameter dParam)
         {
             base.setParameter(type, dParam);
-
-            handlerIParam();
-            handlerBParam();
 
             try
             {
@@ -112,11 +110,15 @@ namespace diagramMaker.items
                 }
                 if (border != null & bParam != null)
                 {
+                    border = null;
+                    border = new Border();
+                    item.Children.Add(border);
                     border.BorderThickness = new Thickness(bParam.borderThickness);
                     border.BorderBrush = new SolidColorBrush(bParam.color ?? System.Windows.Media.Colors.Black);
                     border.CornerRadius = new CornerRadius(bParam.cornerRadius);
                     border.Width = iParam.width;
                     border.Height = iParam.height;
+                    border.Background = new SolidColorBrush(Colors.Transparent);
                 }
             }
         }
@@ -143,6 +145,28 @@ namespace diagramMaker.items
             {
                 case EBindParameter.Name:
                     name = txt;
+                    break;
+                case EBindParameter.Width:
+                    if (iParam != null)
+                    {
+                        iParam.width = Convert.ToDouble(txt);                        
+                    }
+                    item.Width = Convert.ToDouble(txt);
+                    if (bParam != null && bParam.isBorder)
+                    {
+                        border.Width = Convert.ToDouble(txt);
+                    }
+                    break;
+                case EBindParameter.Height:
+                    if (iParam != null)
+                    {
+                        iParam.height = Convert.ToDouble(txt);
+                    }
+                    item.Height = Convert.ToDouble(txt);
+                    if (bParam != null && bParam.isBorder)
+                    {
+                        border.Height = Convert.ToDouble(txt);
+                    }
                     break;
                 default:
                     break;

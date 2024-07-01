@@ -8,10 +8,12 @@ namespace diagramMaker.helpers
 {
     public enum EItem
     {
+        Button,
         Canvas,
         Label,
-        Text,
         Image,
+        Painter,
+        Text,
         Default
     }
 }

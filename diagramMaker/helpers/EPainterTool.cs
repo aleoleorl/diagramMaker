@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace diagramMaker.helpers
 {
-    public enum EBindParameter
+    public enum EPainterTool
     {
-        Height,
-        None,
-        Name,
-        Content,
-        Width
+        Move,
+        Draw
     }
 }

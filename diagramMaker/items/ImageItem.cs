@@ -15,7 +15,8 @@ namespace diagramMaker.items
     {
         public Image item;
 
-        public ImageItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : base(data, appCanvas, parentId)
+        public ImageItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : 
+            base(data, appCanvas, parentId, EItem.Image)
         {
             item = new Image();
 
@@ -72,8 +73,7 @@ namespace diagramMaker.items
                 Width = imgParam.bitmapImage.Width,
                 Height = imgParam.bitmapImage.Height,
                 Source = imgParam.bitmapImage
-            };
-            
+            };            
         }
 
         protected void handlerIParam()

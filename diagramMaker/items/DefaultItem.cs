@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
 using diagramMaker.helpers;
 using diagramMaker.parameters;
 
@@ -23,6 +24,7 @@ namespace diagramMaker.items
         protected DataHub data;
 
         protected Canvas? appCanvas;
+        public EItem itemType;
 
         public ItemParameter? iParam;
         public ContentParameter? content;
@@ -35,7 +37,7 @@ namespace diagramMaker.items
         public delegate void MouseAppIdHandler(int id);
         public event MouseAppIdHandler? MouseAppIdHandlerNotify;
 
-        public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1)
+        public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1, EItem itemType = EItem.Default)
         {
             this.data = data;
             appX = data.topLeftX + data.oldMouseX;
@@ -45,6 +47,7 @@ namespace diagramMaker.items
             SetId();
             iParam = new ItemParameter(0, 0, 0, 0, null, null);
             name = "item_" + id;
+            this.itemType = itemType;
         }
 
         private void SetId()
@@ -117,6 +120,15 @@ namespace diagramMaker.items
             string txt = "")
         {
 
+        }
+
+        public virtual void FinishHandling()
+        {
+
+        }
+
+        public virtual void EventOutdataHandler(int id, ECommand command)
+        {
         }
     }
 }

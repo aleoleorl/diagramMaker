@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using diagramMaker.parameters;
 using System.Reflection.Metadata;
+using System.Reflection;
 
 namespace diagramMaker.items
 {
@@ -18,7 +19,8 @@ namespace diagramMaker.items
     {
         public TextBox item;
 
-        public TextItem(DataHub data, Canvas appCanvas, int parentId = -1) : base(data, appCanvas, parentId)
+        public TextItem(DataHub data, Canvas appCanvas, int parentId = -1) :
+            base(data, appCanvas, parentId, EItem.Text)
         {
             item = new TextBox();
             item.Text = "";
@@ -120,6 +122,7 @@ namespace diagramMaker.items
                 if (content.IsTextChanged)
                 {
                     item.TextChanged += Item_TextChanged;
+                    item.PreviewKeyDown += Item_PreviewKeyDown;
                 }
             }
         }
@@ -147,10 +150,44 @@ namespace diagramMaker.items
 
         private void Item_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (content !=null && content.BindID !=0)
+            Trace.WriteLine("_item.Text:" + item.Text);
+            if (content != null)
             {
-                data.items[data.GetItemByID(content.BindID)].ValueChanger(content.BindParameter, item.Text);                
+                if (content.IsDigitsOnly && !IsTextNumeric(item.Text))
+                {
+                    int _i = 0;
+                    while (_i < item.Text.Length)
+                    {
+                        if (!IsTextNumeric(item.Text.Substring(_i, 1)))
+                        {
+                            item.Text = item.Text.Remove(_i, 1);
+                            continue;
+                        }
+                        _i++;
+                    }
+                    Trace.WriteLine("item.Text:" + item.Text);
+
+                }
+                if (item.Text.Length == 0)
+                {
+                    item.Text = "0";
+                }
             }
+        }
+        private void Item_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (content!= null && content.BindID != 0)
+                {
+                    data.items[data.GetItemByID(content.BindID)].ValueChanger(content.BindParameter, item.Text);
+                }
+            }
+        }
+        private static bool IsTextNumeric(string str)
+        {
+            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("[^0-9]");
+            return !reg.IsMatch(str);
         }
 
         public override void ValueChanger(
@@ -164,6 +201,20 @@ namespace diagramMaker.items
                     break;
                 case EBindParameter.Content:
                     item.Text = txt;
+                    break;
+                case EBindParameter.Width:
+                    if (iParam != null)
+                    {
+                        iParam.width = Convert.ToDouble(txt);
+                    }
+                    item.Width = Convert.ToDouble(txt);
+                    break;
+                case EBindParameter.Height:
+                    if (iParam != null)
+                    {
+                        iParam.height = Convert.ToDouble(txt);
+                    }
+                    item.Height = Convert.ToDouble(txt);
                     break;
                 default:
                     break;

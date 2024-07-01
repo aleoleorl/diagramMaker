@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using diagramMaker.helpers;
 using diagramMaker.parameters;
@@ -21,7 +22,8 @@ namespace diagramMaker.items
     {
         public Label item;
 
-        public LabelItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : base(data, appCanvas, parentId)
+        public LabelItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : 
+            base(data, appCanvas, parentId, EItem.Label)
         {
             item = new Label();
             item.Content = "";
@@ -174,6 +176,20 @@ namespace diagramMaker.items
                 case EBindParameter.Content:
                     item.Content = txt;
                     break;
+                case EBindParameter.Width:
+                    if (iParam != null)
+                    {
+                        iParam.width = Convert.ToDouble(txt);
+                    }
+                    item.Width = Convert.ToDouble(txt);
+                    break;
+                case EBindParameter.Height:
+                    if (iParam != null)
+                    {
+                        iParam.height = Convert.ToDouble(txt);
+                    }
+                    item.Height = Convert.ToDouble(txt);
+                    break;
                 default:
                     break;
             }
@@ -182,6 +198,31 @@ namespace diagramMaker.items
         public void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Trace.WriteLine("Item_MouseDown");
+        }
+
+        public override void EventOutdataHandler(int id, ECommand command)
+        {
+            switch (command)
+            {
+                case ECommand.Data_PainterTool:
+                    switch (id)
+                    {
+                        case 1:
+                            item.Content = "Move";
+                            break;
+                        case 2:
+                            item.Content = "Draw";
+                            break;
+                        default:
+                            break;
+                    }
+
+
+
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

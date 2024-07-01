@@ -112,8 +112,17 @@ namespace diagramMaker
             { 
                 ((CanvasItem)data.items[data.GetItemByID(data.MenuItemParametersID)]).item.Visibility = Visibility.Hidden;
                 data.IsMenuItem = false;
-                eventner.ItemParametersMenuDelete();
+                eventner.ItemMenuDelete(data.MenuItemParametersID);
+                data.items[data.GetItemByID(data.ChoosenItemID)].FinishHandling();
                 data.ChoosenItemID = -1;
+
+                if (data.IsMenuPainter)
+                {
+                    ((CanvasItem)data.items[data.GetItemByID(data.MenuItemPaintMakerID)]).item.Visibility = Visibility.Hidden;
+                    data.IsMenuPainter = false;
+                    eventner.ItemMenuDelete(data.MenuItemPaintMakerID);
+                    
+                }
             }
         }
     }

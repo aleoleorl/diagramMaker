@@ -17,21 +17,24 @@ namespace diagramMaker.parameters
         public bool IsTextChanged = false;
         public EBindParameter BindParameter;
         public int BindID;
+        public bool IsDigitsOnly;
 
         public ContentParameter(
             string? content = null,
             HorizontalAlignment? horAlign = null,
             VerticalAlignment? verAlign = null,
-            bool IsTextChanged = false,
-            EBindParameter BindParameter = EBindParameter.None,
-            int BindID = -1)
+            bool isTextChanged = false,
+            EBindParameter bindParameter = EBindParameter.None,
+            int bindID = -1,
+            bool isDigitsOnly = false)
         {
             this.content = content;
             this.horAlign = horAlign;
             this.verAlign = verAlign;
-            this.IsTextChanged = IsTextChanged;
-            this.BindParameter = BindParameter;
-            this.BindID = BindID;
+            this.IsTextChanged = isTextChanged;
+            this.BindParameter = bindParameter;
+            this.BindID = bindID;
+            this.IsDigitsOnly = isDigitsOnly;
         }
     }
 }

@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace diagramMaker.helpers
 {
-    public enum EBindParameter
+    public enum ECommand
     {
-        Height,
-        None,
-        Name,
-        Content,
-        Width
+       None,
+       DeleteItem,
+       Data_PainterTool
     }
 }
