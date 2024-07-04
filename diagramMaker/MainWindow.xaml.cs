@@ -1,6 +1,7 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.items;
 using diagramMaker.managers;
+using diagramMaker.managers.DefaultPreparation;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -29,19 +30,24 @@ namespace diagramMaker
     {        
         private DataHub data;
         public diagramMaker.managers.EventManager eventner;
+        public TopMenuHandler topMenu;
         private Initiator initiator;
 
         public delegate void CommonInfoHandler(string message, ItemParameter iParam);
-        public event CommonInfoHandler? cihNotify;
+        public event CommonInfoHandler? CommonInfoNotify;
+
+        public delegate void ResizeHandler(double left, double top, double width, double height);
+        public event ResizeHandler? ResizeNotify;
 
         public delegate void AppCanvasMoveHandler(string? message = null, ItemParameter? iParam = null);
-        public event AppCanvasMoveHandler? appCanvasMoveNotify;
+        public event AppCanvasMoveHandler? AppCanvasMoveNotify;
+
         public delegate void AppCanvasMoveSensitiveHandler(double x, double y);
-        public event AppCanvasMoveSensitiveHandler? appCanvasMoveHandlerNotify;
+        public event AppCanvasMoveSensitiveHandler? AppCanvasMoveSensitiveNotify;
 
         public delegate void ItemMoveHandler(double x, double y);
-        public event ItemMoveHandler? itemMoveHandlerNotify;
-
+        public event ItemMoveHandler? ItemMoveNotify;
+        
         public MainWindow()
         {
             Trace.WriteLine("MainWindow");
@@ -54,75 +60,88 @@ namespace diagramMaker
                        
             this.Width = 1024;
             this.Height = 768;
-            data.winWidth = 1024;
-            data.winHeight = 768;
 
             eventner = new managers.EventManager(data);
+            topMenu = new TopMenuHandler(data, this);
             initiator = new Initiator(data, this);
             initiator.Prepare();
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            topMenu.mainMenu.Width = this.Width;
+
             data.winWidth = e.NewSize.Width;
             data.winHeight = e.NewSize.Height - SystemParameters.WindowCaptionHeight;
                         
             string _msg = "Win size:" + e.NewSize.Width + "x" + e.NewSize.Height + "px; "+
                 "Scene(LeftxTop):" + data.topLeftX + "x" + data.topLeftY;
-            cihNotify?.Invoke(message: _msg,
+            CommonInfoNotify?.Invoke(message: _msg,
                 iParam:new ItemParameter(0, data.winHeight - 45, data.winWidth, 30, null, null));
+            ResizeNotify?.Invoke(0,0, data.winWidth, data.winHeight);
         }
 
         private void MainWindow_MouseMove(object sender, MouseEventArgs e)
         {
-            Point mousePosition = Mouse.GetPosition(Application.Current.MainWindow);
-
+            Point _mousePosition = Mouse.GetPosition(Application.Current.MainWindow);
+            
             if (data.tapped >= 0)
             {
-                if (data.tapped == data.items[data.GetItemByID(data.appCanvasID)].id)
+                if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    data.topLeftX += (mousePosition.X - data.oldMouseX);
-                    data.topLeftY += (mousePosition.Y - data.oldMouseY);
-                    Trace.WriteLine(data.topLeftX + ":" + data.topLeftY);
-                    string _msg = "Win size:" + data.winWidth + "x" + data.winHeight + "px; " +
-                        "Scene(LeftxTop):" + data.topLeftX + "x" + data.topLeftY;
-                    appCanvasMoveNotify?.Invoke(_msg, null);
-                    appCanvasMoveHandlerNotify?.Invoke(mousePosition.X - data.oldMouseX, mousePosition.Y - data.oldMouseY);
-                } else
+                    if (data.tapped == data.items[data.GetItemByID(data.appCanvasID)].id)
+                    {
+                        data.topLeftX += (_mousePosition.X - data.oldMouseX);
+                        data.topLeftY += (_mousePosition.Y - data.oldMouseY);
+                        string _msg = "Win size:" + data.winWidth + "x" + data.winHeight + "px; " +
+                            "Scene(LeftxTop):" + data.topLeftX + "x" + data.topLeftY;
+                        AppCanvasMoveNotify?.Invoke(_msg, null);
+                        AppCanvasMoveSensitiveNotify?.Invoke(_mousePosition.X - data.oldMouseX, _mousePosition.Y - data.oldMouseY);
+                    }
+                    else
+                    {                        
+                        ItemMoveNotify?.Invoke(
+                            _mousePosition.X,
+                            _mousePosition.Y);
+                    }
+                }
+                else
                 {
-                    Trace.WriteLine("mousePosition.X:" + mousePosition.X + "; mousePosition.Y:" + mousePosition.Y);
-                    itemMoveHandlerNotify?.Invoke(
-                        mousePosition.X, 
-                        mousePosition.Y);
+                    TapControl();
                 }
             }
-            data.oldMouseX = mousePosition.X;
-            data.oldMouseY = mousePosition.Y;
+            data.oldMouseX = _mousePosition.X;
+            data.oldMouseY = _mousePosition.Y;
         }
 
         private void MainWindow_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            TapControl();
+            if (data.isMenuItem)
+            { 
+                ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).item.Visibility = Visibility.Hidden;
+                data.isMenuItem = false;
+                eventner.ItemMenuDelete(data.menuItemParametersID);
+                data.items[data.GetItemByID(data.choosenItemID)].FinishHandling();
+                data.choosenItemID = -1;
+
+                if (data.isMenuPainter)
+                {
+                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).item.Visibility = Visibility.Hidden;
+                    data.isMenuPainter = false;
+                    eventner.ItemMenuDelete(data.menuItemPaintMakerID);
+                    
+                }
+            }
+        }
+
+        private void TapControl()
         {
             if (data.tapped != -1)
             {
                 data.tapped = -1;
                 data.tapXX = 0;
                 data.tapYY = 0;
-            }
-            if (data.IsMenuItem)
-            { 
-                ((CanvasItem)data.items[data.GetItemByID(data.MenuItemParametersID)]).item.Visibility = Visibility.Hidden;
-                data.IsMenuItem = false;
-                eventner.ItemMenuDelete(data.MenuItemParametersID);
-                data.items[data.GetItemByID(data.ChoosenItemID)].FinishHandling();
-                data.ChoosenItemID = -1;
-
-                if (data.IsMenuPainter)
-                {
-                    ((CanvasItem)data.items[data.GetItemByID(data.MenuItemPaintMakerID)]).item.Visibility = Visibility.Hidden;
-                    data.IsMenuPainter = false;
-                    eventner.ItemMenuDelete(data.MenuItemPaintMakerID);
-                    
-                }
             }
         }
     }

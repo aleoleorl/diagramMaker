@@ -49,7 +49,7 @@ namespace diagramMaker.items
         {
             if (content != null)
             {
-                Trace.WriteLine("message:" + message);
+                //Trace.WriteLine("message:" + message);
                 content.content = message;
             }
             item.Content = message;
@@ -66,7 +66,8 @@ namespace diagramMaker.items
             ContentParameter? content = null, 
             BorderParameter? bParam = null,
             EventParameter? eParam = null,
-            ImageParameter? imgParam = null)
+            ImageParameter? imgParam = null,
+            ShapeParameter? shapeParameter = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -156,11 +157,15 @@ namespace diagramMaker.items
         {
             if (eParam != null)
             {
-                if (eParam.mouseDown)
+                item.IsHitTestVisible = eParam.isHitTestVisible;
+                if (eParam.isMouseDown)
                 {
                     item.MouseDown += Item_MouseDown;
                 }
-                item.IsHitTestVisible = eParam.IsHitTestVisible;
+                if (eParam.isMouseDoubleClick)
+                {
+                    item.MouseDoubleClick += Item_MouseDoubleClick;
+                }
             }
         }
 
@@ -216,9 +221,28 @@ namespace diagramMaker.items
                         default:
                             break;
                     }
+                    break;
+                default:
+                    break;
+            }
+        }
 
+        public void EventContent(ECommand commang, List<int> items)
+        {
+            switch (commang)
+            {
+                case ECommand.DescribeItem:
+                    if (items.Count > content.count)
+                    {
+                        content.content = data.items[items[content.count]].name;
 
-
+                        string _tmp = data.items[items[content.count]].name.Replace("_", "__");
+                        item.Content = _tmp;
+                        item.Visibility = Visibility.Visible;
+                    } else
+                    {
+                        item.Visibility = Visibility.Hidden;
+                    }
                     break;
                 default:
                     break;

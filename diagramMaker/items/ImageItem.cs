@@ -28,7 +28,8 @@ namespace diagramMaker.items
             ContentParameter? content = null,
             BorderParameter? bParam = null,
             EventParameter? eParam = null,
-            ImageParameter? imgParam = null)
+            ImageParameter? imgParam = null,
+            ShapeParameter? shapeParameter = null)
         {
             base.setParameters(iParam, content, bParam, eParam, imgParam);
             

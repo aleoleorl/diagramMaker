@@ -47,7 +47,8 @@ namespace diagramMaker.items
             ContentParameter? content = null,
             BorderParameter? bParam = null,
             EventParameter? eParam = null,
-            ImageParameter? imgParam = null)
+            ImageParameter? imgParam = null,
+            ShapeParameter? shapeParameter = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -119,7 +120,7 @@ namespace diagramMaker.items
                 {
                     item.VerticalContentAlignment = content.verAlign ?? VerticalAlignment.Top;
                 }
-                if (content.IsTextChanged)
+                if (content.isTextChanged)
                 {
                     item.TextChanged += Item_TextChanged;
                     item.PreviewKeyDown += Item_PreviewKeyDown;
@@ -141,7 +142,7 @@ namespace diagramMaker.items
         {
             if (eParam != null)
             {
-                if (eParam.mouseDown)
+                if (eParam.isMouseDown)
                 {
                     item.MouseDown += Item_MouseDown;
                 }
@@ -150,10 +151,10 @@ namespace diagramMaker.items
 
         private void Item_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Trace.WriteLine("_item.Text:" + item.Text);
+            //Trace.WriteLine("_item.Text:" + item.Text);
             if (content != null)
             {
-                if (content.IsDigitsOnly && !IsTextNumeric(item.Text))
+                if (content.isDigitsOnly && !IsTextNumeric(item.Text))
                 {
                     int _i = 0;
                     while (_i < item.Text.Length)
@@ -165,7 +166,7 @@ namespace diagramMaker.items
                         }
                         _i++;
                     }
-                    Trace.WriteLine("item.Text:" + item.Text);
+                    //Trace.WriteLine("item.Text:" + item.Text);
 
                 }
                 if (item.Text.Length == 0)
@@ -176,11 +177,11 @@ namespace diagramMaker.items
         }
         private void Item_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            //if (e.Key == Key.Enter)
             {
-                if (content!= null && content.BindID != 0)
+                if (content!= null && content.bindID != 0)
                 {
-                    data.items[data.GetItemByID(content.BindID)].ValueChanger(content.BindParameter, item.Text);
+                    data.items[data.GetItemByID(content.bindID)].ValueChanger(content.bindParameter, item.Text);
                 }
             }
         }

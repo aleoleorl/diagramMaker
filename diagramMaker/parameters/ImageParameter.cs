@@ -22,5 +22,10 @@ namespace diagramMaker.parameters
         {
             this.imagePath = imagePath;
         }
+
+        public override ImageParameter Clone()
+        {
+            return (ImageParameter)this.MemberwiseClone();
+        }
     }
 }

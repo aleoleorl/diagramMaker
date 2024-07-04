@@ -19,35 +19,34 @@ namespace diagramMaker.items
     public class PainterItem : DefaultItem
     {
         public Image image;
-        public WriteableBitmap Painter;        
-        public byte[] SourcePixelData;
-        public bool IsDrawStart;
-        public int OldX;
-        public int OldY;
-        public Rect ImageBounds;
+        public WriteableBitmap painter;        
+        public byte[] sourcePixelData;
+        public bool isDrawStart;
+        private int oldX;
+        private int oldY;
 
         public Border item;
 
         public PainterItem(DataHub data, Canvas? appCanvas, int parentId = -1) :
             base(data, appCanvas, parentId, EItem.Painter)
         {
-            Painter = new WriteableBitmap(
+            painter = new WriteableBitmap(
                 pixelWidth: 100,
                 pixelHeight: 100,
                 dpiX: 96,
                 dpiY: 96,
                 pixelFormat: PixelFormats.Bgra32,
                 palette: null);
-            SourcePixelData = new byte[] { 0, 0, 255, 255 };
+            sourcePixelData = new byte[] { 0, 0, 255, 255 };
             image = new Image
             {
-                Source = Painter,
-                Width = Painter.PixelWidth,
-                Height = Painter.PixelHeight
+                Source = painter,
+                Width = painter.PixelWidth,
+                Height = painter.PixelHeight
             };
-            IsDrawStart = false;
-            OldX = -1;
-            OldY = -1;
+            isDrawStart = false;
+            oldX = -1;
+            oldY = -1;
 
             item = new Border();
             item.BorderThickness = new Thickness(2); // Set your desired thickness
@@ -81,7 +80,8 @@ namespace diagramMaker.items
            ContentParameter? content = null,
            BorderParameter? bParam = null,
            EventParameter? eParam = null,
-           ImageParameter? imgParam = null)
+           ImageParameter? imgParam = null,
+           ShapeParameter? shapeParameter = null)
         {
             base.setParameters(iParam, content, bParam, eParam, imgParam);
 
@@ -140,17 +140,21 @@ namespace diagramMaker.items
         {
             if (eParam != null)
             {
-                if (eParam.mouseDown)
+                if (eParam.isMouseDown)
                 {
                     item.MouseDown += Item_MouseDown;
                 }
-                if (eParam.mouseUp)
+                if (eParam.isMouseUp)
                 {
                     item.MouseUp += Item_MouseUp;
                 }
-                if (eParam.MouseMove)
+                if (eParam.isMouseMove)
                 {
                     item.MouseMove += Item_MouseMove; 
+                }
+                if (eParam.isMouseLeave)
+                {
+                    item.MouseLeave += Item_MouseLeave;
                 }
             }
         }
@@ -175,26 +179,26 @@ namespace diagramMaker.items
             }
 
             Int32Rect _rect = new Int32Rect(mX, mY, 1, 1);
-            Painter.WritePixels(_rect, SourcePixelData, 4, 0);
+            painter.WritePixels(_rect, sourcePixelData, 4, 0);
 
-            if (mX != OldX || mY!=OldY) 
+            if (mX != oldX || mY!=oldY) 
             {
                 int _step = 0;
                 int _count = 0;
 
-                int minX = mX < OldX ? mX : OldX;
-                int maxX = mX < OldX ? OldX : mX;
-                int minY = mY < OldY ? mY : OldY;
-                int maxY = mY < OldY ? OldY : mY;
+                int minX = mX < oldX ? mX : oldX;
+                int maxX = mX < oldX ? oldX : mX;
+                int minY = mY < oldY ? mY : oldY;
+                int maxY = mY < oldY ? oldY : mY;
 
-                if (Math.Abs(mX - OldX) >= Math.Abs(mY - OldY))
+                if (Math.Abs(mX - oldX) >= Math.Abs(mY - oldY))
                 {
-                    int _period = Math.Abs(mX-OldX) / ((mY - OldY)!=0?Math.Abs(mY-OldY):1);                    
+                    int _period = Math.Abs(mX-oldX) / ((mY - oldY)!=0?Math.Abs(mY-oldY):1);                    
 
                     for (int _i = 1; _i < maxX-minX; _i++)
                     {
                         _rect = new Int32Rect(minX+_i, minY+_step, 1, 1);
-                        Painter.WritePixels(_rect, SourcePixelData, 4, 0);
+                        painter.WritePixels(_rect, sourcePixelData, 4, 0);
                         _count++;
                         if (_count >= _period)
                         {
@@ -205,12 +209,12 @@ namespace diagramMaker.items
                 }
                 else
                 {
-                    int _period = Math.Abs(mY - OldY) / ((mX - OldX)!=0?Math.Abs(mX - OldX):1);
+                    int _period = Math.Abs(mY - oldY) / ((mX - oldX)!=0?Math.Abs(mX - oldX):1);
 
                     for (int _i = 1; _i < maxY-minY; _i++)
                     { 
                         _rect = new Int32Rect(minX + _step, minY + _i, 1, 1);
-                        Painter.WritePixels(_rect, SourcePixelData, 4, 0);
+                        painter.WritePixels(_rect, sourcePixelData, 4, 0);
                         _count++;
                         if (_count >= _period)
                         {
@@ -221,20 +225,20 @@ namespace diagramMaker.items
                 }
             }
 
-            OldX = mX;
-            OldY = mY;
+            oldX = mX;
+            oldY = mY;
         }
 
         private void Item_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             //e.Handled = true;
-            switch (data.PainterTool)
+            switch (data.painterTool)
             {
                 case EPainterTool.Move:
                     
                     break;
                 case EPainterTool.Draw:
-                    if (IsDrawStart)
+                    if (isDrawStart)
                     {
                         Point _mousePosition = e.GetPosition((IInputElement)sender);
 
@@ -250,11 +254,11 @@ namespace diagramMaker.items
         private void Item_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Default_MouseUp(sender, e);
-            if (IsDrawStart)
+            if (isDrawStart)
             {
-                IsDrawStart = false;
-                OldX = -1;
-                OldY = -1;
+                isDrawStart = false;
+                oldX = -1;
+                oldY = -1;
                 e.Handled = true;
             }
             //e.Handled = true;
@@ -262,7 +266,7 @@ namespace diagramMaker.items
 
         private void Item_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            switch (data.PainterTool)
+            switch (data.painterTool)
             {
                 case EPainterTool.Move:
                 Point mousePosition = e.GetPosition(item);
@@ -273,11 +277,10 @@ namespace diagramMaker.items
                 e.Handled = true;
                     break;
                 case EPainterTool.Draw:
-                    IsDrawStart = true;
+                    isDrawStart = true;
                     Point _mousePosition = e.GetPosition((IInputElement)sender);
-                    OldX = (int)_mousePosition.X;
-                    OldY = (int)_mousePosition.Y;
-                    ImageBounds = new Rect(0, 0, image.ActualWidth, image.ActualHeight);
+                    oldX = (int)_mousePosition.X;
+                    oldY = (int)_mousePosition.Y;
                     PaintHandler((int)_mousePosition.X, (int)_mousePosition.Y);
                     e.Handled = true;
                     break;
@@ -286,14 +289,25 @@ namespace diagramMaker.items
             }
         }
 
+        private void Item_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (isDrawStart)
+            {
+                isDrawStart = false;
+                oldX = -1;
+                oldY = -1;
+                e.Handled = true;
+            }
+        }
+
         public override void FinishHandling()
         {
 
-            if (IsDrawStart)
+            if (isDrawStart)
             {
-                IsDrawStart = false;
-                OldX = -1;
-                OldY = -1;
+                isDrawStart = false;
+                oldX = -1;
+                oldY = -1;
             }
         }
 
@@ -314,8 +328,8 @@ namespace diagramMaker.items
                     }
                     item.Width = Convert.ToDouble(txt); //border
                     image.Width = Convert.ToDouble(txt);
-                    Painter = Painter.Resize(Convert.ToInt32(txt), Painter.PixelHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
-                    image.Source = Painter;
+                    painter = painter.Resize(Convert.ToInt32(txt), painter.PixelHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
+                    image.Source = painter;
                     break;
                 case EBindParameter.Height:
                     if (iParam != null)
@@ -324,8 +338,8 @@ namespace diagramMaker.items
                     }
                     item.Height = Convert.ToDouble(txt); //border
                     image.Height = Convert.ToDouble(txt);
-                    Painter = Painter.Resize(Painter.PixelWidth, Convert.ToInt32(txt), WriteableBitmapExtensions.Interpolation.Bilinear);
-                    image.Source = Painter;
+                    painter = painter.Resize(painter.PixelWidth, Convert.ToInt32(txt), WriteableBitmapExtensions.Interpolation.Bilinear);
+                    image.Source = painter;
                     break;
                 default:
                     break;

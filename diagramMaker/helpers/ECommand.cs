@@ -10,6 +10,7 @@ namespace diagramMaker.helpers
     {
        None,
        DeleteItem,
+       DescribeItem,
        Data_PainterTool
     }
 }

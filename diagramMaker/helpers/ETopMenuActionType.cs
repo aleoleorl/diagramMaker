@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace diagramMaker.helpers
 {
-    public enum EParameter
+    public enum ETopMenuActionType
     {
-        Border,
-        Content,
-        Event,
-        Shape,
-        Image,
-        Item
+        New,
+        Save,
+        Load
     }
 }

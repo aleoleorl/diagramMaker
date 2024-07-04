@@ -10,8 +10,9 @@ namespace diagramMaker.helpers
     {
         Button,
         Canvas,
-        Label,
         Image,
+        Figure,
+        Label,
         Painter,
         Text,
         Default

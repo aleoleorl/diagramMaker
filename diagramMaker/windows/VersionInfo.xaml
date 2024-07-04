@@ -1,0 +1,20 @@
+﻿<Window x:Class="diagramMaker.windows.VersionInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:diagramMaker.windows"
+        mc:Ignorable="d"
+        Title="Window1" Height="450" Width="800">
+    <Canvas x:Name ="infoPanel" Background="LightSteelBlue">
+        <Label x:Name="infoName" Canvas.Left="312" Canvas.Top="19" HorizontalAlignment="Center" VerticalAlignment="Top" Width="176" Content="Version information." HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" FontFamily="Times New Roman"/>
+        <Label x:Name="info" Canvas.Left="27" Canvas.Top="50" Height="103" Width="741" BorderBrush="Black" BorderThickness="1,1,1,1" Background="#FFF9EAEA"></Label>
+        <Label x:Name="info_choose" Canvas.Left="46" Canvas.Top="166" Width="176" Content="Choose the version:" FontWeight="Bold" FontSize="14" FontFamily="Times New Roman" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Border  Canvas.Left="465" Canvas.Top="195" Height="99" Width="303" BorderBrush="Black" BorderThickness="1,1,1,1" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Canvas Background="#FFF9EAEA"/>
+        </Border>
+        <Label x:Name="info_author_label" Canvas.Left="483" Canvas.Top="166" Width="176" Content="Author:" FontWeight="Bold" FontSize="14" FontFamily="Times New Roman" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock x:Name="info_author_nick" Canvas.Left="483" Canvas.Top="213" Width="176" Text="AleOleOrl" FontWeight="Bold" FontSize="14" FontFamily="Times New Roman" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+        <TextBlock x:Name="info_author_mail" Canvas.Left="483" Canvas.Top="244" Width="176" Text="aleoleorl@gmail.com" FontWeight="Bold" FontSize="14" FontFamily="Times New Roman" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    </Canvas>
+</Window>

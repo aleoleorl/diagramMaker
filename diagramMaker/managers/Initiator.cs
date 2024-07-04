@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using diagramMaker.helpers;
 using diagramMaker.items;
@@ -23,23 +24,66 @@ namespace diagramMaker.managers
         private Canvas? appCanvas;
         private MainWindow mainWindow;
         private MenuMaker Maker;
+        private ExternalManager ExtManager;
+       
 
         public Initiator(DataHub data, MainWindow mainWindow)
         {
             this.data = data;
             this.mainWindow = mainWindow;
             Maker = new MenuMaker();
+            ExtManager = new ExternalManager(data);
         }
         public void Prepare()
+        {
+            DefaultPreparation();            
+        }
+
+        private void TopMenu_MenuHandlerNotify(ETopMenuActionType action, bool isIt)
+        {
+            switch (action)
+            {
+                case ETopMenuActionType.New:
+                    ClearApp();
+                    DefaultPreparation();
+                    break;
+                case ETopMenuActionType.Save:
+                    ExtManager.Save();
+                    break;
+                case ETopMenuActionType.Load:
+                    ExtManager.Load();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ClearApp()
+        {
+            mainWindow.Width = 1024;
+            mainWindow.Height = 768;
+            mainWindow.ItemMoveNotify -= mainWindow.eventner.eventItemMoveHandler;
+            mainWindow.PreviewKeyDown -= mainWindow.eventner.MainWindow_PreviewKeyDown;
+            mainWindow.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
+            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).item.Children.Clear();
+            data.ClearData();
+            DefaultItem.RestartID();
+        }
+
+
+        public void DefaultPreparation()
         {
             setParameters();
             setItems();
             setItemCollections();
-
-            mainWindow.itemMoveHandlerNotify += mainWindow.eventner.eventItemMoveHandler;
+            //
+            mainWindow.ItemMoveNotify += mainWindow.eventner.eventItemMoveHandler;
             mainWindow.PreviewKeyDown += mainWindow.eventner.MainWindow_PreviewKeyDown;
+            //
+            mainWindow.topMenu.SetMainMenu();
+            mainWindow.topMenu.MenuHandlerNotify += TopMenu_MenuHandlerNotify;
         }
-
+        
         public void setItems()
         {
             appCanvas = Maker.Make_AppCanvas(data, mainWindow);
@@ -47,6 +91,7 @@ namespace diagramMaker.managers
             Maker.Make_CreationMenu(data, mainWindow, appCanvas);
             Maker.Make_ParameterMenu(data, mainWindow, appCanvas);
             Maker.Make_PainterMakerMenu(data, mainWindow, appCanvas);
+            Maker.Make_NavigationPanelMenu(data, mainWindow, appCanvas);
         }
 
         public void setParameters()
@@ -128,7 +173,8 @@ namespace diagramMaker.managers
                 moveSensitive: true,
                 mouseUp: true,
                 mouseDown: true,
-                mouseMove: true
+                mouseMove: true,
+                mouseLeave: true
                 );
             data.parameters.Add("eventPaintMaker", _ip);
 
@@ -138,12 +184,66 @@ namespace diagramMaker.managers
                 color: Colors.Black,
                 cornerRadius: 1);
             data.parameters.Add("borderVersion01", _ip);
+
+            _ip = new ItemParameter(
+                left: 160,
+                top: 50,
+                width: 1,
+                height: 1,
+                bgColor: null,
+                frColor: Brushes.Black);
+            data.parameters.Add("itemLineContent", _ip);
+
+            List<FigureContainer> _vertex = new List<FigureContainer>();
+            _vertex.Add(new FigureContainer(x:160, y:50, id:-1));
+            _vertex.Add(new FigureContainer(x: 190, y: 50, id: -1));
+            _ip = new ShapeParameter(
+                shape: EShape.Line,
+                vertex: _vertex,
+                color: Colors.Black,
+                strokeThickness: 2);
+            data.parameters.Add("figureLineContent", _ip);
+            _ip = new EventParameter(
+                moveSensitive: true,
+                mouseDown: true,
+                mouseMove: true
+                );
+            data.parameters.Add("eventLineContent", _ip);
+
+
+            _ip = new ItemParameter(
+                left: 160,
+                top: 50,
+                width: 5,
+                height: 5,
+                bgColor: Brushes.Black,
+                frColor: null);
+            data.parameters.Add("itemLineConnect01Content", _ip);
+
+            _ip = new ItemParameter(
+                left: 190,
+                top: 50,
+                width: 5,
+                height: 5,
+                bgColor: Brushes.Black,
+                frColor: null);
+            data.parameters.Add("itemLineConnect02Content", _ip);
+
+            _ip = new EventParameter(
+                moveSensitive: true,
+                mouseUp: true,
+                mouseDown: true,
+                mouseMove: true
+                );
+            data.parameters.Add("eventLineConnect", _ip);
+
         }
 
         public void setItemCollections()
         {
             ItemMaker _im;
             ItemMaker _imChild;
+            ItemMaker _imConnect;
 
             //infoBlock
             _im = new ItemMaker();
@@ -167,6 +267,26 @@ namespace diagramMaker.managers
             _im.Props.Add("eventPaintMaker", EParameter.Event);
             _im.Item = EItem.Painter;
             data.itemCollection.Add("PaintMaker", _im);
+
+            //line
+            _im = new ItemMaker();
+            _im.Props.Add("itemLineContent", EParameter.Item);
+            _im.Props.Add("figureLineContent", EParameter.Shape);
+            _im.Props.Add("eventLineContent", EParameter.Event);
+            _im.Item = EItem.Figure;
+            data.itemCollection.Add("Line", _im);
+
+            _imConnect = new ItemMaker();
+            _imConnect.Props.Add("itemLineConnect01Content", EParameter.Item);
+            _imConnect.Props.Add("eventLineConnect", EParameter.Event);
+            _imConnect.Item = EItem.Canvas;
+            _im.Connector.Add(_imConnect);
+
+            _imConnect = new ItemMaker();
+            _imConnect.Props.Add("itemLineConnect02Content", EParameter.Item);
+            _imConnect.Props.Add("eventLineConnect", EParameter.Event);
+            _imConnect.Item = EItem.Canvas;
+            _im.Connector.Add(_imConnect);
         }        
     }
 }

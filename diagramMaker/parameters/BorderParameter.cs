@@ -27,5 +27,10 @@ namespace diagramMaker.parameters
             this.color = color;
             this.cornerRadius = cornerRadius;
         }
+
+        public override BorderParameter Clone()
+        {
+            return (BorderParameter)this.MemberwiseClone();
+        }
     }
 }

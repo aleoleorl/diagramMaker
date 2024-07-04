@@ -49,7 +49,8 @@ namespace diagramMaker.items
             ContentParameter? content = null,
             BorderParameter? bParam = null,
             EventParameter? eParam = null,
-            ImageParameter? imgParam = null)
+            ImageParameter? imgParam = null,
+            ShapeParameter? shapeParameter = null)
         {
             base.setParameters(iParam, content, bParam, eParam);
 
@@ -126,13 +127,21 @@ namespace diagramMaker.items
         {
             if (eParam != null)
             {
-                if (eParam.mouseDown)
+                if (eParam.isMouseDown)
                 {
                     item.MouseDown += Item_MouseDown;
                 }
-                if (eParam.mouseUp)
+                if (eParam.isMouseUp)
                 {
                     item.MouseUp += Default_MouseUp;
+                }
+                if (eParam.isMouseMove)
+                {
+                    item.MouseMove += Default_MouseMove;
+                }
+                if (eParam.isMouseWheel)
+                {
+                    item.MouseWheel += Item_MouseWheel;
                 }
             }
         }
@@ -179,9 +188,24 @@ namespace diagramMaker.items
             data.tapXX = -mousePosition.X;
             data.tapYY = -mousePosition.Y;
             data.tapped = id;
+            Trace.WriteLine("data.tapped:" + data.tapped);
 
             e.Handled = true;
         }
-        
+
+        public void CommonResizeHandler(double left, double top, double width, double height)
+        {
+            Canvas.SetLeft(item, left);
+            Canvas.SetTop(item, top);
+            item.Width = width;
+            item.Height = height;
+            if (iParam != null)
+            {
+                iParam.left = left;
+                iParam.top = top;
+                iParam.width = width; 
+                iParam.height = height;
+            }
+        }
     }
 }

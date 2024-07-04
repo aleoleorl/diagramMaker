@@ -27,5 +27,29 @@ namespace diagramMaker.parameters
             this.bgColor = bgColor;
             this.frColor = frColor;
         }
+        public ItemParameter(ItemParameter param)
+        {
+            this.left = param.left;
+            this.top = param.top;
+            this.width = param.width;
+            this.height = param.height;
+            this.bgColor = param.bgColor;
+            this.frColor = param.frColor;
+        }
+
+        public void GetData(ItemParameter param)
+        {
+            this.left = param.left;
+            this.top = param.top;
+            this.width = param.width;
+            this.height = param.height;
+            this.bgColor = param.bgColor;
+            this.frColor = param.frColor;
+        }
+
+        public override ItemParameter Clone()
+        {
+            return (ItemParameter)this.MemberwiseClone();
+        }
     }
 }

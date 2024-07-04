@@ -17,5 +17,10 @@ namespace diagramMaker.parameters
         {
 
         }
+
+        public virtual DefaultParameter Clone()
+        {
+            return (DefaultParameter)this.MemberwiseClone();
+        }
     }
 }

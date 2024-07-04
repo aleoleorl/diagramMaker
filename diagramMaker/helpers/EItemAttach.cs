@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace diagramMaker.helpers
 {
-    public enum EParameter
+    public enum EItemAttach
     {
-        Border,
-        Content,
-        Event,
-        Shape,
-        Image,
-        Item
+        Menu,
+        Custom
     }
 }
