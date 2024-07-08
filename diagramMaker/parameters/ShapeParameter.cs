@@ -1,11 +1,6 @@
-﻿using System;
+﻿using diagramMaker.helpers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using diagramMaker.helpers;
 
 namespace diagramMaker.parameters
 {
@@ -13,30 +8,46 @@ namespace diagramMaker.parameters
     {
         public EShape shape;
         public List<FigureContainer> vertex;
-        private List<FigureContainer> tmp = 
-            new List<FigureContainer> 
-            { 
-                new FigureContainer(x:1, y:1, id:1), 
-                new FigureContainer(x:1, y:1, id:1) 
-            };
         public Color? color;
         public double strokeThickness;
 
         public ShapeParameter(
-            EShape shape = EShape.Line, 
-            List<FigureContainer> vertex = null,
+            EShape shape = EShape.Line,
+            List<FigureContainer>? vertex = null,
             Color? color = null,
-            double strokeThickness = 1) 
-        { 
+            double strokeThickness = 10)
+        {
             this.shape = shape;
-            this.vertex = vertex!=null? vertex: tmp;
+            this.vertex =
+                    new List<FigureContainer>
+                    {
+                    new FigureContainer(x:1, y:1, id:-1),
+                    new FigureContainer(x:1, y:1, id:-1)
+                    };
+            if (vertex != null)
+            {
+                for (int _i=0; _i< vertex.Count; _i++)
+                {
+                    this.vertex[_i].x = vertex[_i].x;
+                    this.vertex[_i].y = vertex[_i].y;
+                }
+            }
             this.color = color;
             this.strokeThickness = strokeThickness;
         }
 
         public override ShapeParameter Clone()
         {
-            return (ShapeParameter)this.MemberwiseClone();
+            ShapeParameter _tmp = (ShapeParameter)this.MemberwiseClone();
+            _tmp.vertex = new List<FigureContainer>();
+            for (int _i = 0; _i < vertex.Count; _i++)
+            {
+                _tmp.vertex.Add(new FigureContainer(
+                    x: vertex[_i].x,
+                    y: vertex[_i].y,
+                    id: vertex[_i].id));
+            }
+            return _tmp;
         }
     }
 }

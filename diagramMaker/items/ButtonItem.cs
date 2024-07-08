@@ -1,14 +1,9 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.parameters;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -17,7 +12,7 @@ namespace diagramMaker.items
     internal class ButtonItem : DefaultItem
     {
         public delegate void ItemClickHandler(int id, ECommand command);
-        public event ItemClickHandler? itemClickHandlerNotify;
+        public event ItemClickHandler? ItemClickHandlerNotify;
 
         public Button item;
 
@@ -35,7 +30,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }
@@ -43,7 +38,7 @@ namespace diagramMaker.items
             }
         }
 
-        public override void setParameters(
+        public override void SetParameters(
             ItemParameter? iParam = null,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
@@ -51,36 +46,36 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam, imgParam);
+            base.SetParameters(iParam, content, bParam, eParam, imgParam);
 
-            handlerIParam();
-            handlerContent();
-            handlerBParam();
-            handlerEParam();
-            handlerImgParam();
+            HandlerIParam();
+            HandlerContent();
+            HandlerBParam();
+            HandlerEParam();
+            HandlerImgParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
 
             try
             {
                 switch (type)
                 {
                     case EParameter.Border:
-                        handlerBParam();
+                        HandlerBParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     case EParameter.Content:
-                        handlerContent();
+                        HandlerContent();
                         break;
                     case EParameter.Image:
-                        handlerImgParam();
+                        HandlerImgParam();
                         break;
                     default:
                         break;
@@ -92,7 +87,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -106,7 +101,7 @@ namespace diagramMaker.items
                 item.Height = iParam.height;
             }
         }
-        protected void handlerContent()
+        protected void HandlerContent()
         {
             if (content != null)
             {
@@ -125,7 +120,7 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void handlerBParam()
+        protected void HandlerBParam()
         {
             if (bParam != null)
             {
@@ -136,7 +131,7 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void handlerEParam()
+        protected void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -147,9 +142,9 @@ namespace diagramMaker.items
             }
         }       
 
-        protected void handlerImgParam()
+        protected void HandlerImgParam()
         {
-            if (imgParam == null && string.IsNullOrEmpty(imgParam?.imagePath))
+            if (imgParam == null || string.IsNullOrEmpty(imgParam?.imagePath))
             {
                 return;
             }
@@ -162,7 +157,7 @@ namespace diagramMaker.items
         {
             if (eParam != null)
             {
-                itemClickHandlerNotify?.Invoke(eParam.CommandParameter, eParam.Command);
+                ItemClickHandlerNotify?.Invoke(eParam.CommandParameter, eParam.Command);
             }
         }
     }

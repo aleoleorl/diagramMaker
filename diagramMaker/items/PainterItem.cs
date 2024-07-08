@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using diagramMaker.helpers;
+using diagramMaker.parameters;
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using diagramMaker.helpers;
-using diagramMaker.parameters;
 
 namespace diagramMaker.items
 {
@@ -49,14 +43,12 @@ namespace diagramMaker.items
             oldY = -1;
 
             item = new Border();
-            item.BorderThickness = new Thickness(2); // Set your desired thickness
+            item.BorderThickness = new Thickness(2);
             item.BorderBrush = Brushes.Black;
             item.Child = image;
 
-
             Canvas.SetLeft(item, 100);
             Canvas.SetTop(item, 100);
-
 
             if (appCanvas != null)
             {
@@ -67,7 +59,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }
@@ -75,7 +67,7 @@ namespace diagramMaker.items
             }
         }
 
-        public override void setParameters(
+        public override void SetParameters(
            ItemParameter? iParam,
            ContentParameter? content = null,
            BorderParameter? bParam = null,
@@ -83,29 +75,28 @@ namespace diagramMaker.items
            ImageParameter? imgParam = null,
            ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam, imgParam);
+            base.SetParameters(iParam, content, bParam, eParam, imgParam);
 
-            handlerImgParam();
-            handlerIParam();
-            handlerEParam();
-           // handlerConnector();
+            HandlerImgParam();
+            HandlerIParam();
+            HandlerEParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
 
             try
             {
                 switch (type)
                 {
                     case EParameter.Image:
-                        handlerImgParam();
+                        HandlerImgParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     default:
                         break;
@@ -117,7 +108,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerImgParam()
+        protected void HandlerImgParam()
         {
             if (imgParam == null && string.IsNullOrEmpty(imgParam?.imagePath))
             {
@@ -125,7 +116,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -136,7 +127,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerEParam()
+        protected void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -231,7 +222,6 @@ namespace diagramMaker.items
 
         private void Item_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            //e.Handled = true;
             switch (data.painterTool)
             {
                 case EPainterTool.Move:
@@ -251,9 +241,9 @@ namespace diagramMaker.items
             }
         }
 
-        private void Item_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        public override void Item_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Default_MouseUp(sender, e);
+            base.Item_MouseUp(sender, e);
             if (isDrawStart)
             {
                 isDrawStart = false;
@@ -261,10 +251,9 @@ namespace diagramMaker.items
                 oldY = -1;
                 e.Handled = true;
             }
-            //e.Handled = true;
         }
 
-        private void Item_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             switch (data.painterTool)
             {
@@ -302,7 +291,6 @@ namespace diagramMaker.items
 
         public override void FinishHandling()
         {
-
             if (isDrawStart)
             {
                 isDrawStart = false;
@@ -310,7 +298,6 @@ namespace diagramMaker.items
                 oldY = -1;
             }
         }
-
 
         public override void ValueChanger(
             EBindParameter eBindParameter = EBindParameter.None,

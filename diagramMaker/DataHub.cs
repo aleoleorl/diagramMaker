@@ -7,9 +7,9 @@ namespace diagramMaker
 {
     public class DataHub
     {
-        public List<DefaultItem> items;
-        public Dictionary<string, DefaultParameter> parameters;
-        public Dictionary<string, ItemMaker> itemCollection;
+        public List<DefaultItem>? items;
+        public Dictionary<string, DefaultParameter>? parameters;
+        public Dictionary<string, ItemMaker>? itemCollection;
 
         public int tapped;
         public double tapXX;
@@ -44,13 +44,16 @@ namespace diagramMaker
 
         public bool isInit;
 
-        public string saveName;
-        public string loadName;
+        public string? saveName;
+        public string? loadName;
+
+        public bool btnControl;
 
         public DataHub()
         {
             ClearData();
         }
+        
 
         public void ClearData()
         {
@@ -93,6 +96,8 @@ namespace diagramMaker
             painterTool = EPainterTool.Move;
 
             saveName = "diaFile.dmf";
+
+            btnControl = false;
         }
 
         public int GetItemByID(int id)

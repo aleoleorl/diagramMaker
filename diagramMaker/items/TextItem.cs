@@ -1,17 +1,11 @@
 ﻿using diagramMaker.helpers;
+using diagramMaker.parameters;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using diagramMaker.parameters;
-using System.Reflection.Metadata;
-using System.Reflection;
 
 namespace diagramMaker.items
 {
@@ -34,7 +28,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }
@@ -42,39 +36,40 @@ namespace diagramMaker.items
             }
         }
 
-        public override void setParameters(
-            ItemParameter iParam,
+        public override void SetParameters(
+            ItemParameter? iParam,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
             EventParameter? eParam = null,
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam);
+            base.SetParameters(iParam, content, bParam, eParam);
 
-            handlerIParam();
-            handlerContentParam();
-            handlerBParam();
-            handlerEParam();
+            HandlerIParam();
+            HandlerContentParam();
+            HandlerBParam();
+            HandlerEParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
             try
             {
                 switch (type)
                 {
                     case EParameter.Border:
-                        handlerBParam();
+                        HandlerBParam();
                         break;
                     case EParameter.Content:
-                        handlerContentParam();
+                        HandlerContentParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     default:
                         break;
@@ -86,7 +81,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -104,7 +99,8 @@ namespace diagramMaker.items
                 Canvas.SetTop(item, iParam.top);
             }
         }
-        protected void handlerContentParam()
+
+        protected void HandlerContentParam()
         {
             if (content != null)
             {
@@ -123,11 +119,12 @@ namespace diagramMaker.items
                 if (content.isTextChanged)
                 {
                     item.TextChanged += Item_TextChanged;
-                    item.PreviewKeyDown += Item_PreviewKeyDown;
+                    item.KeyDown += Item_KeyDown;
                 }
             }
         }
-        protected void handlerBParam()
+
+        protected void HandlerBParam()
         {
             if (bParam != null)
             {
@@ -138,7 +135,8 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void handlerEParam()
+
+        protected void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -151,7 +149,6 @@ namespace diagramMaker.items
 
         private void Item_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //Trace.WriteLine("_item.Text:" + item.Text);
             if (content != null)
             {
                 if (content.isDigitsOnly && !IsTextNumeric(item.Text))
@@ -166,7 +163,6 @@ namespace diagramMaker.items
                         }
                         _i++;
                     }
-                    //Trace.WriteLine("item.Text:" + item.Text);
 
                 }
                 if (item.Text.Length == 0)
@@ -175,16 +171,15 @@ namespace diagramMaker.items
                 }
             }
         }
-        private void Item_PreviewKeyDown(object sender, KeyEventArgs e)
+
+        private void Item_KeyDown(object sender, KeyEventArgs e)
         {
-            //if (e.Key == Key.Enter)
+            if (content != null && content.bindID != 0 && data.items != null)
             {
-                if (content!= null && content.bindID != 0)
-                {
-                    data.items[data.GetItemByID(content.bindID)].ValueChanger(content.bindParameter, item.Text);
-                }
+                data.items[data.GetItemByID(content.bindID)].ValueChanger(content.bindParameter, item.Text);
             }
         }
+
         private static bool IsTextNumeric(string str)
         {
             System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("[^0-9]");
@@ -222,8 +217,9 @@ namespace diagramMaker.items
             }
         }
 
-        public void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            base.Item_MouseDown(sender, e);
             Trace.WriteLine("Item_MouseDown");
         }
     }

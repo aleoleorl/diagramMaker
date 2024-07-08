@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using diagramMaker.helpers;
+using diagramMaker.parameters;
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Markup;
-using diagramMaker.helpers;
-using diagramMaker.parameters;
 
 namespace diagramMaker.items
 {
@@ -59,7 +54,6 @@ namespace diagramMaker.items
             this.itemType = itemType;
             this.itemAttach = EItemAttach.Menu;
             connectorId = -1;
-            shapeParam = new ShapeParameter();
         }
 
         private void SetId()
@@ -75,7 +69,7 @@ namespace diagramMaker.items
             ID = id;
         }
 
-        public virtual void setParameters(
+        public virtual void SetParameters(
             ItemParameter? iParam = null, 
             ContentParameter? content = null, 
             BorderParameter? bParam = null,
@@ -83,16 +77,19 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParam = null)
         {
-            this.iParam = iParam!=null?iParam.Clone():null;
+            this.iParam = iParam?.Clone();
             this.content = content;
             this.bParam = bParam;
-            this.eParam = eParam != null ? eParam.Clone() : null;
+            this.eParam = eParam?.Clone();
             this.imgParam = imgParam;
-            this.shapeParam = shapeParam;
         }
 
-        public virtual void setParameter(EParameter type, DefaultParameter dParam)
+        public virtual void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
+            if (crazyChoice == 1)
+            {
+                return;
+            }
             try
             {
                 switch (type)
@@ -115,24 +112,31 @@ namespace diagramMaker.items
                         appY = data.topLeftY + ((ItemParameter)dParam).top;
                         break;
                     case EParameter.Shape:
-                        this.shapeParam = (ShapeParameter)dParam.Clone();
+                        this.shapeParam = ((ShapeParameter)dParam).Clone();
                         break;
                     default:
                         break;
                 }
             } catch (Exception e) 
             {
-                Trace.WriteLine("setParameter:"+e);
+                Trace.WriteLine("SetParameter:"+e);
             }
         }
 
-        public void Default_MouseUp(object sender, MouseButtonEventArgs e)
+        public virtual void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        public virtual void Item_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (eParam != null)
             {
                 MouseAppNotify?.Invoke(item: eParam.mouseUpInfo);
                 MouseAppIdNotify?.Invoke(id: id);
             }
+
+            MouseDoubleClickNotify?.Invoke(id);
             e.Handled = true;
         }
 
@@ -172,14 +176,8 @@ namespace diagramMaker.items
                 MouseScrollNotify?.Invoke(1);
             }
         }
+
         public void Item_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            MouseDoubleClickNotify?.Invoke(id);
-            e.Handled = true;
-        }
-
-
-        public void Item_MouseUp(object sender, MouseButtonEventArgs e)
         {
             MouseDoubleClickNotify?.Invoke(id);
             e.Handled = true;

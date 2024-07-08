@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-//using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using diagramMaker.helpers;
 using diagramMaker.parameters;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace diagramMaker.items
 {
@@ -37,7 +30,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }
@@ -45,11 +38,10 @@ namespace diagramMaker.items
             }
         }
 
-        public void setContent(string? message, ItemParameter? iParam = null)
+        public void SetContent(string? message, ItemParameter? iParam = null)
         {
             if (content != null)
             {
-                //Trace.WriteLine("message:" + message);
                 content.content = message;
             }
             item.Content = message;
@@ -57,11 +49,11 @@ namespace diagramMaker.items
             if (iParam != null)
             {
                 this.iParam = iParam;
-                handlerIParam();
+                HandlerIParam();
             }
         }        
 
-        public override void setParameters(
+        public override void SetParameters(
             ItemParameter? iParam,
             ContentParameter? content = null, 
             BorderParameter? bParam = null,
@@ -69,31 +61,31 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam);
+            base.SetParameters(iParam, content, bParam, eParam);
 
-            handlerIParam();
-            handlerContentParam();
-            handlerBParam();
-            handlerEParam();
+            HandlerIParam();
+            HandlerContentParam();
+            HandlerBParam();
+            HandlerEParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
             try
             {
                 switch (type)
                 {
                     case EParameter.Border:
-                        handlerBParam();
+                        HandlerBParam();
                         break;
                     case EParameter.Content:
-                        handlerContentParam();
+                        HandlerContentParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     default:
                         break;
@@ -101,11 +93,11 @@ namespace diagramMaker.items
             }
             catch (Exception e)
             {
-                Trace.WriteLine("setParameter:" + e);
+                Trace.WriteLine("SetParameter:" + e);
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -123,7 +115,8 @@ namespace diagramMaker.items
                 Canvas.SetTop(item, iParam.top);
             }
         }
-        protected void handlerContentParam()
+
+        protected void HandlerContentParam()
         {
             if (content != null)
             {
@@ -131,7 +124,6 @@ namespace diagramMaker.items
                 {
                     item.Content = content.content;
                 }
-
                 if (content.horAlign != null)
                 {
                     item.HorizontalContentAlignment = content.horAlign ?? HorizontalAlignment.Left;
@@ -142,7 +134,8 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void handlerBParam()
+
+        protected void HandlerBParam()
         {
             if (bParam != null)
             {
@@ -153,7 +146,8 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void handlerEParam()
+
+        protected void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -200,7 +194,7 @@ namespace diagramMaker.items
             }
         }
 
-        public void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Trace.WriteLine("Item_MouseDown");
         }
@@ -229,6 +223,10 @@ namespace diagramMaker.items
 
         public void EventContent(ECommand commang, List<int> items)
         {
+            if (content == null || data.items == null)
+            {
+                return;
+            }
             switch (commang)
             {
                 case ECommand.DescribeItem:

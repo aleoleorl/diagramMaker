@@ -1,15 +1,9 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.items;
 using diagramMaker.parameters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
-using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace diagramMaker.managers.DefaultPreparation
@@ -18,59 +12,61 @@ namespace diagramMaker.managers.DefaultPreparation
     {
         public MenuMaker() { }
 
-        public Canvas Make_AppCanvas(DataHub data, MainWindow mainWindow)
+        public static Canvas Make_AppCanvas(DataHub data, MainWindow mainWindow)
         {
             //appCanvas
             data.items.Add(new CanvasItem(data, null));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: (ItemParameter)data.parameters["itemCanvasDefault"],
                 content: null,
                 bParam: null,
             eParam: new EventParameter(moveSensitive: false, mouseDown: true, mouseUp: false)
                 );
-            Canvas appCanvas = ((CanvasItem)data.items[data.items.Count - 1]).item;
+            Canvas appCanvas = ((CanvasItem)data.items[^1]).item;
             mainWindow.Content = appCanvas;
-            data.appCanvasID = data.items[data.items.Count - 1].id;
-            mainWindow.ResizeNotify += ((CanvasItem)data.items[data.items.Count - 1]).CommonResizeHandler;
+            data.appCanvasID = data.items[^1].id;
+            mainWindow.ResizeNotify += ((CanvasItem)data.items[^1]).CommonResizeHandler;
 
             return appCanvas;
         }
 
-        public void Make_InfoLine(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_InfoLine(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             data.items.Add(new LabelItem(data, appCanvas));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: (ItemParameter)data.parameters["itemLabelInfoLine"],
                 content: new ContentParameter(content: "info line", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Gray, cornerRadius: 0),
                 eParam: new EventParameter(moveSensitive: false)
                 );
-            data.informerID = data.items[data.items.Count - 1].id;
-            mainWindow.CommonInfoNotify += ((LabelItem)data.items[data.items.Count - 1]).setContent;
-            mainWindow.AppCanvasMoveNotify += ((LabelItem)data.items[data.items.Count - 1]).setContent;
-            Panel.SetZIndex(((LabelItem)data.items[data.items.Count - 1]).item, 30);
-            mainWindow.AppCanvasMoveSensitiveNotify += mainWindow.eventner.eventItemsShifter;
+            data.informerID = data.items[^1].id;
+
+            ((LabelItem)data.items[^1]).item.SetValue(AutomationProperties.NameProperty, "InfoLine");
+            mainWindow.CommonInfoNotify += ((LabelItem)data.items[^1]).SetContent;
+            mainWindow.AppCanvasMoveNotify += ((LabelItem)data.items[^1]).SetContent;
+            Panel.SetZIndex(((LabelItem)data.items[^1]).item, 30);
+            mainWindow.AppCanvasMoveSensitiveNotify += mainWindow.eventner.EventItemsShifter;
         }
 
-        public void Make_CreationMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_CreationMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //item creation menu
             data.items.Add(new CanvasItem(data, appCanvas));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(5, 20, 150, 500, Brushes.LightCyan, null),
                 content: null,
                 bParam: (BorderParameter)data.parameters["borderVersion01"],
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
-            data.items[data.items.Count - 1].appX = data.topLeftX + 5;
-            data.items[data.items.Count - 1].appY = data.topLeftY + 10;
+            data.items[^1].appX = data.topLeftX + 5;
+            data.items[^1].appY = data.topLeftY + 10;
             data.menuCreation = data.items.Count - 1;
-            data.menuCreationCanvasID = data.items[data.items.Count - 1].id;
+            data.menuCreationCanvasID = data.items[^1].id;
             Panel.SetZIndex(((CanvasItem)data.items[data.menuCreation]).item, 20);
 
             //menuCreation > txt label
             data.items.Add(new LabelItem(data, appCanvas, data.items[data.menuCreation].id));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 3, 144, 30, null, Brushes.Black),
                 content: new ContentParameter(content: "Items Menu:", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
                 bParam: null,
@@ -82,22 +78,22 @@ namespace diagramMaker.managers.DefaultPreparation
             Make_CreationMenu_Line(data, mainWindow, appCanvas);
         }
 
-        public void Make_CreationMenu_InfoBlock(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_CreationMenu_InfoBlock(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add info block
             data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].id));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 33, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "InfoBlock")
                 );
-            int menuInfoBlockID = data.items[data.items.Count - 1].id;
-            data.items[data.items.Count - 1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
+            int menuInfoBlockID = data.items[^1].id;
+            data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item info block > img
             data.items.Add(new ImageItem(data, appCanvas, menuInfoBlockID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 3, 44, 44, null, Brushes.Black),
                 content: null,
                 bParam: null,
@@ -107,30 +103,33 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuCreation > item info block > txt
             data.items.Add(new LabelItem(data, appCanvas, menuInfoBlockID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(50, 3, 99, 44, null, Brushes.Black),
-                content: new ContentParameter(content: "info block", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
+                content: new ContentParameter(
+                    content: "info block", 
+                    horAlign: HorizontalAlignment.Center, 
+                    verAlign: VerticalAlignment.Center),
                 bParam: null,
                 eParam: null
-                );
-            
+                );            
         }
-        public void Make_CreationMenu_PaintMaker(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+
+        public static void Make_CreationMenu_PaintMaker(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add paint canvas
             data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].id));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 84, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "PaintMaker")
                 );
-            int menuPaintID = data.items[data.items.Count - 1].id;
-            data.items[data.items.Count - 1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
+            int menuPaintID = data.items[^1].id;
+            data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item paint canvas > img
             data.items.Add(new ImageItem(data, appCanvas, menuPaintID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 3, 44, 44, null, Brushes.Black),
                 content: null,
                 bParam: null,
@@ -140,7 +139,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuCreation > item paint canvas > txt
             data.items.Add(new LabelItem(data, appCanvas, menuPaintID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(50, 3, 99, 44, null, Brushes.Black),
                 content: new ContentParameter(content: "image maker", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
                 bParam: null,
@@ -148,22 +147,22 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
         }
 
-        public void Make_CreationMenu_Line(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_CreationMenu_Line(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add line
             data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].id));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 135, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "Line")
                 );
-            int menuLineID = data.items[data.items.Count - 1].id;
-            data.items[data.items.Count - 1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
+            int menuLineID = data.items[^1].id;
+            data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item line > img
             data.items.Add(new ImageItem(data, appCanvas, menuLineID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 3, 44, 44, null, Brushes.Black),
                 content: null,
                 bParam: null,
@@ -173,50 +172,50 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuCreation > item line > txt
             data.items.Add(new LabelItem(data, appCanvas, menuLineID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(50, 3, 99, 44, null, Brushes.Black),
-                content: new ContentParameter(content: "line", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
+                content: new ContentParameter(content: "multiline", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
                 bParam: null,
                 eParam: null
                 );
         }
 
-        public void Make_ParameterMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_ParameterMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //item item parameters menu
             data.items.Add(new CanvasItem(data, appCanvas));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(5, 20, 150, 500, Brushes.LightCyan, null),
                 content: null,
                 bParam: (BorderParameter)data.parameters["borderVersion01"],
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
-            data.items[data.items.Count - 1].setParameter(EParameter.Border, data.parameters["borderVersion01"]);
-            data.items[data.items.Count - 1].appX = data.topLeftX + 5;
-            data.items[data.items.Count - 1].appY = data.topLeftY + 10;
+            data.items[^1].SetParameter(EParameter.Border, data.parameters["borderVersion01"]);
+            data.items[^1].appX = data.topLeftX + 5;
+            data.items[^1].appY = data.topLeftY + 10;
             data.menuCreation = data.items.Count - 1;
             Panel.SetZIndex(((CanvasItem)data.items[data.menuCreation]).item, 21);
-            data.menuItemParametersID = data.items[data.items.Count - 1].id;
-            ((CanvasItem)data.items[data.items.Count - 1]).item.Visibility = Visibility.Hidden;
+            data.menuItemParametersID = data.items[^1].id;
+            ((CanvasItem)data.items[^1]).item.Visibility = Visibility.Hidden;
         }
-        public void Make_PainterMakerMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_PainterMakerMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //item painter maker menu
             data.items.Add(new CanvasItem(data, appCanvas));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(data.winWidth - 160, 20, 150, 500, Brushes.LightCyan, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.DarkSlateGray, cornerRadius: 2),
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
-            data.items[data.items.Count - 1].appX = data.topLeftX + 5;
-            data.items[data.items.Count - 1].appY = data.topLeftY + 10;
-            Panel.SetZIndex(((CanvasItem)data.items[data.items.Count - 1]).item, 21);
-            data.menuItemPaintMakerID = data.items[data.items.Count - 1].id;
-            ((CanvasItem)data.items[data.items.Count - 1]).item.Visibility = Visibility.Hidden;
+            data.items[^1].appX = data.topLeftX + 5;
+            data.items[^1].appY = data.topLeftY + 10;
+            Panel.SetZIndex(((CanvasItem)data.items[^1]).item, 21);
+            data.menuItemPaintMakerID = data.items[^1].id;
+            ((CanvasItem)data.items[^1]).item.Visibility = Visibility.Hidden;
         }
 
-        public void Make_ParameterMenu_Content(
+        public static void Make_ParameterMenu_Content(
             DataHub data,
             Canvas appCanvas,
             DefaultItem item,
@@ -224,7 +223,7 @@ namespace diagramMaker.managers.DefaultPreparation
         {
             //menuCreation > txt label
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 3, 144, 30, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "Item Menu:",
@@ -235,7 +234,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //menuCreation > btn delete
             data.items.Add(new ButtonItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 0, 30, 30, null, Brushes.Black),
                 content: null,
                 bParam: new BorderParameter(
@@ -250,12 +249,12 @@ namespace diagramMaker.managers.DefaultPreparation
                     ),
                 imgParam: new ImageParameter("..\\..\\assets\\item04.png")
                 );
-            ((ButtonItem)data.items[data.items.Count - 1]).itemClickHandlerNotify
-                += eve.eventItemDeleteHandler;
+            ((ButtonItem)data.items[^1]).ItemClickHandlerNotify
+                += eve.EventItemDeleteHandler;
 
             //ItemParametersMenu > label id
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 30, 144, 26, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "id:" + data.choosenItemID.ToString(),
@@ -266,7 +265,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > label name:
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 50, 46, 26, null, Brushes.Black),
                 content: new ContentParameter(content: "name:", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                 bParam: null,
@@ -274,7 +273,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > text name:
             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(46, 50, 98, 26, null, Brushes.Black),
                 content: new ContentParameter(
                     content: item.name,
@@ -288,7 +287,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > label width:
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 76, 46, 26, null, Brushes.Black),
                 content: new ContentParameter(content: "width:", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                 bParam: null,
@@ -296,7 +295,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > text width:
             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(46, 76, 98, 26, null, Brushes.Black),
                 content: new ContentParameter(
                     content: item.iParam == null ? ((CanvasItem)item).item.Width.ToString() : item.iParam.width.ToString(),
@@ -311,7 +310,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > label height:
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 102, 44, 26, null, Brushes.Black),
                 content: new ContentParameter(content: "height:", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                 bParam: null,
@@ -319,7 +318,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             //ItemParametersMenu > text height:
             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(44, 102, 100, 26, null, Brushes.Black),
                 content: new ContentParameter(
                     content: item.iParam == null ? ((CanvasItem)item).item.Height.ToString() : item.iParam.height.ToString(),
@@ -341,7 +340,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 {
                     //label separator:
                     data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-                    data.items[data.items.Count - 1].setParameters(
+                    data.items[^1].SetParameters(
                     iParam: new ItemParameter(0, _coord, _coord, 26, null, Brushes.Black),
                     content: new ContentParameter(
                         content: "--> child",
@@ -358,7 +357,7 @@ namespace diagramMaker.managers.DefaultPreparation
                         case "LabelItem":
                             //label content:
                             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(0, _coord, 52, 26, null, Brushes.Black),
                                 content: new ContentParameter(
                                     content: "content:",
@@ -369,7 +368,7 @@ namespace diagramMaker.managers.DefaultPreparation
                                 );
                             // text content:
                             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(52, _coord, 92, 26, null, Brushes.Black),
                                 content: new ContentParameter(
                                     content: ((LabelItem)data.items[data.GetItemByID(item.id)]).item.Content.ToString(),
@@ -384,7 +383,7 @@ namespace diagramMaker.managers.DefaultPreparation
                             _coord += 26;
                             //ItemParametersMenu > label width:
                             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(0, _coord, 46, 26, null, Brushes.Black),
                                 content: new ContentParameter(content: "width:", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                                 bParam: null,
@@ -392,7 +391,7 @@ namespace diagramMaker.managers.DefaultPreparation
                                 );
                             //ItemParametersMenu > text width:
                             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(46, _coord, 98, 26, null, Brushes.Black),
                                 content: new ContentParameter(
                                     content: item.iParam == null ? ((CanvasItem)item).item.Width.ToString() : item.iParam.width.ToString(),
@@ -408,7 +407,7 @@ namespace diagramMaker.managers.DefaultPreparation
                             _coord += 26;
                             //ItemParametersMenu > label height:
                             data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(0, _coord, 44, 26, null, Brushes.Black),
                                 content: new ContentParameter(content: "height:", horAlign: HorizontalAlignment.Left, verAlign: VerticalAlignment.Center),
                                 bParam: null,
@@ -416,7 +415,7 @@ namespace diagramMaker.managers.DefaultPreparation
                                 );
                             //ItemParametersMenu > text height:
                             data.items.Add(new TextItem(data, appCanvas, data.menuItemParametersID));
-                            data.items[data.items.Count - 1].setParameters(
+                            data.items[^1].SetParameters(
                                 iParam: new ItemParameter(44, _coord, 100, 26, null, Brushes.Black),
                                 content: new ContentParameter(
                                     content: item.iParam == null ? ((CanvasItem)item).item.Height.ToString() : item.iParam.height.ToString(),
@@ -438,14 +437,14 @@ namespace diagramMaker.managers.DefaultPreparation
             }
         }
 
-        public void Make_PainterMakerMenu_Content(
+        public static void Make_PainterMakerMenu_Content(
             DataHub data,
             Canvas appCanvas,
             EventManager eve)
         {
             //menuPainter > txt label
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemPaintMakerID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 3, 144, 30, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "Paint Maker Menu:",
@@ -457,7 +456,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuPainter > txt label tool
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemPaintMakerID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 30, 40, 30, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "Tool:",
@@ -469,7 +468,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuPainter > txt label tool type
             data.items.Add(new LabelItem(data, appCanvas, data.menuItemPaintMakerID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(34, 30, 123, 30, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "Move",
@@ -482,7 +481,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
             //menuPainter > btn move
             data.items.Add(new ButtonItem(data, appCanvas, data.menuItemPaintMakerID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(5, 65, 42, 42, null, Brushes.Black),
                 content: null,
                 bParam: new BorderParameter(
@@ -497,15 +496,15 @@ namespace diagramMaker.managers.DefaultPreparation
                     ),
                 imgParam: new ImageParameter("..\\..\\assets\\item05.png")
                 );
-            ((ButtonItem)data.items[data.items.Count - 1]).itemClickHandlerNotify
-                += eve.eventButtonClickHandler;
-            ((ButtonItem)data.items[data.items.Count - 1]).itemClickHandlerNotify
+            ((ButtonItem)data.items[^1]).ItemClickHandlerNotify
+                += eve.EventButtonClickHandler;
+            ((ButtonItem)data.items[^1]).ItemClickHandlerNotify
                 += data.items[_looker].EventOutdataHandler;
 
 
             //menuPainter > btn paint
             data.items.Add(new ButtonItem(data, appCanvas, data.menuItemPaintMakerID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(48, 65, 42, 42, null, Brushes.Black),
                 content: null,
                 bParam: new BorderParameter(
@@ -520,17 +519,17 @@ namespace diagramMaker.managers.DefaultPreparation
                     ),
                 imgParam: new ImageParameter("..\\..\\assets\\item06.png")
                 );
-            ((ButtonItem)data.items[data.items.Count - 1]).itemClickHandlerNotify
-                += eve.eventButtonClickHandler;
-            ((ButtonItem)data.items[data.items.Count - 1]).itemClickHandlerNotify
+            ((ButtonItem)data.items[^1]).ItemClickHandlerNotify
+                += eve.EventButtonClickHandler;
+            ((ButtonItem)data.items[^1]).ItemClickHandlerNotify
                 += data.items[_looker].EventOutdataHandler;
         }
 
-        public void Make_NavigationPanelMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas) 
+        public static void Make_NavigationPanelMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas) 
         {
             //item navigation panel menu
             data.items.Add(new CanvasItem(data, appCanvas));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(data.winWidth - 170, 20, 150, 500, Brushes.LightCyan, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.DarkSlateGray, cornerRadius: 2),
@@ -539,17 +538,17 @@ namespace diagramMaker.managers.DefaultPreparation
                     mouseDown: true,
                     mouseWheel:true)
                 );
-            data.items[data.items.Count - 1].appX = data.topLeftX + 5;
-            data.items[data.items.Count - 1].appY = data.topLeftY + 10;
-            Panel.SetZIndex(((CanvasItem)data.items[data.items.Count - 1]).item, 22);
-            data.menuNavigationPanelID = data.items[data.items.Count - 1].id;
-            ((CanvasItem)data.items[data.items.Count - 1]).MouseScrollNotify +=
+            data.items[^1].appX = data.topLeftX + 5;
+            data.items[^1].appY = data.topLeftY + 10;
+            Panel.SetZIndex(((CanvasItem)data.items[^1]).item, 22);
+            data.menuNavigationPanelID = data.items[^1].id;
+            ((CanvasItem)data.items[^1]).MouseScrollNotify +=
                 mainWindow.eventner.EventNavigationPanelScrollCount;
-            ((CanvasItem)data.items[data.items.Count - 1]).item.Visibility = Visibility.Hidden;
+            ((CanvasItem)data.items[^1]).item.Visibility = Visibility.Hidden;
 
             //navigation panel > txt label tool
             data.items.Add(new LabelItem(data, appCanvas, data.menuNavigationPanelID));
-            data.items[data.items.Count - 1].setParameters(
+            data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 3, 144, 28, null, Brushes.Black),
                 content: new ContentParameter(
                     content: "Navigation Panel",
@@ -564,7 +563,7 @@ namespace diagramMaker.managers.DefaultPreparation
             {
                 //navigation panel > txt label tool
                 data.items.Add(new LabelItem(data, appCanvas, data.menuNavigationPanelID));
-                data.items[data.items.Count - 1].setParameters(
+                data.items[^1].SetParameters(
                     iParam: new ItemParameter(3, 33+_i*30, 144, 28, null, Brushes.Black),
                     content: new ContentParameter(
                         content: "",
@@ -577,9 +576,9 @@ namespace diagramMaker.managers.DefaultPreparation
                         mouseDoubleClick: true)
                     );
                 mainWindow.eventner.NavigationItemNotify +=
-                    ((LabelItem)data.items[data.items.Count - 1]).EventContent;
-                ((LabelItem)data.items[data.items.Count - 1]).item.Visibility = Visibility.Hidden;
-                data.items[data.items.Count - 1].MouseDoubleClickNotify +=
+                    ((LabelItem)data.items[^1]).EventContent;
+                ((LabelItem)data.items[^1]).item.Visibility = Visibility.Hidden;
+                data.items[^1].MouseDoubleClickNotify +=
                      mainWindow.eventner.NavigationMoveToItem;
             }
         }

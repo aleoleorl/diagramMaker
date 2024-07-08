@@ -33,7 +33,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item[id]);
 
@@ -53,7 +53,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Remove(item[id]);
 
@@ -64,7 +64,7 @@ namespace diagramMaker.items
             }
         }
 
-        public override void setParameters(
+        public override void SetParameters(
             ItemParameter? iParam = null,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
@@ -72,28 +72,31 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParam = null)
         {
-            base.setParameters(iParam, content, bParam, eParam);
+            base.SetParameters(iParam, content, bParam, eParam);
 
-            handlerIParam();
-            handlerShapeParam();
-            handlerEParam();
+            HandlerIParam();
+            HandlerShapeParam();
+            HandlerEParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
-
+            base.SetParameter(type, dParam);
+            if (crazyChoice == -1)
+            {
+                return;
+            }
             try
             {
                 switch (type)
                 {
                     case EParameter.Shape:
-                        handlerShapeParam();
+                        HandlerShapeParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     default:
                         break;
@@ -101,11 +104,11 @@ namespace diagramMaker.items
             }
             catch (Exception e)
             {
-                Trace.WriteLine("setParameter:" + e);
+                Trace.WriteLine("SetParameter:" + e);
             }
         }
 
-        protected void handlerEParam()
+        public void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -127,20 +130,29 @@ namespace diagramMaker.items
                 {
                     for (int _i = 0; _i < item.Count; _i++)
                     {
-                        item[_i].MouseUp += Default_MouseUp;
+                        item[_i].MouseUp += Item_MouseUp;
                     }
                 }
 
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
         }
 
-        public void handlerShapeParam()
+        public void AppCoord()
         {
-            if (shapeParam == null) 
+            if (shapeParam != null && shapeParam.vertex.Count > 0)
+            {
+                appX = data.topLeftX + shapeParam.vertex[0].x;
+                appY = data.topLeftY + shapeParam.vertex[0].y;
+            }
+        }
+
+        public void HandlerShapeParam()
+        {
+            if (shapeParam == null || data.items == null) 
             {
                 return;
             }
@@ -149,43 +161,88 @@ namespace diagramMaker.items
                 HandleRemoveItem(0);
             }
             //
-            int _count = 1;
-            shapeParam.vertex = new List<FigureContainer>();
+            int _count = 0;
+            //
             for (int _i = 0; _i < data.items.Count; _i++)
             {
                 if (data.items[_i].connectorId == id)
                 {
-                    if (shapeParam.vertex.Count < _count)
+                    data.items[_i].MouseMoveNotify -= this.FigureItem_MouseMoveNotify;
+                }
+            }
+            //
+            int _j = 0;
+            while (_j < shapeParam.vertex.Count)
+            {
+                for (int _i = 0; _i < data.items.Count; _i++)
+                {
+                    if (data.items[_i].connectorId == id)
                     {
-                        shapeParam.vertex.Add(
-                            new FigureContainer(
-                                x: data.items[_i].iParam.left + data.items[_i].iParam.width/2,
-                                y: data.items[_i].iParam.top + data.items[_i].iParam.height/2,
-                                id: data.items[_i].id));
-                        data.items[_i].MouseMoveNotify += this.FigureItem_MouseMoveNotify;
-                        if (_count > 1)
+                        if (shapeParam.vertex[_j].id == -1)
                         {
-                            Line _tmp = new Line();
-                            _tmp.Stroke = new SolidColorBrush(Colors.Black);
-                            _tmp.StrokeThickness = shapeParam.strokeThickness;
-
-                            _tmp.X1 = shapeParam.vertex[_count - 2].x;
-                            _tmp.Y1 = shapeParam.vertex[_count - 2].y;
-                            _tmp.X2 = shapeParam.vertex[_count - 1].x;
-                            _tmp.Y2 = shapeParam.vertex[_count - 1].y;
-                            item.Add(_tmp);
-                            HandleAddItem(item.Count - 1);
+                            bool _isNot = true;
+                            for (int _k = 0; _k < shapeParam.vertex.Count; _k++)
+                            {
+                                if (shapeParam.vertex[_k].id == data.items[_i].id)
+                                {
+                                    _isNot = false;
+                                    break;
+                                }
+                            }
+                            if (_isNot)
+                            {
+                                shapeParam.vertex[_j].id = data.items[_i].id;
+                            }
                         }
-                        _count++;
+                        if (shapeParam.vertex[_j].id == data.items[_i].id)
+                        {
+                            shapeParam.vertex[_j].x = data.items[_i].iParam.left + data.items[_i].iParam.width / 2;
+                            shapeParam.vertex[_j].y = data.items[_i].iParam.top + data.items[_i].iParam.height / 2;
+                            data.items[_i].MouseMoveNotify += this.FigureItem_MouseMoveNotify;
+                            _count++;
+
+                            if (_count > 1)
+                            {
+                                Line _tmp = new Line();
+                                _tmp.Stroke = new SolidColorBrush(Colors.Black);
+                                _tmp.StrokeThickness = shapeParam.strokeThickness;
+
+                                _tmp.X1 = shapeParam.vertex[_count - 2].x;
+                                _tmp.Y1 = shapeParam.vertex[_count - 2].y;
+                                _tmp.X2 = shapeParam.vertex[_count - 1].x;
+                                _tmp.Y2 = shapeParam.vertex[_count - 1].y;
+                                item.Add(_tmp);
+                                HandleAddItem(item.Count - 1);
+                            }
+
+                            break;
+                        }
+                    }
+                    if (_i == data.items.Count - 1 && data.items[_i].connectorId != id)
+                    {
+                        shapeParam.vertex.RemoveAt(_j);
+                        _j--;
                     }
                 }
-
+                _j++;
             }
+            if (_count < shapeParam.vertex.Count)
+            {
+                while (item.Count > _count)
+                {
+                    HandleRemoveItem(_count);
+                }
+                while (shapeParam.vertex.Count > _count)
+                {
+                    shapeParam.vertex.RemoveAt(_count);
+                }
+            }
+            AppCoord();
         }
 
         public void FigureItem_MouseMoveNotify(int id)
         {
-            if (shapeParam == null)
+            if (shapeParam == null || data.items == null)
             {
                 return;
             }
@@ -216,10 +273,15 @@ namespace diagramMaker.items
                     }
                 }
             }
+            AppCoord();
         }
 
         public void ReVertex()
         {
+            if (shapeParam == null || data.items == null)
+            {
+                return;
+            }
             int _id = -1;
             for (int _i = 0; _i < shapeParam.vertex.Count; _i++)
             {
@@ -249,9 +311,10 @@ namespace diagramMaker.items
                     }
                 }
             }
+            AppCoord();
         }
 
-        public void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Point mousePosition = e.GetPosition(item[0]);
             data.tapXX = -mousePosition.X;

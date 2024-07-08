@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using diagramMaker.helpers;
+﻿using diagramMaker.helpers;
 using diagramMaker.items;
 using diagramMaker.managers.DefaultPreparation;
 using diagramMaker.parameters;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace diagramMaker.managers
 {
@@ -23,16 +15,13 @@ namespace diagramMaker.managers
         private DataHub data;
         private Canvas? appCanvas;
         private MainWindow mainWindow;
-        private MenuMaker Maker;
-        private ExternalManager ExtManager;
+        private ExternalManager extManager;
        
-
         public Initiator(DataHub data, MainWindow mainWindow)
         {
             this.data = data;
             this.mainWindow = mainWindow;
-            Maker = new MenuMaker();
-            ExtManager = new ExternalManager(data);
+            extManager = new ExternalManager(data);
         }
         public void Prepare()
         {
@@ -48,10 +37,13 @@ namespace diagramMaker.managers
                     DefaultPreparation();
                     break;
                 case ETopMenuActionType.Save:
-                    ExtManager.Save();
+                    extManager.Save();
                     break;
                 case ETopMenuActionType.Load:
-                    ExtManager.Load();
+                    ClearApp();
+                    DefaultPreparation();
+                    extManager.Load(mainWindow.eventner);
+                    mainWindow.eventner.NavigationPanelScrollCount_Activation();
                     break;
                 default:
                     break;
@@ -62,43 +54,50 @@ namespace diagramMaker.managers
         {
             mainWindow.Width = 1024;
             mainWindow.Height = 768;
-            mainWindow.ItemMoveNotify -= mainWindow.eventner.eventItemMoveHandler;
+            mainWindow.ItemMoveNotify -= mainWindow.eventner.EventItemMoveHandler;
             mainWindow.PreviewKeyDown -= mainWindow.eventner.MainWindow_PreviewKeyDown;
+            mainWindow.KeyDown -= mainWindow.eventner.MainWindow_KeyDown;
             mainWindow.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
             ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).item.Children.Clear();
             data.ClearData();
             DefaultItem.RestartID();
         }
 
-
         public void DefaultPreparation()
         {
-            setParameters();
-            setItems();
-            setItemCollections();
+            SetParameters();
+            SetItems();
+            SetItemCollections();
             //
-            mainWindow.ItemMoveNotify += mainWindow.eventner.eventItemMoveHandler;
+            mainWindow.ItemMoveNotify += mainWindow.eventner.EventItemMoveHandler;
             mainWindow.PreviewKeyDown += mainWindow.eventner.MainWindow_PreviewKeyDown;
+            mainWindow.KeyDown += mainWindow.eventner.MainWindow_KeyDown;
+            mainWindow.KeyUp += mainWindow.eventner.MainWindow_KeyUp;
             //
             mainWindow.topMenu.SetMainMenu();
             mainWindow.topMenu.MenuHandlerNotify += TopMenu_MenuHandlerNotify;
         }
-        
-        public void setItems()
+
+        public void SetItems()
         {
-            appCanvas = Maker.Make_AppCanvas(data, mainWindow);
-            Maker.Make_InfoLine(data, mainWindow, appCanvas);
-            Maker.Make_CreationMenu(data, mainWindow, appCanvas);
-            Maker.Make_ParameterMenu(data, mainWindow, appCanvas);
-            Maker.Make_PainterMakerMenu(data, mainWindow, appCanvas);
-            Maker.Make_NavigationPanelMenu(data, mainWindow, appCanvas);
+            appCanvas = MenuMaker.Make_AppCanvas(data, mainWindow);
+            appCanvas.SetValue(AutomationProperties.NameProperty, "appCanvas");
+
+            MenuMaker.Make_InfoLine(data, mainWindow, appCanvas);
+            MenuMaker.Make_CreationMenu(data, mainWindow, appCanvas);
+            MenuMaker.Make_ParameterMenu(data, mainWindow, appCanvas);
+            MenuMaker.Make_PainterMakerMenu(data, mainWindow, appCanvas);
+            MenuMaker.Make_NavigationPanelMenu(data, mainWindow, appCanvas);
         }
 
-        public void setParameters()
+        public void SetParameters()
         {
             DefaultParameter _ip;
-            //
-
+            if (data.parameters == null)
+            {
+                data.parameters = new Dictionary<string, DefaultParameter> ();
+            }
+            
             _ip = new ItemParameter(
                 left: 0,
                 top: 0,
@@ -203,29 +202,30 @@ namespace diagramMaker.managers
                 color: Colors.Black,
                 strokeThickness: 2);
             data.parameters.Add("figureLineContent", _ip);
+
             _ip = new EventParameter(
                 moveSensitive: true,
+                mouseUp: true,
                 mouseDown: true,
                 mouseMove: true
                 );
             data.parameters.Add("eventLineContent", _ip);
 
-
             _ip = new ItemParameter(
                 left: 160,
                 top: 50,
-                width: 5,
-                height: 5,
-                bgColor: Brushes.Black,
+                width: 8,
+                height: 8,
+                bgColor: Brushes.White,
                 frColor: null);
             data.parameters.Add("itemLineConnect01Content", _ip);
 
             _ip = new ItemParameter(
                 left: 190,
                 top: 50,
-                width: 5,
-                height: 5,
-                bgColor: Brushes.Black,
+                width: 8,
+                height: 8,
+                bgColor: Brushes.White,
                 frColor: null);
             data.parameters.Add("itemLineConnect02Content", _ip);
 
@@ -236,10 +236,9 @@ namespace diagramMaker.managers
                 mouseMove: true
                 );
             data.parameters.Add("eventLineConnect", _ip);
-
         }
 
-        public void setItemCollections()
+        public void SetItemCollections()
         {
             ItemMaker _im;
             ItemMaker _imChild;
@@ -280,13 +279,24 @@ namespace diagramMaker.managers
             _imConnect.Props.Add("itemLineConnect01Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
+            _imConnect.Events.Add(EEvent.AddLine);
             _im.Connector.Add(_imConnect);
 
             _imConnect = new ItemMaker();
             _imConnect.Props.Add("itemLineConnect02Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
+            _imConnect.Events.Add(EEvent.AddLine);
             _im.Connector.Add(_imConnect);
+
+            //connector
+            _im = new ItemMaker();
+            _im.Props.Add("itemLineConnect02Content", EParameter.Item);
+            _im.Props.Add("eventLineConnect", EParameter.Event);
+            _im.Item = EItem.Canvas;
+            _im.Events.Add(EEvent.AddLine);
+            _im.Events.Add(EEvent.Connector);
+            data.itemCollection.Add("Connector", _im);
         }        
     }
 }

@@ -1,11 +1,7 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.parameters;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
@@ -20,10 +16,10 @@ namespace diagramMaker.items
         {
             item = new Image();
 
-            handlerConnector();
+            HandlerConnector();
         }
 
-        public override void setParameters(
+        public override void SetParameters(
             ItemParameter? iParam,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
@@ -31,26 +27,26 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam, imgParam);
+            base.SetParameters(iParam, content, bParam, eParam, imgParam);
             
-            handlerImgParam();
-            handlerIParam();
-            handlerConnector();
+            HandlerImgParam();
+            HandlerIParam();
+            HandlerConnector();
         }
 
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
 
             try
             {
                 switch (type)
                 {
                     case EParameter.Image:
-                        handlerImgParam();
+                        HandlerImgParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     default:
                         break;
@@ -58,13 +54,13 @@ namespace diagramMaker.items
             }
             catch (Exception e)
             {
-                Trace.WriteLine("setParameter:" + e);
+                Trace.WriteLine("SetParameter:" + e);
             }
         }
 
-        protected void handlerImgParam()
+        protected void HandlerImgParam()
         {
-            if (imgParam == null && string.IsNullOrEmpty(imgParam?.imagePath))
+            if (imgParam == null || string.IsNullOrEmpty(imgParam?.imagePath))
             {
                 return;
             }
@@ -77,7 +73,7 @@ namespace diagramMaker.items
             };            
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -88,7 +84,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void handlerConnector()
+        protected void HandlerConnector()
         {
             if (appCanvas != null)
             {
@@ -99,7 +95,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }

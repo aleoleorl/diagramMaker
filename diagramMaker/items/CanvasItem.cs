@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
-using diagramMaker.items;
-using System.Reflection;
 using diagramMaker.parameters;
 using diagramMaker.helpers;
-using System.Windows.Interop;
 
 namespace diagramMaker.items
 {
     public class CanvasItem : DefaultItem
-    {     
+    {
         public Canvas item;
         public Border? border;
+
+        public delegate void EEventHandler(int id);
+        public event EEventHandler? EEventNotify;
 
         public CanvasItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Canvas)
@@ -36,7 +32,7 @@ namespace diagramMaker.items
                 else
                 {
                     int _id = data.GetItemByID(parentId);
-                    if (_id != -1)
+                    if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).item.Children.Add(item);
                     }
@@ -44,7 +40,7 @@ namespace diagramMaker.items
             }
         }
 
-        public override void setParameters(
+        public override void SetParameters(
             ItemParameter? iParam = null,
             ContentParameter? content = null,
             BorderParameter? bParam = null,
@@ -52,28 +48,28 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParameter = null)
         {
-            base.setParameters(iParam, content, bParam, eParam);
+            base.SetParameters(iParam, content, bParam, eParam);
 
-            handlerIParam();
-            handlerBParam();
-            handlerEParam();
+            HandlerIParam();
+            HandlerBParam();
+            HandlerEParam();
         }
-        public override void setParameter(EParameter type, DefaultParameter dParam)
+        public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            base.setParameter(type, dParam);
+            base.SetParameter(type, dParam);
 
             try
             {
                 switch (type)
                 {
                     case EParameter.Border:
-                        handlerBParam();
+                        HandlerBParam();
                         break;
                     case EParameter.Event:
-                        handlerEParam();
+                        HandlerEParam();
                         break;
                     case EParameter.Item:
-                        handlerIParam();
+                        HandlerIParam();
                         break;
                     default:
                         break;
@@ -81,11 +77,11 @@ namespace diagramMaker.items
             }
             catch (Exception e)
             {
-                Trace.WriteLine("setParameter:" + e);
+                Trace.WriteLine("SetParameter:" + e);
             }
         }
 
-        protected void handlerIParam()
+        protected void HandlerIParam()
         {
             if (iParam != null)
             {
@@ -99,7 +95,7 @@ namespace diagramMaker.items
                 item.Height = iParam.height;
             }
         }
-        protected void handlerBParam()
+        protected void HandlerBParam()
         {
             if (bParam != null)
             {
@@ -109,21 +105,24 @@ namespace diagramMaker.items
                     border.Background = new SolidColorBrush(Colors.Transparent);
                     item.Children.Add(border);
                 }
-                if (border != null & bParam != null)
+                if (border != null)
                 {
                     border = null;
                     border = new Border();
                     item.Children.Add(border);
                     border.BorderThickness = new Thickness(bParam.borderThickness);
-                    border.BorderBrush = new SolidColorBrush(bParam.color ?? System.Windows.Media.Colors.Black);
+                    border.BorderBrush = new SolidColorBrush(bParam.color ?? Colors.Black);
                     border.CornerRadius = new CornerRadius(bParam.cornerRadius);
-                    border.Width = iParam.width;
-                    border.Height = iParam.height;
+                    if (iParam != null)
+                    {
+                        border.Width = iParam.width;
+                        border.Height = iParam.height;
+                    }
                     border.Background = new SolidColorBrush(Colors.Transparent);
                 }
             }
         }
-        protected void handlerEParam()
+        protected void HandlerEParam()
         {
             if (eParam != null)
             {
@@ -133,7 +132,7 @@ namespace diagramMaker.items
                 }
                 if (eParam.isMouseUp)
                 {
-                    item.MouseUp += Default_MouseUp;
+                    item.MouseUp += Item_MouseUp;
                 }
                 if (eParam.isMouseMove)
                 {
@@ -161,7 +160,7 @@ namespace diagramMaker.items
                         iParam.width = Convert.ToDouble(txt);                        
                     }
                     item.Width = Convert.ToDouble(txt);
-                    if (bParam != null && bParam.isBorder)
+                    if (border != null && bParam!=null && bParam.isBorder)
                     {
                         border.Width = Convert.ToDouble(txt);
                     }
@@ -172,7 +171,7 @@ namespace diagramMaker.items
                         iParam.height = Convert.ToDouble(txt);
                     }
                     item.Height = Convert.ToDouble(txt);
-                    if (bParam != null && bParam.isBorder)
+                    if (border != null && bParam != null && bParam.isBorder)
                     {
                         border.Height = Convert.ToDouble(txt);
                     }
@@ -182,13 +181,15 @@ namespace diagramMaker.items
             }
         }
 
-        public void Item_MouseDown(object sender, MouseButtonEventArgs e)
-        {
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        {            
             Point mousePosition = e.GetPosition(item);
             data.tapXX = -mousePosition.X;
             data.tapYY = -mousePosition.Y;
             data.tapped = id;
             Trace.WriteLine("data.tapped:" + data.tapped);
+
+            EEventNotify?.Invoke(id);
 
             e.Handled = true;
         }

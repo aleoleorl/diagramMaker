@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using diagramMaker.helpers;
 using System.Windows;
-using diagramMaker.helpers;
 
 namespace diagramMaker.parameters
 {
@@ -13,7 +8,6 @@ namespace diagramMaker.parameters
         public string? content;
         public HorizontalAlignment? horAlign;
         public VerticalAlignment? verAlign;
-
         public bool isTextChanged = false;
         public EBindParameter bindParameter;
         public int bindID;
