@@ -4,10 +4,10 @@ namespace diagramMaker.parameters
 {
     public class BorderParameter: DefaultParameter
     {
-        public bool isBorder;
-        public double borderThickness;
-        public Color? color;
-        public double cornerRadius;
+        public bool IsBorder { get; set; }
+        public double BorderThickness { get; set; }
+        public Color? Color { get; set; }
+        public double CornerRadius { get; set; }
 
         public BorderParameter(
             bool isBorder = false,
@@ -15,10 +15,10 @@ namespace diagramMaker.parameters
             Color? color = null,
             double cornerRadius = 0)
         {
-            this.isBorder = isBorder;
-            this.borderThickness = borderThickness;
-            this.color = color;
-            this.cornerRadius = cornerRadius;
+            this.IsBorder = isBorder;
+            this.BorderThickness = borderThickness;
+            this.Color = color;
+            this.CornerRadius = cornerRadius;
         }
 
         public override BorderParameter Clone()

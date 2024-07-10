@@ -4,42 +4,42 @@ namespace diagramMaker.parameters
 {
     public class ItemParameter:DefaultParameter
     {
-        public double left;
-        public double top;
-        public double width;
-        public double height;
-        public Brush? bgColor;
-        public Brush? frColor;
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public Brush? BgColor { get; set; }
+        public Brush? FrColor { get; set; }
 
         public ItemParameter(double left, double top, double width, double height,
             Brush? bgColor = null, Brush? frColor = null) 
         {   
-            this.left = left;
-            this.top = top;
-            this.width = width;
-            this.height = height;
-            this.bgColor = bgColor;
-            this.frColor = frColor;
+            this.Left = left;
+            this.Top = top;
+            this.Width = width;
+            this.Height = height;
+            this.BgColor = bgColor;
+            this.FrColor = frColor;
         }
 
         public ItemParameter(ItemParameter param)
         {
-            this.left = param.left;
-            this.top = param.top;
-            this.width = param.width;
-            this.height = param.height;
-            this.bgColor = param.bgColor;
-            this.frColor = param.frColor;
+            this.Left = param.Left;
+            this.Top = param.Top;
+            this.Width = param.Width;
+            this.Height = param.Height;
+            this.BgColor = param.BgColor;
+            this.FrColor = param.FrColor;
         }
 
         public void GetData(ItemParameter param)
         {
-            this.left = param.left;
-            this.top = param.top;
-            this.width = param.width;
-            this.height = param.height;
-            this.bgColor = param.bgColor;
-            this.frColor = param.frColor;
+            this.Left = param.Left;
+            this.Top = param.Top;
+            this.Width = param.Width;
+            this.Height = param.Height;
+            this.BgColor = param.BgColor;
+            this.FrColor = param.FrColor;
         }
 
         public override ItemParameter Clone()

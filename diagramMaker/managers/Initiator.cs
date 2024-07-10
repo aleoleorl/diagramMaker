@@ -58,7 +58,7 @@ namespace diagramMaker.managers
             mainWindow.PreviewKeyDown -= mainWindow.eventner.MainWindow_PreviewKeyDown;
             mainWindow.KeyDown -= mainWindow.eventner.MainWindow_KeyDown;
             mainWindow.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
-            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).item.Children.Clear();
+            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Clear();
             data.ClearData();
             DefaultItem.RestartID();
         }

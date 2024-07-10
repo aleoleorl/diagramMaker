@@ -4,8 +4,8 @@ namespace diagramMaker.parameters
 {
     public class ImageParameter:DefaultParameter
     {
-        public string? imagePath;
-        public BitmapImage? bitmapImage;
+        public string? ImagePath { get; set; }
+        public BitmapImage? BitmapImage { get; set; }
 
         public ImageParameter()
         {
@@ -14,7 +14,7 @@ namespace diagramMaker.parameters
 
         public ImageParameter(string imagePath)
         {
-            this.imagePath = imagePath;
+            this.ImagePath = imagePath;
         }
 
         public override ImageParameter Clone()

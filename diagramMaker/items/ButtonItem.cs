@@ -11,28 +11,28 @@ namespace diagramMaker.items
 {
     internal class ButtonItem : DefaultItem
     {
+        public Button Item { get; set; }
+
         public delegate void ItemClickHandler(int id, ECommand command);
         public event ItemClickHandler? ItemClickHandlerNotify;
-
-        public Button item;
 
         public ButtonItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Button)
         {
-            item = new Button();
+            Item = new Button();
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    appCanvas.Children.Add(Item);
                 }
                 else
                 {
                     int _id = data.GetItemByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).item.Children.Add(item);
+                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }
@@ -89,75 +89,75 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (iParam != null)
+            if (IParam != null)
             {
-                if (iParam.bgColor != null)
+                if (IParam.BgColor != null)
                 {
-                    item.Background = iParam.bgColor;
+                    Item.Background = IParam.BgColor;
                 }
-                Canvas.SetLeft(item, iParam.left);
-                Canvas.SetTop(item, iParam.top);
-                item.Width = iParam.width;
-                item.Height = iParam.height;
+                Canvas.SetLeft(Item, IParam.Left);
+                Canvas.SetTop(Item, IParam.Top);
+                Item.Width = IParam.Width;
+                Item.Height = IParam.Height;
             }
         }
         protected void HandlerContent()
         {
-            if (content != null)
+            if (Content != null)
             {
-                if (!string.IsNullOrEmpty(content.content))
+                if (!string.IsNullOrEmpty(Content.Content))
                 {
-                    item.Content = content.content;
+                    Item.Content = Content.Content;
                 }
 
-                if (content.horAlign != null)
+                if (Content.HorAlign != null)
                 {
-                    item.HorizontalContentAlignment = content.horAlign ?? HorizontalAlignment.Left;
+                    Item.HorizontalContentAlignment = Content.HorAlign ?? HorizontalAlignment.Left;
                 }
-                if (content.verAlign != null)
+                if (Content.VerAlign != null)
                 {
-                    item.VerticalContentAlignment = content.verAlign ?? VerticalAlignment.Top;
+                    Item.VerticalContentAlignment = Content.VerAlign ?? VerticalAlignment.Top;
                 }
             }
         }
         protected void HandlerBParam()
         {
-            if (bParam != null)
+            if (BParam != null)
             {
-                if (bParam.isBorder)
+                if (BParam.IsBorder)
                 {
-                    item.BorderThickness = new Thickness(bParam.borderThickness);
-                    item.BorderBrush = new SolidColorBrush(bParam.color ?? Colors.Black);
+                    Item.BorderThickness = new Thickness(BParam.BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
                 }
             }
         }
         protected void HandlerEParam()
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                if (eParam.isMouseClick)
+                if (EParam.IsMouseClick)
                 {
-                    item.Click += Item_Click;
+                    Item.Click += Item_Click;
                 }
             }
         }       
 
         protected void HandlerImgParam()
         {
-            if (imgParam == null || string.IsNullOrEmpty(imgParam?.imagePath))
+            if (ImgParam == null || string.IsNullOrEmpty(ImgParam?.ImagePath))
             {
                 return;
             }
             ImageBrush imageBrush = new ImageBrush();
-            imageBrush.ImageSource = new BitmapImage(new Uri(imgParam.imagePath, UriKind.RelativeOrAbsolute));
-            item.Background = imageBrush;
+            imageBrush.ImageSource = new BitmapImage(new Uri(ImgParam.ImagePath, UriKind.RelativeOrAbsolute));
+            Item.Background = imageBrush;
         }
 
         public void Item_Click(object sender, RoutedEventArgs e)
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                ItemClickHandlerNotify?.Invoke(eParam.CommandParameter, eParam.Command);
+                ItemClickHandlerNotify?.Invoke(EParam.CommandParameter, EParam.Command);
             }
         }
     }

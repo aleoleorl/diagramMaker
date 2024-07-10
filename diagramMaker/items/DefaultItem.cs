@@ -2,6 +2,7 @@
 using diagramMaker.parameters;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -9,26 +10,38 @@ namespace diagramMaker.items
 {
     public class DefaultItem
     {
-        public double appX;
-        public double appY;
-        public int id;
-        private static int ID = 1;
-        public int parentId;
-        public int connectorId;
-        public string name;
+        public double AppX { get; set; }
+        public double AppY { get; set; }
+        public int Id { get; set; }
 
-        protected DataHub data;
+        private static int id = 1;
+        private static int ID 
+        {
+            get { return id++; }
+            set
+            {
+                if (DataHub.IsClear) 
+                { 
+                    id = value; 
+                }
+            }
+        }
+        public int ParentId { get; set; }
+        public int ConnectorId { get; set; }
+        public string Name { get; set; }
 
-        protected Canvas? appCanvas;
-        public EItem itemType;
-        public EItemAttach itemAttach;
+        protected DataHub Data { get; set; }
 
-        public ItemParameter? iParam;
-        public ContentParameter? content;
-        public BorderParameter? bParam;
-        public EventParameter? eParam;
-        public ImageParameter? imgParam;
-        public ShapeParameter? shapeParam;
+        protected Canvas? AppCanvas { get; set; }
+        public EItem ItemType { get; set; }
+        public EItemAttach ItemAttach { get; set; }
+
+        public ItemParameter? IParam { get; set; }
+        public ContentParameter? Content { get; set; }
+        public BorderParameter? BParam { get; set; }
+        public EventParameter? EParam { get; set; }
+        public ImageParameter? ImgParam { get; set; }
+        public ShapeParameter? ShapeParam { get; set; }
 
         public delegate void MouseAppHandler(string item);
         public event MouseAppHandler? MouseAppNotify;
@@ -43,22 +56,22 @@ namespace diagramMaker.items
 
         public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1, EItem itemType = EItem.Default)
         {
-            this.data = data;
-            appX = data.topLeftX + data.oldMouseX;
-            appY = data.topLeftY + data.oldMouseY;
-            this.appCanvas = appCanvas;
-            this.parentId = parentId;
+            this.Data = data;
+            AppX = data.topLeftX + data.oldMouseX;
+            AppY = data.topLeftY + data.oldMouseY;
+            this.AppCanvas = appCanvas;
+            this.ParentId = parentId;
             SetId();
-            iParam = new ItemParameter(0, 0, 0, 0, null, null);
-            name = "item_" + id;
-            this.itemType = itemType;
-            this.itemAttach = EItemAttach.Menu;
-            connectorId = -1;
+            IParam = new ItemParameter(0, 0, 0, 0, null, null);
+            Name = "item_" + Id;
+            this.ItemType = itemType;
+            this.ItemAttach = EItemAttach.Menu;
+            ConnectorId = -1;
         }
 
         private void SetId()
         {
-            id = ID++;
+            Id = ID++;
         }
         public static int GetCurrentFreeId()
         {
@@ -77,11 +90,11 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParam = null)
         {
-            this.iParam = iParam?.Clone();
-            this.content = content;
-            this.bParam = bParam;
-            this.eParam = eParam?.Clone();
-            this.imgParam = imgParam;
+            this.IParam = iParam?.Clone();
+            this.Content = content;
+            this.BParam = bParam;
+            this.EParam = eParam?.Clone();
+            this.ImgParam = imgParam;
         }
 
         public virtual void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
@@ -95,24 +108,24 @@ namespace diagramMaker.items
                 switch (type)
                 {
                     case EParameter.Border:
-                        this.bParam = (BorderParameter)dParam.Clone();
+                        this.BParam = (BorderParameter)dParam.Clone();
                         break;
                     case EParameter.Content:
-                        this.content = (ContentParameter)dParam.Clone();
+                        this.Content = (ContentParameter)dParam.Clone();
                         break;
                     case EParameter.Event:
-                        this.eParam = ((EventParameter)dParam).Clone();
+                        this.EParam = ((EventParameter)dParam).Clone();
                         break;
                     case EParameter.Image:
-                        this.imgParam = (ImageParameter)dParam.Clone();
+                        this.ImgParam = (ImageParameter)dParam.Clone();
                         break;
                     case EParameter.Item:
-                        this.iParam = ((ItemParameter)dParam).Clone();
-                        appX = data.topLeftX + ((ItemParameter)dParam).left;
-                        appY = data.topLeftY + ((ItemParameter)dParam).top;
+                        this.IParam = ((ItemParameter)dParam).Clone();
+                        AppX = Data.topLeftX + ((ItemParameter)dParam).Left;
+                        AppY = Data.topLeftY + ((ItemParameter)dParam).Top;
                         break;
                     case EParameter.Shape:
-                        this.shapeParam = ((ShapeParameter)dParam).Clone();
+                        this.ShapeParam = ((ShapeParameter)dParam).Clone();
                         break;
                     default:
                         break;
@@ -130,21 +143,21 @@ namespace diagramMaker.items
 
         public virtual void Item_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                MouseAppNotify?.Invoke(item: eParam.mouseUpInfo);
-                MouseAppIdNotify?.Invoke(id: id);
+                MouseAppNotify?.Invoke(item: EParam.MouseUpInfo);
+                MouseAppIdNotify?.Invoke(id: Id);
             }
 
-            MouseDoubleClickNotify?.Invoke(id);
+            MouseDoubleClickNotify?.Invoke(Id);
             e.Handled = true;
         }
 
         public void Default_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (data.tapped == id)
+            if (Data.tapped == Id)
             {
-                MouseMoveNotify?.Invoke(id: id);
+                MouseMoveNotify?.Invoke(id: Id);
             }
         }
 
@@ -179,7 +192,7 @@ namespace diagramMaker.items
 
         public void Item_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            MouseDoubleClickNotify?.Invoke(id);
+            MouseDoubleClickNotify?.Invoke(Id);
             e.Handled = true;
         }
     }

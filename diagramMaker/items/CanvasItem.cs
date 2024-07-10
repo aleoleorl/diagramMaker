@@ -11,8 +11,8 @@ namespace diagramMaker.items
 {
     public class CanvasItem : DefaultItem
     {
-        public Canvas item;
-        public Border? border;
+        public Canvas Item { get; set; }
+        public Border? Border { get; set; }
 
         public delegate void EEventHandler(int id);
         public event EEventHandler? EEventNotify;
@@ -20,21 +20,21 @@ namespace diagramMaker.items
         public CanvasItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Canvas)
         {
-            item = new Canvas();
-            item.Background = Brushes.White;
+            Item = new Canvas();
+            Item.Background = Brushes.White;
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    appCanvas.Children.Add(Item);
                 }
                 else
                 {
                     int _id = data.GetItemByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).item.Children.Add(item);
+                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }
@@ -83,64 +83,64 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (iParam != null)
+            if (IParam != null)
             {
-                if (iParam.bgColor != null)
+                if (IParam.BgColor != null)
                 {
-                    item.Background = iParam.bgColor;
+                    Item.Background = IParam.BgColor;
                 }
-                Canvas.SetLeft(item, iParam.left);
-                Canvas.SetTop(item, iParam.top);
-                item.Width = iParam.width;
-                item.Height = iParam.height;
+                Canvas.SetLeft(Item, IParam.Left);
+                Canvas.SetTop(Item, IParam.Top);
+                Item.Width = IParam.Width;
+                Item.Height = IParam.Height;
             }
         }
         protected void HandlerBParam()
         {
-            if (bParam != null)
+            if (BParam != null)
             {
-                if (bParam.isBorder && border == null)
+                if (BParam.IsBorder && Border == null)
                 {
-                    border = new Border();
-                    border.Background = new SolidColorBrush(Colors.Transparent);
-                    item.Children.Add(border);
+                    Border = new Border();
+                    Border.Background = new SolidColorBrush(Colors.Transparent);
+                    Item.Children.Add(Border);
                 }
-                if (border != null)
+                if (Border != null)
                 {
-                    border = null;
-                    border = new Border();
-                    item.Children.Add(border);
-                    border.BorderThickness = new Thickness(bParam.borderThickness);
-                    border.BorderBrush = new SolidColorBrush(bParam.color ?? Colors.Black);
-                    border.CornerRadius = new CornerRadius(bParam.cornerRadius);
-                    if (iParam != null)
+                    Border = null;
+                    Border = new Border();
+                    Item.Children.Add(Border);
+                    Border.BorderThickness = new Thickness(BParam.BorderThickness);
+                    Border.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
+                    Border.CornerRadius = new CornerRadius(BParam.CornerRadius);
+                    if (IParam != null)
                     {
-                        border.Width = iParam.width;
-                        border.Height = iParam.height;
+                        Border.Width = IParam.Width;
+                        Border.Height = IParam.Height;
                     }
-                    border.Background = new SolidColorBrush(Colors.Transparent);
+                    Border.Background = new SolidColorBrush(Colors.Transparent);
                 }
             }
         }
         protected void HandlerEParam()
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                if (eParam.isMouseDown)
+                if (EParam.IsMouseDown)
                 {
-                    item.MouseDown += Item_MouseDown;
+                    Item.MouseDown += Item_MouseDown;
                 }
-                if (eParam.isMouseUp)
+                if (EParam.IsMouseUp)
                 {
-                    item.MouseUp += Item_MouseUp;
+                    Item.MouseUp += Item_MouseUp;
                 }
-                if (eParam.isMouseMove)
+                if (EParam.IsMouseMove)
                 {
-                    item.MouseMove += Default_MouseMove;
+                    Item.MouseMove += Default_MouseMove;
                 }
-                if (eParam.isMouseWheel)
+                if (EParam.IsMouseWheel)
                 {
-                    item.MouseWheel += Item_MouseWheel;
+                    Item.MouseWheel += Item_MouseWheel;
                 }
             }
         }
@@ -152,28 +152,28 @@ namespace diagramMaker.items
             switch (eBindParameter)
             {
                 case EBindParameter.Name:
-                    name = txt;
+                    Name = txt;
                     break;
                 case EBindParameter.Width:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.width = Convert.ToDouble(txt);                        
+                        IParam.Width = Convert.ToDouble(txt);                        
                     }
-                    item.Width = Convert.ToDouble(txt);
-                    if (border != null && bParam!=null && bParam.isBorder)
+                    Item.Width = Convert.ToDouble(txt);
+                    if (Border != null && BParam!=null && BParam.IsBorder)
                     {
-                        border.Width = Convert.ToDouble(txt);
+                        Border.Width = Convert.ToDouble(txt);
                     }
                     break;
                 case EBindParameter.Height:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.height = Convert.ToDouble(txt);
+                        IParam.Height = Convert.ToDouble(txt);
                     }
-                    item.Height = Convert.ToDouble(txt);
-                    if (border != null && bParam != null && bParam.isBorder)
+                    Item.Height = Convert.ToDouble(txt);
+                    if (Border != null && BParam != null && BParam.IsBorder)
                     {
-                        border.Height = Convert.ToDouble(txt);
+                        Border.Height = Convert.ToDouble(txt);
                     }
                     break;
                 default:
@@ -183,29 +183,29 @@ namespace diagramMaker.items
 
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {            
-            Point mousePosition = e.GetPosition(item);
-            data.tapXX = -mousePosition.X;
-            data.tapYY = -mousePosition.Y;
-            data.tapped = id;
-            Trace.WriteLine("data.tapped:" + data.tapped);
+            Point mousePosition = e.GetPosition(Item);
+            Data.tapXX = -mousePosition.X;
+            Data.tapYY = -mousePosition.Y;
+            Data.tapped = Id;
+            Trace.WriteLine("data.tapped:" + Data.tapped);
 
-            EEventNotify?.Invoke(id);
+            EEventNotify?.Invoke(Id);
 
             e.Handled = true;
         }
 
         public void CommonResizeHandler(double left, double top, double width, double height)
         {
-            Canvas.SetLeft(item, left);
-            Canvas.SetTop(item, top);
-            item.Width = width;
-            item.Height = height;
-            if (iParam != null)
+            Canvas.SetLeft(Item, left);
+            Canvas.SetTop(Item, top);
+            Item.Width = width;
+            Item.Height = height;
+            if (IParam != null)
             {
-                iParam.left = left;
-                iParam.top = top;
-                iParam.width = width; 
-                iParam.height = height;
+                IParam.Left = left;
+                IParam.Top = top;
+                IParam.Width = width; 
+                IParam.Height = height;
             }
         }
     }

@@ -89,7 +89,7 @@ namespace diagramMaker
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    if (data.tapped == data.items[data.GetItemByID(data.appCanvasID)].id)
+                    if (data.tapped == data.items[data.GetItemByID(data.appCanvasID)].Id)
                     {
                         data.topLeftX += (_mousePosition.X - data.oldMouseX);
                         data.topLeftY += (_mousePosition.Y - data.oldMouseY);
@@ -119,7 +119,7 @@ namespace diagramMaker
             TapControl();
             if (data.isMenuItem)
             { 
-                ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).item.Visibility = Visibility.Hidden;
+                ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
                 data.isMenuItem = false;
                 eventner.ItemMenuDelete(data.menuItemParametersID);
                 data.items[data.GetItemByID(data.choosenItemID)].FinishHandling();
@@ -127,7 +127,7 @@ namespace diagramMaker
 
                 if (data.isMenuPainter)
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuPainter = false;
                     eventner.ItemMenuDelete(data.menuItemPaintMakerID);
                     

@@ -11,26 +11,26 @@ namespace diagramMaker.items
 {
     public class TextItem : DefaultItem
     {
-        public TextBox item;
+        public TextBox Item { get; set; }
 
         public TextItem(DataHub data, Canvas appCanvas, int parentId = -1) :
             base(data, appCanvas, parentId, EItem.Text)
         {
-            item = new TextBox();
-            item.Text = "";
+            Item = new TextBox();
+            Item.Text = "";
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    appCanvas.Children.Add(Item);
                 }
                 else
                 {
                     int _id = data.GetItemByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).item.Children.Add(item);
+                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }
@@ -83,100 +83,100 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (iParam != null)
+            if (IParam != null)
             {
-                if (iParam.bgColor != null)
+                if (IParam.BgColor != null)
                 {
-                    item.Background = iParam.bgColor;
+                    Item.Background = IParam.BgColor;
                 }
-                if (iParam.frColor != null)
+                if (IParam.FrColor != null)
                 {
-                    item.Foreground = iParam.frColor;
+                    Item.Foreground = IParam.FrColor;
                 }
-                item.Width = iParam.width;
-                item.Height = iParam.height;
-                Canvas.SetLeft(item, iParam.left);
-                Canvas.SetTop(item, iParam.top);
+                Item.Width = IParam.Width;
+                Item.Height = IParam.Height;
+                Canvas.SetLeft(Item, IParam.Left);
+                Canvas.SetTop(Item, IParam.Top);
             }
         }
 
         protected void HandlerContentParam()
         {
-            if (content != null)
+            if (Content != null)
             {
-                if (!string.IsNullOrEmpty(content.content))
+                if (!string.IsNullOrEmpty(Content.Content))
                 {
-                    item.Text = content.content;
+                    Item.Text = Content.Content;
                 }
-                if (content.horAlign != null)
+                if (Content.HorAlign != null)
                 {
-                    item.HorizontalContentAlignment = content.horAlign ?? HorizontalAlignment.Left;
+                    Item.HorizontalContentAlignment = Content.HorAlign ?? HorizontalAlignment.Left;
                 }
-                if (content.verAlign != null)
+                if (Content.VerAlign != null)
                 {
-                    item.VerticalContentAlignment = content.verAlign ?? VerticalAlignment.Top;
+                    Item.VerticalContentAlignment = Content.VerAlign ?? VerticalAlignment.Top;
                 }
-                if (content.isTextChanged)
+                if (Content.IsTextChanged)
                 {
-                    item.TextChanged += Item_TextChanged;
-                    item.KeyDown += Item_KeyDown;
+                    Item.TextChanged += Item_TextChanged;
+                    Item.KeyDown += Item_KeyDown;
                 }
             }
         }
 
         protected void HandlerBParam()
         {
-            if (bParam != null)
+            if (BParam != null)
             {
-                if (bParam.isBorder)
+                if (BParam.IsBorder)
                 {
-                    item.BorderThickness = new Thickness(bParam.borderThickness);
-                    item.BorderBrush = new SolidColorBrush(bParam.color ?? Colors.Black);
+                    Item.BorderThickness = new Thickness(BParam.BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
                 }
             }
         }
 
         protected void HandlerEParam()
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                if (eParam.isMouseDown)
+                if (EParam.IsMouseDown)
                 {
-                    item.MouseDown += Item_MouseDown;
+                    Item.MouseDown += Item_MouseDown;
                 }
             }
         }
 
         private void Item_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (content != null)
+            if (Content != null)
             {
-                if (content.isDigitsOnly && !IsTextNumeric(item.Text))
+                if (Content.IsDigitsOnly && !IsTextNumeric(Item.Text))
                 {
                     int _i = 0;
-                    while (_i < item.Text.Length)
+                    while (_i < Item.Text.Length)
                     {
-                        if (!IsTextNumeric(item.Text.Substring(_i, 1)))
+                        if (!IsTextNumeric(Item.Text.Substring(_i, 1)))
                         {
-                            item.Text = item.Text.Remove(_i, 1);
+                            Item.Text = Item.Text.Remove(_i, 1);
                             continue;
                         }
                         _i++;
                     }
 
                 }
-                if (item.Text.Length == 0)
+                if (Item.Text.Length == 0)
                 {
-                    item.Text = "0";
+                    Item.Text = "0";
                 }
             }
         }
 
         private void Item_KeyDown(object sender, KeyEventArgs e)
         {
-            if (content != null && content.bindID != 0 && data.items != null)
+            if (Content != null && Content.BindID != 0 && Data.items != null)
             {
-                data.items[data.GetItemByID(content.bindID)].ValueChanger(content.bindParameter, item.Text);
+                Data.items[Data.GetItemByID(Content.BindID)].ValueChanger(Content.BindParameter, Item.Text);
             }
         }
 
@@ -193,24 +193,24 @@ namespace diagramMaker.items
             switch (eBindParameter)
             {
                 case EBindParameter.Name:
-                    name = txt;
+                    Name = txt;
                     break;
                 case EBindParameter.Content:
-                    item.Text = txt;
+                    Item.Text = txt;
                     break;
                 case EBindParameter.Width:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.width = Convert.ToDouble(txt);
+                        IParam.Width = Convert.ToDouble(txt);
                     }
-                    item.Width = Convert.ToDouble(txt);
+                    Item.Width = Convert.ToDouble(txt);
                     break;
                 case EBindParameter.Height:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.height = Convert.ToDouble(txt);
+                        IParam.Height = Convert.ToDouble(txt);
                     }
-                    item.Height = Convert.ToDouble(txt);
+                    Item.Height = Convert.ToDouble(txt);
                     break;
                 default:
                     break;

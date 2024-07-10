@@ -49,6 +49,21 @@ namespace diagramMaker
 
         public bool btnControl;
 
+        private static bool isClear = true;
+        public static bool IsClear
+        {
+            get 
+            { 
+                if (isClear) 
+                {
+                    isClear = false;
+                    return true;
+                } else 
+                { return isClear;
+                } 
+            }
+        }
+
         public DataHub()
         {
             ClearData();
@@ -57,6 +72,8 @@ namespace diagramMaker
 
         public void ClearData()
         {
+            isClear = true;
+
             items = new List<DefaultItem>();
             parameters = new Dictionary<string, DefaultParameter>();
             itemCollection = new Dictionary<string, ItemMaker>();
@@ -102,9 +119,13 @@ namespace diagramMaker
 
         public int GetItemByID(int id)
         {
+            if (items==null)
+            {
+                return -1;
+            }
             for (var _i = 0; _i < items.Count; _i++)
             {
-                if (items[_i].id == id)
+                if (items[_i].Id == id)
                 {
                     return _i;
                 }

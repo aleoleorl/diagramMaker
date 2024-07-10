@@ -9,12 +9,12 @@ namespace diagramMaker.items
 {
     public class ImageItem : DefaultItem
     {
-        public Image item;
+        public Image Item { get; set; }
 
         public ImageItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Image)
         {
-            item = new Image();
+            Item = new Image();
 
             HandlerConnector();
         }
@@ -60,44 +60,44 @@ namespace diagramMaker.items
 
         protected void HandlerImgParam()
         {
-            if (imgParam == null || string.IsNullOrEmpty(imgParam?.imagePath))
+            if (ImgParam == null || string.IsNullOrEmpty(ImgParam?.ImagePath))
             {
                 return;
             }
-            imgParam.bitmapImage = new BitmapImage(new Uri(imgParam.imagePath, UriKind.RelativeOrAbsolute));
-            item = new Image
+            ImgParam.BitmapImage = new BitmapImage(new Uri(ImgParam.ImagePath, UriKind.RelativeOrAbsolute));
+            Item = new Image
             {
-                Width = imgParam.bitmapImage.Width,
-                Height = imgParam.bitmapImage.Height,
-                Source = imgParam.bitmapImage
+                Width = ImgParam.BitmapImage.Width,
+                Height = ImgParam.BitmapImage.Height,
+                Source = ImgParam.BitmapImage
             };            
         }
 
         protected void HandlerIParam()
         {
-            if (iParam != null)
+            if (IParam != null)
             {
-                item.Width = iParam.width;
-                item.Height = iParam.height;
-                Canvas.SetLeft(item, iParam.left);
-                Canvas.SetTop(item, iParam.top);
+                Item.Width = IParam.Width;
+                Item.Height = IParam.Height;
+                Canvas.SetLeft(Item, IParam.Left);
+                Canvas.SetTop(Item, IParam.Top);
             }
         }
 
         protected void HandlerConnector()
         {
-            if (appCanvas != null)
+            if (AppCanvas != null)
             {
-                if (parentId == -1)
+                if (ParentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    AppCanvas.Children.Add(Item);
                 }
                 else
                 {
-                    int _id = data.GetItemByID(parentId);
-                    if (_id != -1 && data.items != null)
+                    int _id = Data.GetItemByID(ParentId);
+                    if (_id != -1 && Data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).item.Children.Add(item);
+                        ((CanvasItem)Data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }

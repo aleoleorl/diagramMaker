@@ -5,14 +5,20 @@ namespace diagramMaker.parameters
 {
     public class ContentParameter : DefaultParameter
     {
-        public string? content;
-        public HorizontalAlignment? horAlign;
-        public VerticalAlignment? verAlign;
+        public string? Content { get; set; }
+        public HorizontalAlignment? HorAlign { get; set; }
+        public VerticalAlignment? VerAlign { get; set; }
+
         public bool isTextChanged = false;
-        public EBindParameter bindParameter;
-        public int bindID;
-        public bool isDigitsOnly;
-        public int count;
+        public bool IsTextChanged 
+        {
+            get { return isTextChanged; }
+            set { isTextChanged = value; }
+        }
+        public EBindParameter BindParameter { get; set; }
+        public int BindID { get; set; }
+        public bool IsDigitsOnly { get; set; }
+        public int Count { get; set; }
 
         public ContentParameter(
             string? content = null,
@@ -24,14 +30,14 @@ namespace diagramMaker.parameters
             bool isDigitsOnly = false,
             int count = -1)
         {
-            this.content = content;
-            this.horAlign = horAlign;
-            this.verAlign = verAlign;
-            this.isTextChanged = isTextChanged;
-            this.bindParameter = bindParameter;
-            this.bindID = bindID;
-            this.isDigitsOnly = isDigitsOnly;
-            this.count = count;
+            this.Content = content;
+            this.HorAlign = horAlign;
+            this.VerAlign = verAlign;
+            this.IsTextChanged = isTextChanged;
+            this.BindParameter = bindParameter;
+            this.BindID = bindID;
+            this.IsDigitsOnly = isDigitsOnly;
+            this.Count = count;
         }
 
         public override ContentParameter Clone()

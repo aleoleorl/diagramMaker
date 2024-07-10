@@ -13,26 +13,26 @@ namespace diagramMaker.items
 
     public class LabelItem : DefaultItem
     {
-        public Label item;
+        public Label Item { get; set; }
 
         public LabelItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Label)
         {
-            item = new Label();
-            item.Content = "";
+            Item = new Label();
+            Item.Content = "";
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    appCanvas.Children.Add(Item);
                 }
                 else
                 {
                     int _id = data.GetItemByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).item.Children.Add(item);
+                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }
@@ -40,15 +40,15 @@ namespace diagramMaker.items
 
         public void SetContent(string? message, ItemParameter? iParam = null)
         {
-            if (content != null)
+            if (Content != null)
             {
-                content.content = message;
+                Content.Content = message;
             }
-            item.Content = message;
+            Item.Content = message;
 
             if (iParam != null)
             {
-                this.iParam = iParam;
+                this.IParam = iParam;
                 HandlerIParam();
             }
         }        
@@ -99,66 +99,66 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (iParam != null)
+            if (IParam != null)
             {
-                if (iParam.bgColor != null)
+                if (IParam.BgColor != null)
                 {
-                    item.Background = iParam.bgColor;
+                    Item.Background = IParam.BgColor;
                 }
-                if (iParam.frColor != null)
+                if (IParam.FrColor != null)
                 {
-                    item.Foreground = iParam.frColor;
+                    Item.Foreground = IParam.FrColor;
                 }
-                item.Width = iParam.width;
-                item.Height = iParam.height;
-                Canvas.SetLeft(item, iParam.left);
-                Canvas.SetTop(item, iParam.top);
+                Item.Width = IParam.Width;
+                Item.Height = IParam.Height;
+                Canvas.SetLeft(Item, IParam.Left);
+                Canvas.SetTop(Item, IParam.Top);
             }
         }
 
         protected void HandlerContentParam()
         {
-            if (content != null)
+            if (Content != null)
             {
-                if (!string.IsNullOrEmpty(content.content))
+                if (!string.IsNullOrEmpty(Content.Content))
                 {
-                    item.Content = content.content;
+                    Item.Content = Content.Content;
                 }
-                if (content.horAlign != null)
+                if (Content.HorAlign != null)
                 {
-                    item.HorizontalContentAlignment = content.horAlign ?? HorizontalAlignment.Left;
+                    Item.HorizontalContentAlignment = Content.HorAlign ?? HorizontalAlignment.Left;
                 }
-                if (content.verAlign != null)
+                if (Content.VerAlign != null)
                 {
-                    item.VerticalContentAlignment = content.verAlign ?? VerticalAlignment.Top;
+                    Item.VerticalContentAlignment = Content.VerAlign ?? VerticalAlignment.Top;
                 }
             }
         }
 
         protected void HandlerBParam()
         {
-            if (bParam != null)
+            if (BParam != null)
             {
-                if (bParam.isBorder)
+                if (BParam.IsBorder)
                 {
-                    item.BorderThickness = new Thickness(bParam.borderThickness);
-                    item.BorderBrush = new SolidColorBrush(bParam.color ?? Colors.Black);
+                    Item.BorderThickness = new Thickness(BParam.BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
                 }
             }
         }
 
         protected void HandlerEParam()
         {
-            if (eParam != null)
+            if (EParam != null)
             {
-                item.IsHitTestVisible = eParam.isHitTestVisible;
-                if (eParam.isMouseDown)
+                Item.IsHitTestVisible = EParam.IsHitTestVisible;
+                if (EParam.IsMouseDown)
                 {
-                    item.MouseDown += Item_MouseDown;
+                    Item.MouseDown += Item_MouseDown;
                 }
-                if (eParam.isMouseDoubleClick)
+                if (EParam.IsMouseDoubleClick)
                 {
-                    item.MouseDoubleClick += Item_MouseDoubleClick;
+                    Item.MouseDoubleClick += Item_MouseDoubleClick;
                 }
             }
         }
@@ -170,24 +170,24 @@ namespace diagramMaker.items
             switch (eBindParameter)
             {
                 case EBindParameter.Name:                        
-                    name = txt;
+                    Name = txt;
                     break;
                 case EBindParameter.Content:
-                    item.Content = txt;
+                    Item.Content = txt;
                     break;
                 case EBindParameter.Width:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.width = Convert.ToDouble(txt);
+                        IParam.Width = Convert.ToDouble(txt);
                     }
-                    item.Width = Convert.ToDouble(txt);
+                    Item.Width = Convert.ToDouble(txt);
                     break;
                 case EBindParameter.Height:
-                    if (iParam != null)
+                    if (IParam != null)
                     {
-                        iParam.height = Convert.ToDouble(txt);
+                        IParam.Height = Convert.ToDouble(txt);
                     }
-                    item.Height = Convert.ToDouble(txt);
+                    Item.Height = Convert.ToDouble(txt);
                     break;
                 default:
                     break;
@@ -207,10 +207,10 @@ namespace diagramMaker.items
                     switch (id)
                     {
                         case 1:
-                            item.Content = "Move";
+                            Item.Content = "Move";
                             break;
                         case 2:
-                            item.Content = "Draw";
+                            Item.Content = "Draw";
                             break;
                         default:
                             break;
@@ -223,23 +223,23 @@ namespace diagramMaker.items
 
         public void EventContent(ECommand commang, List<int> items)
         {
-            if (content == null || data.items == null)
+            if (Content == null || Data.items == null)
             {
                 return;
             }
             switch (commang)
             {
                 case ECommand.DescribeItem:
-                    if (items.Count > content.count)
+                    if (items.Count > Content.Count)
                     {
-                        content.content = data.items[items[content.count]].name;
+                        Content.Content = Data.items[items[Content.Count]].Name;
 
-                        string _tmp = data.items[items[content.count]].name.Replace("_", "__");
-                        item.Content = _tmp;
-                        item.Visibility = Visibility.Visible;
+                        string _tmp = Data.items[items[Content.Count]].Name.Replace("_", "__");
+                        Item.Content = _tmp;
+                        Item.Visibility = Visibility.Visible;
                     } else
                     {
-                        item.Visibility = Visibility.Hidden;
+                        Item.Visibility = Visibility.Hidden;
                     }
                     break;
                 default:

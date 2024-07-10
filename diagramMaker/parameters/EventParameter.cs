@@ -5,16 +5,16 @@ namespace diagramMaker.parameters
 {
     public class EventParameter: DefaultParameter
     {
-        public bool isMoveSensitive;
-        public bool isMouseDown;
-        public bool isMouseMove;
-        public bool isMouseUp;
-        public string mouseUpInfo;
-        public Boolean isHitTestVisible;
-        public bool isMouseClick;
-        public bool isMouseLeave;
-        public bool isMouseWheel;
-        public bool isMouseDoubleClick;
+        public bool IsMoveSensitive { get; set; }
+        public bool IsMouseDown { get; set; }
+        public bool IsMouseMove { get; set; }
+        public bool IsMouseUp { get; set; }
+        public string MouseUpInfo { get; set; }
+        public bool IsHitTestVisible { get; set; }
+        public bool IsMouseClick { get; set; }
+        public bool IsMouseLeave { get; set; }
+        public bool IsMouseWheel { get; set; }
+        public bool IsMouseDoubleClick { get; set; }
 
         public ECommand Command;
         public int CommandParameter;
@@ -33,18 +33,18 @@ namespace diagramMaker.parameters
             bool mouseWheel = false,
             bool mouseDoubleClick = false)
         {
-            this.isMoveSensitive = moveSensitive;
-            this.isMouseDown = mouseDown;
-            this.isMouseUp = mouseUp;
-            this.mouseUpInfo = mouseUpInfo;
-            this.isHitTestVisible = IsHitTestVisible;
-            this.isMouseClick = mouseClick;
+            this.IsMoveSensitive = moveSensitive;
+            this.IsMouseDown = mouseDown;
+            this.IsMouseUp = mouseUp;
+            this.MouseUpInfo = mouseUpInfo;
+            this.IsHitTestVisible = IsHitTestVisible;
+            this.IsMouseClick = mouseClick;
             this.Command = command;
             this.CommandParameter = commandParameter;
-            this.isMouseMove = mouseMove;
-            this.isMouseLeave = mouseLeave;
-            this.isMouseWheel = mouseWheel;
-            this.isMouseDoubleClick = mouseDoubleClick;
+            this.IsMouseMove = mouseMove;
+            this.IsMouseLeave = mouseLeave;
+            this.IsMouseWheel = mouseWheel;
+            this.IsMouseDoubleClick = mouseDoubleClick;
         }
 
         public override EventParameter Clone()
