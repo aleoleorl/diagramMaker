@@ -40,15 +40,15 @@ namespace diagramMaker.items
 
         public void SetContent(string? message, ItemParameter? iParam = null)
         {
-            if (Content != null)
+            if (param.ContainsKey(EParameter.Content))
             {
-                Content.Content = message;
+                ((ContentParameter)param[EParameter.Content]).Content = message;
             }
             Item.Content = message;
 
             if (iParam != null)
             {
-                this.IParam = iParam;
+                param[EParameter.Item] = iParam.Clone();
                 HandlerIParam();
             }
         }        
@@ -99,64 +99,64 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (IParam != null)
+            if (param.ContainsKey(EParameter.Item))
             {
-                if (IParam.BgColor != null)
+                if (((ItemParameter)param[EParameter.Item]).BgColor != null)
                 {
-                    Item.Background = IParam.BgColor;
+                    Item.Background = ((ItemParameter)param[EParameter.Item]).BgColor;
                 }
-                if (IParam.FrColor != null)
+                if (((ItemParameter)param[EParameter.Item]).FrColor != null)
                 {
-                    Item.Foreground = IParam.FrColor;
+                    Item.Foreground = ((ItemParameter)param[EParameter.Item]).FrColor;
                 }
-                Item.Width = IParam.Width;
-                Item.Height = IParam.Height;
-                Canvas.SetLeft(Item, IParam.Left);
-                Canvas.SetTop(Item, IParam.Top);
+                Item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                Item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
         protected void HandlerContentParam()
         {
-            if (Content != null)
+            if (param.ContainsKey(EParameter.Content))
             {
-                if (!string.IsNullOrEmpty(Content.Content))
+                if (!string.IsNullOrEmpty(((ContentParameter)param[EParameter.Content]).Content))
                 {
-                    Item.Content = Content.Content;
+                    Item.Content = ((ContentParameter)param[EParameter.Content]).Content;
                 }
-                if (Content.HorAlign != null)
+                if (((ContentParameter)param[EParameter.Content]).HorAlign != null)
                 {
-                    Item.HorizontalContentAlignment = Content.HorAlign ?? HorizontalAlignment.Left;
+                    Item.HorizontalContentAlignment = ((ContentParameter)param[EParameter.Content]).HorAlign ?? HorizontalAlignment.Left;
                 }
-                if (Content.VerAlign != null)
+                if (((ContentParameter)param[EParameter.Content]).VerAlign != null)
                 {
-                    Item.VerticalContentAlignment = Content.VerAlign ?? VerticalAlignment.Top;
+                    Item.VerticalContentAlignment = ((ContentParameter)param[EParameter.Content]).VerAlign ?? VerticalAlignment.Top;
                 }
             }
         }
 
         protected void HandlerBParam()
         {
-            if (BParam != null)
+            if (param.ContainsKey(EParameter.Border))
             {
-                if (BParam.IsBorder)
+                if (((BorderParameter)param[EParameter.Border]).IsBorder)
                 {
-                    Item.BorderThickness = new Thickness(BParam.BorderThickness);
-                    Item.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
+                    Item.BorderThickness = new Thickness(((BorderParameter)param[EParameter.Border]).BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(((BorderParameter)param[EParameter.Border]).Color ?? Colors.Black);
                 }
             }
         }
 
         protected void HandlerEParam()
         {
-            if (EParam != null)
+            if (param.ContainsKey(EParameter.Event))
             {
-                Item.IsHitTestVisible = EParam.IsHitTestVisible;
-                if (EParam.IsMouseDown)
+                Item.IsHitTestVisible = ((EventParameter)param[EParameter.Event]).IsHitTestVisible;
+                if (((EventParameter)param[EParameter.Event]).IsMouseDown)
                 {
                     Item.MouseDown += Item_MouseDown;
                 }
-                if (EParam.IsMouseDoubleClick)
+                if (((EventParameter)param[EParameter.Event]).IsMouseDoubleClick)
                 {
                     Item.MouseDoubleClick += Item_MouseDoubleClick;
                 }
@@ -169,23 +169,23 @@ namespace diagramMaker.items
         {
             switch (eBindParameter)
             {
-                case EBindParameter.Name:                        
-                    Name = txt;
+                case EBindParameter.Name:
+                    ((CommonParameter)param[EParameter.Common]).Name = txt;
                     break;
                 case EBindParameter.Content:
                     Item.Content = txt;
                     break;
                 case EBindParameter.Width:
-                    if (IParam != null)
+                    if (param.ContainsKey(EParameter.Item))
                     {
-                        IParam.Width = Convert.ToDouble(txt);
+                        ((ItemParameter)param[EParameter.Item]).Width = Convert.ToDouble(txt);
                     }
                     Item.Width = Convert.ToDouble(txt);
                     break;
                 case EBindParameter.Height:
-                    if (IParam != null)
+                    if (param.ContainsKey(EParameter.Item))
                     {
-                        IParam.Height = Convert.ToDouble(txt);
+                        ((ItemParameter)param[EParameter.Item]).Height = Convert.ToDouble(txt);
                     }
                     Item.Height = Convert.ToDouble(txt);
                     break;
@@ -223,18 +223,21 @@ namespace diagramMaker.items
 
         public void EventContent(ECommand commang, List<int> items)
         {
-            if (Content == null || Data.items == null)
+            if (!param.ContainsKey(EParameter.Content) || Data.items == null)
             {
                 return;
             }
             switch (commang)
             {
                 case ECommand.DescribeItem:
-                    if (items.Count > Content.Count)
+                    if (items.Count > ((ContentParameter)param[EParameter.Content]).Count)
                     {
-                        Content.Content = Data.items[items[Content.Count]].Name;
+                        int _item = items[((ContentParameter)param[EParameter.Content]).Count];
 
-                        string _tmp = Data.items[items[Content.Count]].Name.Replace("_", "__");
+                        ((ContentParameter)param[EParameter.Content]).Content =
+                            ((CommonParameter)Data.items[_item].param[EParameter.Common]).Name;
+
+                        string _tmp = ((CommonParameter)Data.items[_item].param[EParameter.Common]).Name.Replace("_", "__");
                         Item.Content = _tmp;
                         Item.Visibility = Visibility.Visible;
                     } else

@@ -1,8 +1,9 @@
 ﻿using diagramMaker.helpers;
 using diagramMaker.parameters;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Reflection.Metadata;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -10,9 +11,7 @@ namespace diagramMaker.items
 {
     public class DefaultItem
     {
-        public double AppX { get; set; }
-        public double AppY { get; set; }
-        public int Id { get; set; }
+        protected DataHub Data { get; set; }
 
         private static int id = 1;
         private static int ID 
@@ -26,22 +25,15 @@ namespace diagramMaker.items
                 }
             }
         }
-        public int ParentId { get; set; }
-        public int ConnectorId { get; set; }
-        public string Name { get; set; }
-
-        protected DataHub Data { get; set; }
-
         protected Canvas? AppCanvas { get; set; }
-        public EItem ItemType { get; set; }
-        public EItemAttach ItemAttach { get; set; }
-
-        public ItemParameter? IParam { get; set; }
-        public ContentParameter? Content { get; set; }
-        public BorderParameter? BParam { get; set; }
-        public EventParameter? EParam { get; set; }
-        public ImageParameter? ImgParam { get; set; }
-        public ShapeParameter? ShapeParam { get; set; }
+        public Dictionary<EParameter, DefaultParameter> param { get; set; }
+        //public CommonParameter Common { get; set; }
+        //public ItemParameter? IParam { get; set; }
+        //public ContentParameter? Content { get; set; }
+        //public BorderParameter? BParam { get; set; }
+        //public EventParameter? EParam { get; set; }
+        //public ImageParameter? ImgParam { get; set; }
+        //public ShapeParameter? ShapeParam { get; set; }
 
         public delegate void MouseAppHandler(string item);
         public event MouseAppHandler? MouseAppNotify;
@@ -57,21 +49,26 @@ namespace diagramMaker.items
         public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1, EItem itemType = EItem.Default)
         {
             this.Data = data;
-            AppX = data.topLeftX + data.oldMouseX;
-            AppY = data.topLeftY + data.oldMouseY;
+            param = new Dictionary<EParameter, DefaultParameter>();
+
+            param.Add(EParameter.Common, new CommonParameter());            
+            CommonParameter _common = (CommonParameter)param[EParameter.Common];
+            _common.AppX = data.topLeftX + data.oldMouseX;
+            _common.AppY = data.topLeftY + data.oldMouseY;
             this.AppCanvas = appCanvas;
-            this.ParentId = parentId;
+            _common.ParentId = parentId;
             SetId();
-            IParam = new ItemParameter(0, 0, 0, 0, null, null);
-            Name = "item_" + Id;
-            this.ItemType = itemType;
-            this.ItemAttach = EItemAttach.Menu;
-            ConnectorId = -1;
+            _common.Name = "item_" + _common.Id;
+            _common.ItemType = itemType;
+            _common.ItemAttach = EItemAttach.Menu;
+            _common.ConnectorId = -1;
+
+            param.Add(EParameter.Item, new ItemParameter(0, 0, 0, 0, null, null));
         }
 
         private void SetId()
         {
-            Id = ID++;
+            ((CommonParameter)param[EParameter.Common]).Id = ID;
         }
         public static int GetCurrentFreeId()
         {
@@ -90,11 +87,60 @@ namespace diagramMaker.items
             ImageParameter? imgParam = null,
             ShapeParameter? shapeParam = null)
         {
-            this.IParam = iParam?.Clone();
-            this.Content = content;
-            this.BParam = bParam;
-            this.EParam = eParam?.Clone();
-            this.ImgParam = imgParam;
+            if (iParam != null)
+            {
+                if (param.ContainsKey(EParameter.Item))
+                {
+                    param[EParameter.Item] = iParam.Clone();
+                } else
+                {
+                    param.Add(EParameter.Item, iParam.Clone());
+                }
+            }
+            if (content != null)
+            {
+                if (param.ContainsKey(EParameter.Content))
+                {
+                    param[EParameter.Content] = content.Clone();
+                }
+                else
+                {
+                    param.Add(EParameter.Content, content.Clone());
+                }
+            }
+            if (bParam != null)
+            {
+                if (param.ContainsKey(EParameter.Border))
+                {
+                    param[EParameter.Border] = bParam.Clone();
+                }
+                else
+                {
+                    param.Add(EParameter.Border, bParam.Clone());
+                }
+            }
+            if (eParam != null)
+            {
+                if (param.ContainsKey(EParameter.Event))
+                {
+                    param[EParameter.Event] = eParam.Clone();
+                }
+                else
+                {
+                    param.Add(EParameter.Event, eParam.Clone());
+                }
+            }
+            if (imgParam != null)
+            {
+                if (param.ContainsKey(EParameter.Image))
+                {
+                    param[EParameter.Image] = imgParam.Clone();
+                }
+                else
+                {
+                    param.Add(EParameter.Image, imgParam.Clone());
+                }
+            }
         }
 
         public virtual void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
@@ -108,24 +154,101 @@ namespace diagramMaker.items
                 switch (type)
                 {
                     case EParameter.Border:
-                        this.BParam = (BorderParameter)dParam.Clone();
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Border))
+                            {
+                                param[EParameter.Border] = (BorderParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Border, (BorderParameter)dParam.Clone());
+                            }
+                        }
+                        break;
+                    case EParameter.Common:
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Common))
+                            {
+                                param[EParameter.Common] = (CommonParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Common, (CommonParameter)dParam.Clone());
+                            }
+                        }
                         break;
                     case EParameter.Content:
-                        this.Content = (ContentParameter)dParam.Clone();
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Content))
+                            {
+                                param[EParameter.Content] = (ContentParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Content, (ContentParameter)dParam.Clone());
+                            }
+                        }
                         break;
                     case EParameter.Event:
-                        this.EParam = ((EventParameter)dParam).Clone();
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Event))
+                            {
+                                param[EParameter.Event] = (EventParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Event, (EventParameter)dParam.Clone());
+                            }
+                        }
                         break;
                     case EParameter.Image:
-                        this.ImgParam = (ImageParameter)dParam.Clone();
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Image))
+                            {
+                                param[EParameter.Image] = (ImageParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Image, (ImageParameter)dParam.Clone());
+                            }
+                        }
                         break;
                     case EParameter.Item:
-                        this.IParam = ((ItemParameter)dParam).Clone();
-                        AppX = Data.topLeftX + ((ItemParameter)dParam).Left;
-                        AppY = Data.topLeftY + ((ItemParameter)dParam).Top;
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Item))
+                            {
+                                param[EParameter.Item] = (ItemParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Item, (ItemParameter)dParam.Clone());
+                            }
+
+                            if (param.ContainsKey(EParameter.Item))
+                            {
+                                ((CommonParameter)param[EParameter.Item]).AppX = Data.topLeftX + ((ItemParameter)dParam).Left;
+                                ((CommonParameter)param[EParameter.Item]).AppY = Data.topLeftY + ((ItemParameter)dParam).Top;
+                            }
+                        }
                         break;
                     case EParameter.Shape:
-                        this.ShapeParam = ((ShapeParameter)dParam).Clone();
+                        if (dParam != null)
+                        {
+                            if (param.ContainsKey(EParameter.Shape))
+                            {
+                                param[EParameter.Shape] = (ShapeParameter)dParam.Clone();
+                            }
+                            else
+                            {
+                                param.Add(EParameter.Shape, (ShapeParameter)dParam.Clone());
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -143,21 +266,21 @@ namespace diagramMaker.items
 
         public virtual void Item_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (EParam != null)
+            if (param.ContainsKey(EParameter.Event))
             {
-                MouseAppNotify?.Invoke(item: EParam.MouseUpInfo);
-                MouseAppIdNotify?.Invoke(id: Id);
+                MouseAppNotify?.Invoke(item: ((EventParameter)param[EParameter.Event]).MouseUpInfo);
+                MouseAppIdNotify?.Invoke(id: ((CommonParameter)param[EParameter.Common]).Id);
             }
 
-            MouseDoubleClickNotify?.Invoke(Id);
+            MouseDoubleClickNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
             e.Handled = true;
         }
 
         public void Default_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (Data.tapped == Id)
+            if (Data.tapped == ((CommonParameter)param[EParameter.Common]).Id)
             {
-                MouseMoveNotify?.Invoke(id: Id);
+                MouseMoveNotify?.Invoke(id: ((CommonParameter)param[EParameter.Common]).Id);
             }
         }
 
@@ -192,7 +315,7 @@ namespace diagramMaker.items
 
         public void Item_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            MouseDoubleClickNotify?.Invoke(Id);
+            MouseDoubleClickNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
             e.Handled = true;
         }
     }

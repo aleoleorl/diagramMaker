@@ -3,6 +3,7 @@
     public enum EParameter
     {
         Border,
+        Common,
         Content,
         Event,
         Shape,

@@ -60,21 +60,21 @@ namespace diagramMaker.managers
                 {
                     foreach (var _item in data.items)
                     {
-                        if (_item.ItemAttach != helpers.EItemAttach.Custom)
+                        if (((CommonParameter)_item.param[EParameter.Common]).ItemAttach != helpers.EItemAttach.Custom)
                         {
                             continue;
                         }
                         writer.WriteStartElement("item");
-                        writer.WriteAttributeString("id", _item.Id.ToString());
-                        writer.WriteAttributeString("parentId", _item.ParentId.ToString());
-                        writer.WriteAttributeString("connectorId", _item.ConnectorId.ToString());
-                        writer.WriteAttributeString("name", _item.Name);
-                        writer.WriteAttributeString("itemType", _item.ItemType.ToString());
-                        writer.WriteAttributeString("appX", _item.AppX.ToString());
-                        writer.WriteAttributeString("appY", _item.AppY.ToString());
+                        writer.WriteAttributeString("id", ((CommonParameter)_item.param[EParameter.Common]).Id.ToString());
+                        writer.WriteAttributeString("parentId", ((CommonParameter)_item.param[EParameter.Common]).ParentId.ToString());
+                        writer.WriteAttributeString("connectorId", ((CommonParameter)_item.param[EParameter.Common]).ConnectorId.ToString());
+                        writer.WriteAttributeString("name", ((CommonParameter)_item.param[EParameter.Common]).Name);
+                        writer.WriteAttributeString("itemType", ((CommonParameter)_item.param[EParameter.Common]).ItemType.ToString());
+                        writer.WriteAttributeString("appX", ((CommonParameter)_item.param[EParameter.Common]).AppX.ToString());
+                        writer.WriteAttributeString("appY", ((CommonParameter)_item.param[EParameter.Common]).AppY.ToString());
 
                         writer.WriteStartElement("itemSpecial");
-                        switch (_item.ItemType)
+                        switch (((CommonParameter)_item.param[EParameter.Common]).ItemType)
                         {
                             case helpers.EItem.Painter:
                                 writer.WriteAttributeString("isExist", "1");
@@ -97,79 +97,79 @@ namespace diagramMaker.managers
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("iParam");
-                        writer.WriteAttributeString("isExist", _item.IParam == null ? "0" : "1");
-                        if (_item.IParam != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Item] == null ? "0" : "1");
+                        if (_item.param[EParameter.Item] != null)
                         {
-                            writer.WriteElementString("left", _item.IParam.Left.ToString());
-                            writer.WriteElementString("top", _item.IParam.Top.ToString());
-                            writer.WriteElementString("width", _item.IParam.Width.ToString());
-                            writer.WriteElementString("height", _item.IParam.Height.ToString());
-                            writer.WriteElementString("bgColor", _item.IParam.BgColor == null ? "null" : _item.IParam.BgColor.ToString());
-                            writer.WriteElementString("frColor", _item.IParam.FrColor == null ? "null" : _item.IParam.FrColor.ToString());
+                            writer.WriteElementString("left", ((ItemParameter)_item.param[EParameter.Item]).Left.ToString());
+                            writer.WriteElementString("top", ((ItemParameter)_item.param[EParameter.Item]).Top.ToString());
+                            writer.WriteElementString("width", ((ItemParameter)_item.param[EParameter.Item]).Width.ToString());
+                            writer.WriteElementString("height", ((ItemParameter)_item.param[EParameter.Item]).Height.ToString());
+                            writer.WriteElementString("bgColor", ((ItemParameter)_item.param[EParameter.Item]).BgColor == null ? "null" : ((ItemParameter)_item.param[EParameter.Item]).BgColor.ToString());
+                            writer.WriteElementString("frColor", ((ItemParameter)_item.param[EParameter.Item]).FrColor == null ? "null" : ((ItemParameter)_item.param[EParameter.Item]).FrColor.ToString());
                         }
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("content");
-                        writer.WriteAttributeString("isExist", _item.Content == null ? "0" : "1");
-                        if (_item.Content != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Content] == null ? "0" : "1");
+                        if (_item.param[EParameter.Content] != null)
                         {
-                            writer.WriteElementString("content", _item.Content.Content == null ? "null" : _item.Content.Content);
-                            writer.WriteElementString("horAlign", _item.Content.HorAlign == null ? "null" : _item.Content.HorAlign.ToString());
-                            writer.WriteElementString("verAlign", _item.Content.VerAlign == null ? "null" : _item.Content.VerAlign.ToString());
-                            writer.WriteElementString("isTextChanged", _item.Content.IsTextChanged.ToString());
-                            writer.WriteElementString("bindParameter", _item.Content.BindParameter.ToString());
-                            writer.WriteElementString("bindID", _item.Content.BindID.ToString());
-                            writer.WriteElementString("isDigitsOnly", _item.Content.IsDigitsOnly.ToString());
-                            writer.WriteElementString("count", _item.Content.Count.ToString());
+                            writer.WriteElementString("content", ((ContentParameter)_item.param[EParameter.Content]).Content == null ? "null" : ((ContentParameter)_item.param[EParameter.Content]).Content);
+                            writer.WriteElementString("horAlign", ((ContentParameter)_item.param[EParameter.Content]).HorAlign == null ? "null" : ((ContentParameter)_item.param[EParameter.Content]).HorAlign.ToString());
+                            writer.WriteElementString("verAlign", ((ContentParameter)_item.param[EParameter.Content]).VerAlign == null ? "null" : ((ContentParameter)_item.param[EParameter.Content]).VerAlign.ToString());
+                            writer.WriteElementString("isTextChanged", ((ContentParameter)_item.param[EParameter.Content]).IsTextChanged.ToString());
+                            writer.WriteElementString("bindParameter", ((ContentParameter)_item.param[EParameter.Content]).BindParameter.ToString());
+                            writer.WriteElementString("bindID", ((ContentParameter)_item.param[EParameter.Content]).BindID.ToString());
+                            writer.WriteElementString("isDigitsOnly", ((ContentParameter)_item.param[EParameter.Content]).IsDigitsOnly.ToString());
+                            writer.WriteElementString("count", ((ContentParameter)_item.param[EParameter.Content]).Count.ToString());
                         }
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("bParam");
-                        writer.WriteAttributeString("isExist", _item.BParam == null ? "0" : "1");
-                        if (_item.BParam != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Border] == null ? "0" : "1");
+                        if (_item.param[EParameter.Border] != null)
                         {
-                            writer.WriteElementString("isBorder", _item.BParam.IsBorder.ToString());
-                            writer.WriteElementString("borderThickness", _item.BParam.BorderThickness.ToString());
-                            writer.WriteElementString("color", _item.BParam.Color == null ? "null" : _item.BParam.Color.ToString());
-                            writer.WriteElementString("cornerRadius", _item.BParam.CornerRadius.ToString());
+                            writer.WriteElementString("isBorder", ((BorderParameter)_item.param[EParameter.Border]).IsBorder.ToString());
+                            writer.WriteElementString("borderThickness", ((BorderParameter)_item.param[EParameter.Border]).BorderThickness.ToString());
+                            writer.WriteElementString("color", ((BorderParameter)_item.param[EParameter.Border]) == null ? "null" : ((BorderParameter)_item.param[EParameter.Border]).Color.ToString());
+                            writer.WriteElementString("cornerRadius", ((BorderParameter)_item.param[EParameter.Border]).CornerRadius.ToString());
                         }
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("eParam");
-                        writer.WriteAttributeString("isExist", _item.EParam == null ? "0" : "1");
-                        if (_item.EParam != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Event] == null ? "0" : "1");
+                        if (_item.param[EParameter.Event] != null)
                         {
-                            writer.WriteElementString("isMoveSensitive", _item.EParam.IsMoveSensitive.ToString());
-                            writer.WriteElementString("isMouseDown", _item.EParam.IsMouseDown.ToString());
-                            writer.WriteElementString("isMouseMove", _item.EParam.IsMouseMove.ToString());
-                            writer.WriteElementString("isMouseUp", _item.EParam.IsMouseUp.ToString());
-                            writer.WriteElementString("mouseUpInfo", _item.EParam.MouseUpInfo);
-                            writer.WriteElementString("isHitTestVisible", _item.EParam.IsHitTestVisible.ToString());
-                            writer.WriteElementString("isMouseClick", _item.EParam.IsMouseClick.ToString());
-                            writer.WriteElementString("isMouseLeave", _item.EParam.IsMouseLeave.ToString());
-                            writer.WriteElementString("isMouseWheel", _item.EParam.IsMouseWheel.ToString());
-                            writer.WriteElementString("isMouseDoubleClick", _item.EParam.IsMouseDoubleClick.ToString());
+                            writer.WriteElementString("isMoveSensitive", ((EventParameter)_item.param[EParameter.Event]).IsMoveSensitive.ToString());
+                            writer.WriteElementString("isMouseDown", ((EventParameter)_item.param[EParameter.Event]).IsMouseDown.ToString());
+                            writer.WriteElementString("isMouseMove", ((EventParameter)_item.param[EParameter.Event]).IsMouseMove.ToString());
+                            writer.WriteElementString("isMouseUp", ((EventParameter)_item.param[EParameter.Event]).IsMouseUp.ToString());
+                            writer.WriteElementString("mouseUpInfo", ((EventParameter)_item.param[EParameter.Event]).MouseUpInfo);
+                            writer.WriteElementString("isHitTestVisible", ((EventParameter)_item.param[EParameter.Event]).IsHitTestVisible.ToString());
+                            writer.WriteElementString("isMouseClick", ((EventParameter)_item.param[EParameter.Event]).IsMouseClick.ToString());
+                            writer.WriteElementString("isMouseLeave", ((EventParameter)_item.param[EParameter.Event]).IsMouseLeave.ToString());
+                            writer.WriteElementString("isMouseWheel", ((EventParameter)_item.param[EParameter.Event]).IsMouseWheel.ToString());
+                            writer.WriteElementString("isMouseDoubleClick", ((EventParameter)_item.param[EParameter.Event]).IsMouseDoubleClick.ToString());
                         }
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("imgParam");
-                        writer.WriteAttributeString("isExist", _item.ImgParam == null ? "0" : "1");
-                        if (_item.ImgParam != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Image] == null ? "0" : "1");
+                        if (_item.param[EParameter.Image] != null)
                         {
-                            writer.WriteElementString("imagePath", _item.ImgParam.ImagePath == null ? "null" : _item.ImgParam.ImagePath);
+                            writer.WriteElementString("imagePath", ((ImageParameter)_item.param[EParameter.Image]).ImagePath == null ? "null" : ((ImageParameter)_item.param[EParameter.Image]).ImagePath);
                         }
                         writer.WriteEndElement();
 
                         writer.WriteStartElement("shapeParam");
-                        writer.WriteAttributeString("isExist", _item.ShapeParam == null ? "0" : "1");
-                        writer.WriteAttributeString("vertex", _item.ShapeParam == null ? "0" : _item.ShapeParam.Vertex.Count.ToString());
-                        if (_item.ShapeParam != null)
+                        writer.WriteAttributeString("isExist", _item.param[EParameter.Shape] == null ? "0" : "1");
+                        writer.WriteAttributeString("vertex", _item.param[EParameter.Shape] == null ? "0" : ((ShapeParameter)_item.param[EParameter.Shape]).Vertex.Count.ToString());
+                        if (_item.param[EParameter.Shape] != null)
                         {
-                            writer.WriteElementString("shape", _item.ShapeParam.Shape.ToString());
-                            writer.WriteElementString("color", _item.ShapeParam.Color == null ? "null" : _item.ShapeParam.Color.ToString());
-                            writer.WriteElementString("strokeThickness", _item.ShapeParam.StrokeThickness.ToString());
+                            writer.WriteElementString("shape", ((ShapeParameter)_item.param[EParameter.Shape]).Shape.ToString());
+                            writer.WriteElementString("color", ((ShapeParameter)_item.param[EParameter.Shape]).Color == null ? "null" : ((ShapeParameter)_item.param[EParameter.Shape]).Color.ToString());
+                            writer.WriteElementString("strokeThickness", ((ShapeParameter)_item.param[EParameter.Shape]).StrokeThickness.ToString());
 
-                            foreach (FigureContainer _fc in _item.ShapeParam.Vertex)
+                            foreach (FigureContainer _fc in ((ShapeParameter)_item.param[EParameter.Shape]).Vertex)
                             {
                                 writer.WriteStartElement("vertex");
                                 writer.WriteAttributeString("x", _fc.x.ToString());
@@ -222,7 +222,7 @@ namespace diagramMaker.managers
             {
                 if (reader.NodeType == XmlNodeType.EndElement)
                 {
-                    if (reader.Name == "item" && data.items!= null && data.items[^1].ItemType == EItem.Painter)
+                    if (reader.Name == "item" && data.items!= null && ((CommonParameter)data.items[^1].param[EParameter.Common]).ItemType == EItem.Painter)
                     {
                         using (var ms = new MemoryStream(_imageData))
                         {
@@ -326,10 +326,10 @@ namespace diagramMaker.managers
                                 switch (reader.Name)
                                 {
                                     case "left":
-                                        _iParam.Left = data.items[^1].AppX - data.topLeftX;
+                                        _iParam.Left = ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX - data.topLeftX;
                                         break;
                                     case "top":
-                                        _iParam.Top = data.items[^1].AppY - data.topLeftY;
+                                        _iParam.Top = ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY - data.topLeftY;
                                         break;
                                     case "width":
                                         _iParam.Width = int.Parse(_str);
@@ -572,8 +572,8 @@ namespace diagramMaker.managers
 
             foreach(var _item in data.items)
             {
-                if (_item.ItemAttach == EItemAttach.Custom &&
-                    _item.ItemType == EItem.Figure)
+                if (((CommonParameter)_item.param[EParameter.Common]).ItemAttach == EItemAttach.Custom &&
+                    ((CommonParameter)_item.param[EParameter.Common]).ItemType == EItem.Figure)
                 {
                     ((FigureItem)_item).HandlerShapeParam();
                 }
@@ -582,13 +582,13 @@ namespace diagramMaker.managers
 
         public void V0_5_DefaultParams(DefaultItem itm, XmlReader reader, EventManager ev)
         {
-            itm.Id = int.Parse(reader.GetAttribute("id"));
-            itm.ConnectorId = int.Parse(reader.GetAttribute("connectorId"));
-            itm.ParentId = int.Parse(reader.GetAttribute("parentId"));
-            itm.Name = reader.GetAttribute("name");
-            itm.AppX = int.Parse(reader.GetAttribute("appX"));
-            itm.AppY = int.Parse(reader.GetAttribute("appY"));
-            itm.ItemAttach = EItemAttach.Custom;
+            ((CommonParameter)itm.param[EParameter.Common]).Id = int.Parse(reader.GetAttribute("id"));
+            ((CommonParameter)itm.param[EParameter.Common]).ConnectorId = int.Parse(reader.GetAttribute("connectorId"));
+            ((CommonParameter)itm.param[EParameter.Common]).ParentId = int.Parse(reader.GetAttribute("parentId"));
+            ((CommonParameter)itm.param[EParameter.Common]).Name = reader.GetAttribute("name");
+            ((CommonParameter)itm.param[EParameter.Common]).AppX = int.Parse(reader.GetAttribute("appX"));
+            ((CommonParameter)itm.param[EParameter.Common]).AppY = int.Parse(reader.GetAttribute("appY"));
+            ((CommonParameter)itm.param[EParameter.Common]).ItemAttach = EItemAttach.Custom;
             itm.MouseAppIdNotify += ev.EventItemMenuHandler;
         }
     }

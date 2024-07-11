@@ -110,7 +110,8 @@ namespace diagramMaker.items
 
         protected void HandlerImgParam()
         {
-            if (ImgParam == null && string.IsNullOrEmpty(ImgParam?.ImagePath))
+            if (param[EParameter.Image] == null &&
+                string.IsNullOrEmpty(((ImageParameter)param[EParameter.Image]).ImagePath))
             {
                 return;
             }
@@ -118,32 +119,32 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (IParam != null)
+            if (param[EParameter.Item] != null)
             {
-                item.Width = IParam.Width;
-                item.Height = IParam.Height;
-                Canvas.SetLeft(item, IParam.Left);
-                Canvas.SetTop(item, IParam.Top);
+                item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
         protected void HandlerEParam()
         {
-            if (EParam != null)
+            if (param[EParameter.Event] != null)
             {
-                if (EParam.IsMouseDown)
+                if (((EventParameter)param[EParameter.Event]).IsMouseDown)
                 {
                     item.MouseDown += Item_MouseDown;
                 }
-                if (EParam.IsMouseUp)
+                if (((EventParameter)param[EParameter.Event]).IsMouseUp)
                 {
                     item.MouseUp += Item_MouseUp;
                 }
-                if (EParam.IsMouseMove)
+                if (((EventParameter)param[EParameter.Event]).IsMouseMove)
                 {
                     item.MouseMove += Item_MouseMove; 
                 }
-                if (EParam.IsMouseLeave)
+                if (((EventParameter)param[EParameter.Event]).IsMouseLeave)
                 {
                     item.MouseLeave += Item_MouseLeave;
                 }
@@ -160,13 +161,13 @@ namespace diagramMaker.items
             {
                 mY = 0;
             }
-            if (IParam!= null && mX >= IParam.Width)
+            if (param[EParameter.Item] != null && mX >= ((ItemParameter)param[EParameter.Item]).Width)
             {
-                mX = (int)IParam.Width-1;
+                mX = (int)((ItemParameter)param[EParameter.Item]).Width-1;
             }
-            if (IParam != null && mY >= IParam.Height)
+            if (param[EParameter.Item] != null && mY >= ((ItemParameter)param[EParameter.Item]).Height)
             {
-                mY = (int)IParam.Height-1;
+                mY = (int)((ItemParameter)param[EParameter.Item]).Height-1;
             }
 
             Int32Rect _rect = new Int32Rect(mX, mY, 1, 1);
@@ -261,7 +262,7 @@ namespace diagramMaker.items
                 Point mousePosition = e.GetPosition(item);
                 Data.tapXX = -mousePosition.X;
                 Data.tapYY = -mousePosition.Y;
-                Data.tapped = Id;
+                Data.tapped = ((CommonParameter)param[EParameter.Common]).Id;
 
                 e.Handled = true;
                     break;
@@ -306,12 +307,12 @@ namespace diagramMaker.items
             switch (eBindParameter)
             {
                 case EBindParameter.Name:
-                    Name = txt;
+                    ((CommonParameter)param[EParameter.Common]).Name = txt;
                     break;
                 case EBindParameter.Width:
-                    if (IParam != null)
+                    if (param[EParameter.Item] != null)
                     {
-                        IParam.Width = Convert.ToDouble(txt);
+                        ((ItemParameter)param[EParameter.Item]).Width = Convert.ToDouble(txt);
                     }
                     item.Width = Convert.ToDouble(txt); //border
                     Image.Width = Convert.ToDouble(txt);
@@ -319,9 +320,9 @@ namespace diagramMaker.items
                     Image.Source = Painter;
                     break;
                 case EBindParameter.Height:
-                    if (IParam != null)
+                    if (param[EParameter.Item] != null)
                     {
-                        IParam.Height = Convert.ToDouble(txt);
+                        ((ItemParameter)param[EParameter.Item]).Height = Convert.ToDouble(txt);
                     }
                     item.Height = Convert.ToDouble(txt); //border
                     Image.Height = Convert.ToDouble(txt);

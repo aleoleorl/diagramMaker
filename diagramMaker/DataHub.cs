@@ -125,7 +125,7 @@ namespace diagramMaker
             }
             for (var _i = 0; _i < items.Count; _i++)
             {
-                if (items[_i].Id == id)
+                if (((CommonParameter)items[_i].param[EParameter.Common]).Id == id)
                 {
                     return _i;
                 }

@@ -24,7 +24,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 );
             Canvas appCanvas = ((CanvasItem)data.items[^1]).Item;
             mainWindow.Content = appCanvas;
-            data.appCanvasID = data.items[^1].Id;
+            data.appCanvasID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             mainWindow.ResizeNotify += ((CanvasItem)data.items[^1]).CommonResizeHandler;
 
             return appCanvas;
@@ -39,7 +39,7 @@ namespace diagramMaker.managers.DefaultPreparation
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Gray, cornerRadius: 0),
                 eParam: new EventParameter(moveSensitive: false)
                 );
-            data.informerID = data.items[^1].Id;
+            data.informerID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
 
             ((LabelItem)data.items[^1]).Item.SetValue(AutomationProperties.NameProperty, "InfoLine");
             mainWindow.CommonInfoNotify += ((LabelItem)data.items[^1]).SetContent;
@@ -58,14 +58,14 @@ namespace diagramMaker.managers.DefaultPreparation
                 bParam: (BorderParameter)data.parameters["borderVersion01"],
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
-            data.items[^1].AppX = data.topLeftX + 5;
-            data.items[^1].AppY = data.topLeftY + 10;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX = data.topLeftX + 5;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY = data.topLeftY + 10;
             data.menuCreation = data.items.Count - 1;
-            data.menuCreationCanvasID = data.items[^1].Id;
+            data.menuCreationCanvasID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             Panel.SetZIndex(((CanvasItem)data.items[data.menuCreation]).Item, 20);
 
             //menuCreation > txt label
-            data.items.Add(new LabelItem(data, appCanvas, data.items[data.menuCreation].Id));
+            data.items.Add(new LabelItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(0, 3, 144, 30, null, Brushes.Black),
                 content: new ContentParameter(content: "Items Menu:", horAlign: HorizontalAlignment.Center, verAlign: VerticalAlignment.Center),
@@ -81,14 +81,14 @@ namespace diagramMaker.managers.DefaultPreparation
         public static void Make_CreationMenu_InfoBlock(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add info block
-            data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].Id));
+            data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 33, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "InfoBlock")
                 );
-            int menuInfoBlockID = data.items[^1].Id;
+            int menuInfoBlockID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item info block > img
@@ -117,14 +117,14 @@ namespace diagramMaker.managers.DefaultPreparation
         public static void Make_CreationMenu_PaintMaker(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add paint canvas
-            data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].Id));
+            data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 84, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "PaintMaker")
                 );
-            int menuPaintID = data.items[^1].Id;
+            int menuPaintID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item paint canvas > img
@@ -150,14 +150,14 @@ namespace diagramMaker.managers.DefaultPreparation
         public static void Make_CreationMenu_Line(DataHub data, MainWindow mainWindow, Canvas appCanvas)
         {
             //menuCreation > item add line
-            data.items.Add(new CanvasItem(data, appCanvas, data.items[data.menuCreation].Id));
+            data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(3, 135, 144, 50, Brushes.Beige, null),
                 content: null,
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2),
                 eParam: new EventParameter(mouseUp: true, mouseUpInfo: "Line")
                 );
-            int menuLineID = data.items[^1].Id;
+            int menuLineID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
 
             //menuCreation > item line > img
@@ -191,11 +191,11 @@ namespace diagramMaker.managers.DefaultPreparation
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
             data.items[^1].SetParameter(EParameter.Border, data.parameters["borderVersion01"]);
-            data.items[^1].AppX = data.topLeftX + 5;
-            data.items[^1].AppY = data.topLeftY + 10;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX = data.topLeftX + 5;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY = data.topLeftY + 10;
             data.menuCreation = data.items.Count - 1;
             Panel.SetZIndex(((CanvasItem)data.items[data.menuCreation]).Item, 21);
-            data.menuItemParametersID = data.items[^1].Id;
+            data.menuItemParametersID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             ((CanvasItem)data.items[^1]).Item.Visibility = Visibility.Hidden;
         }
         public static void Make_PainterMakerMenu(DataHub data, MainWindow mainWindow, Canvas appCanvas)
@@ -208,10 +208,10 @@ namespace diagramMaker.managers.DefaultPreparation
                 bParam: new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.DarkSlateGray, cornerRadius: 2),
                 eParam: new EventParameter(moveSensitive: false, mouseDown: true)
                 );
-            data.items[^1].AppX = data.topLeftX + 5;
-            data.items[^1].AppY = data.topLeftY + 10;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX = data.topLeftX + 5;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY = data.topLeftY + 10;
             Panel.SetZIndex(((CanvasItem)data.items[^1]).Item, 21);
-            data.menuItemPaintMakerID = data.items[^1].Id;
+            data.menuItemPaintMakerID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             ((CanvasItem)data.items[^1]).Item.Visibility = Visibility.Hidden;
         }
 
@@ -276,7 +276,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(46, 50, 98, 26, null, Brushes.Black),
                 content: new ContentParameter(
-                    content: item.Name,
+                    content: ((CommonParameter)item.param[EParameter.Common]).Name,
                     horAlign: HorizontalAlignment.Left,
                     verAlign: VerticalAlignment.Center,
                     isTextChanged: true,
@@ -298,7 +298,9 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(46, 76, 98, 26, null, Brushes.Black),
                 content: new ContentParameter(
-                    content: item.IParam == null ? ((CanvasItem)item).Item.Width.ToString() : item.IParam.Width.ToString(),
+                    content: item.param[EParameter.Item] == null ? 
+                        ((CanvasItem)item).Item.Width.ToString() : 
+                        ((ItemParameter)item.param[EParameter.Item]).Width.ToString(),
                     horAlign: HorizontalAlignment.Left,
                     verAlign: VerticalAlignment.Center,
                     isTextChanged: true,
@@ -321,7 +323,9 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameters(
                 iParam: new ItemParameter(44, 102, 100, 26, null, Brushes.Black),
                 content: new ContentParameter(
-                    content: item.IParam == null ? ((CanvasItem)item).Item.Height.ToString() : item.IParam.Height.ToString(),
+                    content: item.param[EParameter.Item] == null ? 
+                        ((CanvasItem)item).Item.Height.ToString() : 
+                        ((ItemParameter)item.param[EParameter.Item]).Height.ToString(),
                     horAlign: HorizontalAlignment.Left,
                     verAlign: VerticalAlignment.Center,
                     isTextChanged: true,
@@ -336,7 +340,7 @@ namespace diagramMaker.managers.DefaultPreparation
             while (_i < data.items.Count)
             {
                 item = data.items[_i];
-                if (item.ParentId == data.choosenItemID)
+                if (((CommonParameter)item.param[EParameter.Common]).ParentId == data.choosenItemID)
                 {
                     //label separator:
                     data.items.Add(new LabelItem(data, appCanvas, data.menuItemParametersID));
@@ -371,12 +375,12 @@ namespace diagramMaker.managers.DefaultPreparation
                             data.items[^1].SetParameters(
                                 iParam: new ItemParameter(52, _coord, 92, 26, null, Brushes.Black),
                                 content: new ContentParameter(
-                                    content: ((LabelItem)data.items[data.GetItemByID(item.Id)]).Item.Content.ToString(),
+                                    content: ((LabelItem)data.items[data.GetItemByID(((CommonParameter)item.param[EParameter.Common]).Id)]).Item.Content.ToString(),
                                     horAlign: HorizontalAlignment.Left,
                                     verAlign: VerticalAlignment.Center,
                                     isTextChanged: true,
                                     bindParameter: EBindParameter.Content,
-                                    bindID: item.Id),
+                                    bindID: ((CommonParameter)item.param[EParameter.Common]).Id),
                                 bParam: null,
                                 eParam: null
                                 );
@@ -394,12 +398,12 @@ namespace diagramMaker.managers.DefaultPreparation
                             data.items[^1].SetParameters(
                                 iParam: new ItemParameter(46, _coord, 98, 26, null, Brushes.Black),
                                 content: new ContentParameter(
-                                    content: item.IParam == null ? ((CanvasItem)item).Item.Width.ToString() : item.IParam.Width.ToString(),
+                                    content: item.param[EParameter.Item] == null ? ((CanvasItem)item).Item.Width.ToString() : ((ItemParameter)item.param[EParameter.Item]).Width.ToString(),
                                     horAlign: HorizontalAlignment.Left,
                                     verAlign: VerticalAlignment.Center,
                                     isTextChanged: true,
                                     bindParameter: EBindParameter.Width,
-                                    bindID: item.Id,
+                                    bindID: ((CommonParameter)item.param[EParameter.Common]).Id,
                                     isDigitsOnly: true),
                                 bParam: null,
                                 eParam: null
@@ -418,12 +422,12 @@ namespace diagramMaker.managers.DefaultPreparation
                             data.items[^1].SetParameters(
                                 iParam: new ItemParameter(44, _coord, 100, 26, null, Brushes.Black),
                                 content: new ContentParameter(
-                                    content: item.IParam == null ? ((CanvasItem)item).Item.Height.ToString() : item.IParam.Height.ToString(),
+                                    content: item.param[EParameter.Item] == null ? ((CanvasItem)item).Item.Height.ToString() : ((ItemParameter)item.param[EParameter.Item]).Height.ToString(),
                                     horAlign: HorizontalAlignment.Left,
                                     verAlign: VerticalAlignment.Center,
                                     isTextChanged: true,
                                     bindParameter: EBindParameter.Height,
-                                    bindID: item.Id,
+                                    bindID: ((CommonParameter)item.param[EParameter.Common]).Id,
                                     isDigitsOnly: true),
                                 bParam: null,
                                 eParam: null
@@ -538,10 +542,10 @@ namespace diagramMaker.managers.DefaultPreparation
                     mouseDown: true,
                     mouseWheel:true)
                 );
-            data.items[^1].AppX = data.topLeftX + 5;
-            data.items[^1].AppY = data.topLeftY + 10;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX = data.topLeftX + 5;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY = data.topLeftY + 10;
             Panel.SetZIndex(((CanvasItem)data.items[^1]).Item, 22);
-            data.menuNavigationPanelID = data.items[^1].Id;
+            data.menuNavigationPanelID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             ((CanvasItem)data.items[^1]).MouseScrollNotify +=
                 mainWindow.eventner.EventNavigationPanelScrollCount;
             ((CanvasItem)data.items[^1]).Item.Visibility = Visibility.Hidden;

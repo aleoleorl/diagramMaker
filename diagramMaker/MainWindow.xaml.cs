@@ -89,7 +89,7 @@ namespace diagramMaker
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    if (data.tapped == data.items[data.GetItemByID(data.appCanvasID)].Id)
+                    if (data.tapped == ((CommonParameter)data.items[data.GetItemByID(data.appCanvasID)].param[EParameter.Common]).Id)
                     {
                         data.topLeftX += (_mousePosition.X - data.oldMouseX);
                         data.topLeftY += (_mousePosition.Y - data.oldMouseY);

@@ -60,27 +60,28 @@ namespace diagramMaker.items
 
         protected void HandlerImgParam()
         {
-            if (ImgParam == null || string.IsNullOrEmpty(ImgParam?.ImagePath))
+            if (param[EParameter.Image] == null || string.IsNullOrEmpty(((ImageParameter)param[EParameter.Image]).ImagePath))
             {
                 return;
             }
-            ImgParam.BitmapImage = new BitmapImage(new Uri(ImgParam.ImagePath, UriKind.RelativeOrAbsolute));
+            ((ImageParameter)param[EParameter.Image]).BitmapImage = new BitmapImage(
+                new Uri(((ImageParameter)param[EParameter.Image]).ImagePath, UriKind.RelativeOrAbsolute));
             Item = new Image
             {
-                Width = ImgParam.BitmapImage.Width,
-                Height = ImgParam.BitmapImage.Height,
-                Source = ImgParam.BitmapImage
+                Width = ((ImageParameter)param[EParameter.Image]).BitmapImage.Width,
+                Height = ((ImageParameter)param[EParameter.Image]).BitmapImage.Height,
+                Source = ((ImageParameter)param[EParameter.Image]).BitmapImage
             };            
         }
 
         protected void HandlerIParam()
         {
-            if (IParam != null)
+            if (param[EParameter.Item] != null)
             {
-                Item.Width = IParam.Width;
-                Item.Height = IParam.Height;
-                Canvas.SetLeft(Item, IParam.Left);
-                Canvas.SetTop(Item, IParam.Top);
+                Item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                Item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
@@ -88,13 +89,13 @@ namespace diagramMaker.items
         {
             if (AppCanvas != null)
             {
-                if (ParentId == -1)
+                if (((CommonParameter)param[EParameter.Common]).ParentId == -1)
                 {
                     AppCanvas.Children.Add(Item);
                 }
                 else
                 {
-                    int _id = Data.GetItemByID(ParentId);
+                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
                     if (_id != -1 && Data.items != null)
                     {
                         ((CanvasItem)Data.items[_id]).Item.Children.Add(Item);

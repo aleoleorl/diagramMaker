@@ -89,53 +89,65 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (IParam != null)
+            ItemParameter? _iParam = param.ContainsKey(EParameter.Item) ? 
+                (ItemParameter)param[EParameter.Item] : 
+                null;
+            if (_iParam != null)
             {
-                if (IParam.BgColor != null)
+                if (_iParam.BgColor != null)
                 {
-                    Item.Background = IParam.BgColor;
+                    Item.Background = _iParam.BgColor;
                 }
-                Canvas.SetLeft(Item, IParam.Left);
-                Canvas.SetTop(Item, IParam.Top);
-                Item.Width = IParam.Width;
-                Item.Height = IParam.Height;
+                Canvas.SetLeft(Item, _iParam.Left);
+                Canvas.SetTop(Item, _iParam.Top);
+                Item.Width = _iParam.Width;
+                Item.Height = _iParam.Height;
             }
         }
         protected void HandlerContent()
         {
-            if (Content != null)
+            ContentParameter? _content = param.ContainsKey(EParameter.Content) ?
+                (ContentParameter)param[EParameter.Content] :
+                null;
+            if (_content != null)
             {
-                if (!string.IsNullOrEmpty(Content.Content))
+                if (!string.IsNullOrEmpty(_content.Content))
                 {
-                    Item.Content = Content.Content;
+                    Item.Content = _content.Content;
                 }
 
-                if (Content.HorAlign != null)
+                if (_content.HorAlign != null)
                 {
-                    Item.HorizontalContentAlignment = Content.HorAlign ?? HorizontalAlignment.Left;
+                    Item.HorizontalContentAlignment = _content.HorAlign ?? HorizontalAlignment.Left;
                 }
-                if (Content.VerAlign != null)
+                if (_content.VerAlign != null)
                 {
-                    Item.VerticalContentAlignment = Content.VerAlign ?? VerticalAlignment.Top;
+                    Item.VerticalContentAlignment = _content.VerAlign ?? VerticalAlignment.Top;
                 }
             }
         }
         protected void HandlerBParam()
         {
-            if (BParam != null)
+            BorderParameter? _bParam = param.ContainsKey(EParameter.Border) ?
+                (BorderParameter)param[EParameter.Border] :
+                null;
+            if (_bParam != null)
             {
-                if (BParam.IsBorder)
+                if (_bParam.IsBorder)
                 {
-                    Item.BorderThickness = new Thickness(BParam.BorderThickness);
-                    Item.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
+                    Item.BorderThickness = new Thickness(_bParam.BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(_bParam.Color ?? Colors.Black);
                 }
             }
         }
         protected void HandlerEParam()
         {
-            if (EParam != null)
+            EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
+                (EventParameter)param[EParameter.Event] :
+                null;
+            if (_eParam != null)
             {
-                if (EParam.IsMouseClick)
+                if (_eParam.IsMouseClick)
                 {
                     Item.Click += Item_Click;
                 }
@@ -144,20 +156,26 @@ namespace diagramMaker.items
 
         protected void HandlerImgParam()
         {
-            if (ImgParam == null || string.IsNullOrEmpty(ImgParam?.ImagePath))
+            ImageParameter? _imgParam = param.ContainsKey(EParameter.Image) ?
+                (ImageParameter)param[EParameter.Image] :
+                null;
+            if (_imgParam == null || string.IsNullOrEmpty(_imgParam?.ImagePath))
             {
                 return;
             }
             ImageBrush imageBrush = new ImageBrush();
-            imageBrush.ImageSource = new BitmapImage(new Uri(ImgParam.ImagePath, UriKind.RelativeOrAbsolute));
+            imageBrush.ImageSource = new BitmapImage(new Uri(_imgParam.ImagePath, UriKind.RelativeOrAbsolute));
             Item.Background = imageBrush;
         }
 
         public void Item_Click(object sender, RoutedEventArgs e)
         {
-            if (EParam != null)
+            EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
+                (EventParameter)param[EParameter.Event] :
+                null;
+            if (_eParam != null)
             {
-                ItemClickHandlerNotify?.Invoke(EParam.CommandParameter, EParam.Command);
+                ItemClickHandlerNotify?.Invoke(_eParam.CommandParameter, _eParam.Command);
             }
         }
     }

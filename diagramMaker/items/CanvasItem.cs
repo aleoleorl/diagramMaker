@@ -83,23 +83,32 @@ namespace diagramMaker.items
 
         protected void HandlerIParam()
         {
-            if (IParam != null)
+            ItemParameter? _iParam = param[EParameter.Item] != null ?
+                (ItemParameter)param[EParameter.Item] :
+                null;
+            if (_iParam != null)
             {
-                if (IParam.BgColor != null)
+                if (_iParam.BgColor != null)
                 {
-                    Item.Background = IParam.BgColor;
+                    Item.Background = _iParam.BgColor;
                 }
-                Canvas.SetLeft(Item, IParam.Left);
-                Canvas.SetTop(Item, IParam.Top);
-                Item.Width = IParam.Width;
-                Item.Height = IParam.Height;
+                Canvas.SetLeft(Item, _iParam.Left);
+                Canvas.SetTop(Item, _iParam.Top);
+                Item.Width = _iParam.Width;
+                Item.Height = _iParam.Height;
             }
         }
         protected void HandlerBParam()
         {
-            if (BParam != null)
+            BorderParameter? _bParam = param.ContainsKey(EParameter.Border) ?
+                (BorderParameter)param[EParameter.Border] :
+                null;
+            ItemParameter? _iParam = param.ContainsKey(EParameter.Item) ?
+                (ItemParameter)param[EParameter.Item] :
+                null;
+            if (_bParam != null)
             {
-                if (BParam.IsBorder && Border == null)
+                if (_bParam.IsBorder && Border == null)
                 {
                     Border = new Border();
                     Border.Background = new SolidColorBrush(Colors.Transparent);
@@ -110,13 +119,13 @@ namespace diagramMaker.items
                     Border = null;
                     Border = new Border();
                     Item.Children.Add(Border);
-                    Border.BorderThickness = new Thickness(BParam.BorderThickness);
-                    Border.BorderBrush = new SolidColorBrush(BParam.Color ?? Colors.Black);
-                    Border.CornerRadius = new CornerRadius(BParam.CornerRadius);
-                    if (IParam != null)
+                    Border.BorderThickness = new Thickness(_bParam.BorderThickness);
+                    Border.BorderBrush = new SolidColorBrush(_bParam.Color ?? Colors.Black);
+                    Border.CornerRadius = new CornerRadius(_bParam.CornerRadius);
+                    if (_iParam != null)
                     {
-                        Border.Width = IParam.Width;
-                        Border.Height = IParam.Height;
+                        Border.Width = _iParam.Width;
+                        Border.Height = _iParam.Height;
                     }
                     Border.Background = new SolidColorBrush(Colors.Transparent);
                 }
@@ -124,21 +133,24 @@ namespace diagramMaker.items
         }
         protected void HandlerEParam()
         {
-            if (EParam != null)
+            EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
+                (EventParameter)param[EParameter.Event] :
+                null;
+            if (_eParam != null)
             {
-                if (EParam.IsMouseDown)
+                if (_eParam.IsMouseDown)
                 {
                     Item.MouseDown += Item_MouseDown;
                 }
-                if (EParam.IsMouseUp)
+                if (_eParam.IsMouseUp)
                 {
                     Item.MouseUp += Item_MouseUp;
                 }
-                if (EParam.IsMouseMove)
+                if (_eParam.IsMouseMove)
                 {
                     Item.MouseMove += Default_MouseMove;
                 }
-                if (EParam.IsMouseWheel)
+                if (_eParam.IsMouseWheel)
                 {
                     Item.MouseWheel += Item_MouseWheel;
                 }
@@ -152,26 +164,33 @@ namespace diagramMaker.items
             switch (eBindParameter)
             {
                 case EBindParameter.Name:
-                    Name = txt;
-                    break;
-                case EBindParameter.Width:
-                    if (IParam != null)
+                    if (param.ContainsKey(EParameter.Common))
                     {
-                        IParam.Width = Convert.ToDouble(txt);                        
+                        ((CommonParameter)param[EParameter.Common]).Name = txt;
+                    }
+                    break;
+                case EBindParameter.Width:                    
+                    if (param.ContainsKey(EParameter.Item))
+                    {
+                        ((ItemParameter)param[EParameter.Item]).Width = Convert.ToDouble(txt);                        
                     }
                     Item.Width = Convert.ToDouble(txt);
-                    if (Border != null && BParam!=null && BParam.IsBorder)
+                    if (Border != null && 
+                        param.ContainsKey(EParameter.Border) && 
+                        ((BorderParameter)param[EParameter.Border]).IsBorder)
                     {
                         Border.Width = Convert.ToDouble(txt);
                     }
                     break;
-                case EBindParameter.Height:
-                    if (IParam != null)
+                case EBindParameter.Height:                    
+                    if (param.ContainsKey(EParameter.Item))
                     {
-                        IParam.Height = Convert.ToDouble(txt);
+                        ((ItemParameter)param[EParameter.Item]).Height = Convert.ToDouble(txt);
                     }
                     Item.Height = Convert.ToDouble(txt);
-                    if (Border != null && BParam != null && BParam.IsBorder)
+                    if (Border != null &&
+                        param.ContainsKey(EParameter.Border) &&
+                        ((BorderParameter)param[EParameter.Border]).IsBorder)
                     {
                         Border.Height = Convert.ToDouble(txt);
                     }
@@ -186,10 +205,10 @@ namespace diagramMaker.items
             Point mousePosition = e.GetPosition(Item);
             Data.tapXX = -mousePosition.X;
             Data.tapYY = -mousePosition.Y;
-            Data.tapped = Id;
+            Data.tapped = ((CommonParameter)param[EParameter.Common]).Id;
             Trace.WriteLine("data.tapped:" + Data.tapped);
 
-            EEventNotify?.Invoke(Id);
+            EEventNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
 
             e.Handled = true;
         }
@@ -200,12 +219,12 @@ namespace diagramMaker.items
             Canvas.SetTop(Item, top);
             Item.Width = width;
             Item.Height = height;
-            if (IParam != null)
+            if (param[EParameter.Item] != null)
             {
-                IParam.Left = left;
-                IParam.Top = top;
-                IParam.Width = width; 
-                IParam.Height = height;
+                ((ItemParameter)param[EParameter.Item]).Left = left;
+                ((ItemParameter)param[EParameter.Item]).Top = top;
+                ((ItemParameter)param[EParameter.Item]).Width = width;
+                ((ItemParameter)param[EParameter.Item]).Height = height;
             }
         }
     }
