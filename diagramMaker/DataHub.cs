@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using diagramMaker.helpers;
+using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.parameters;
 
@@ -7,9 +8,9 @@ namespace diagramMaker
 {
     public class DataHub
     {
-        public List<DefaultItem>? items;
-        public Dictionary<string, DefaultParameter>? parameters;
-        public Dictionary<string, ItemMaker>? itemCollection;
+        public List<DefaultItem> items;
+        public Dictionary<string, DefaultParameter> parameters;
+        public Dictionary<string, ItemMakerContainer> itemCollection;
 
         public int tapped;
         public double tapXX;
@@ -76,7 +77,7 @@ namespace diagramMaker
 
             items = new List<DefaultItem>();
             parameters = new Dictionary<string, DefaultParameter>();
-            itemCollection = new Dictionary<string, ItemMaker>();
+            itemCollection = new Dictionary<string, ItemMakerContainer>();
 
             tapped = -1;
             tapXX = 0;

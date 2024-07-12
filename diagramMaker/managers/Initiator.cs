@@ -1,4 +1,5 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.managers.DefaultPreparation;
 using diagramMaker.parameters;
@@ -240,19 +241,23 @@ namespace diagramMaker.managers
 
         public void SetItemCollections()
         {
-            ItemMaker _im;
-            ItemMaker _imChild;
-            ItemMaker _imConnect;
+            ItemMakerContainer _im;
+            ItemMakerContainer _imChild;
+            ItemMakerContainer _imConnect;
+            if (data.itemCollection == null)
+            {
+                data.itemCollection = new Dictionary<string, ItemMakerContainer> ();
+            }
 
             //infoBlock
-            _im = new ItemMaker();
+            _im = new ItemMakerContainer();
             _im.Props.Add("itemInfoBlock", EParameter.Item);
             _im.Props.Add("borderInfoBlock", EParameter.Border);
             _im.Props.Add("eventInfoBlock", EParameter.Event);
             _im.Item = EItem.Canvas;
             data.itemCollection.Add("InfoBlock", _im);
 
-            _imChild = new ItemMaker();
+            _imChild = new ItemMakerContainer();
             _imChild.Props.Add("itemTextInfoBlock", EParameter.Item);
             _imChild.Props.Add("contentTextInfoBlock", EParameter.Content);
             _imChild.Props.Add("eventNoHit", EParameter.Event);
@@ -260,7 +265,7 @@ namespace diagramMaker.managers
             _im.Children.Add(_imChild);
 
             //PaintMaker
-            _im = new ItemMaker();
+            _im = new ItemMakerContainer();
             _im.Props.Add("itemPaintMaker", EParameter.Item);
             _im.Props.Add("borderVersion01", EParameter.Border);
             _im.Props.Add("eventPaintMaker", EParameter.Event);
@@ -268,21 +273,21 @@ namespace diagramMaker.managers
             data.itemCollection.Add("PaintMaker", _im);
 
             //line
-            _im = new ItemMaker();
+            _im = new ItemMakerContainer();
             _im.Props.Add("itemLineContent", EParameter.Item);
             _im.Props.Add("figureLineContent", EParameter.Shape);
             _im.Props.Add("eventLineContent", EParameter.Event);
             _im.Item = EItem.Figure;
             data.itemCollection.Add("Line", _im);
 
-            _imConnect = new ItemMaker();
+            _imConnect = new ItemMakerContainer();
             _imConnect.Props.Add("itemLineConnect01Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
             _imConnect.Events.Add(EEvent.AddLine);
             _im.Connector.Add(_imConnect);
 
-            _imConnect = new ItemMaker();
+            _imConnect = new ItemMakerContainer();
             _imConnect.Props.Add("itemLineConnect02Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
@@ -290,7 +295,7 @@ namespace diagramMaker.managers
             _im.Connector.Add(_imConnect);
 
             //connector
-            _im = new ItemMaker();
+            _im = new ItemMakerContainer();
             _im.Props.Add("itemLineConnect02Content", EParameter.Item);
             _im.Props.Add("eventLineConnect", EParameter.Event);
             _im.Item = EItem.Canvas;

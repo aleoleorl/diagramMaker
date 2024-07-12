@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using diagramMaker.helpers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 
 namespace diagramMaker.items
@@ -38,36 +38,6 @@ namespace diagramMaker.items
             }
         }
 
-        public void SetContent(string? message, ItemParameter? iParam = null)
-        {
-            if (param.ContainsKey(EParameter.Content))
-            {
-                ((ContentParameter)param[EParameter.Content]).Content = message;
-            }
-            Item.Content = message;
-
-            if (iParam != null)
-            {
-                param[EParameter.Item] = iParam.Clone();
-                HandlerIParam();
-            }
-        }        
-
-        public override void SetParameters(
-            ItemParameter? iParam,
-            ContentParameter? content = null, 
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParameter = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam);
-
-            HandlerIParam();
-            HandlerContentParam();
-            HandlerBParam();
-            HandlerEParam();
-        }
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
             base.SetParameter(type, dParam);
@@ -79,7 +49,7 @@ namespace diagramMaker.items
                         HandlerBParam();
                         break;
                     case EParameter.Content:
-                        HandlerContentParam();
+                        HandlerContent();
                         break;
                     case EParameter.Event:
                         HandlerEParam();
@@ -97,26 +67,19 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerIParam()
+        protected override void HandlerBParam()
         {
-            if (param.ContainsKey(EParameter.Item))
+            if (param.ContainsKey(EParameter.Border))
             {
-                if (((ItemParameter)param[EParameter.Item]).BgColor != null)
+                if (((BorderParameter)param[EParameter.Border]).IsBorder)
                 {
-                    Item.Background = ((ItemParameter)param[EParameter.Item]).BgColor;
+                    Item.BorderThickness = new Thickness(((BorderParameter)param[EParameter.Border]).BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(((BorderParameter)param[EParameter.Border]).Color ?? Colors.Black);
                 }
-                if (((ItemParameter)param[EParameter.Item]).FrColor != null)
-                {
-                    Item.Foreground = ((ItemParameter)param[EParameter.Item]).FrColor;
-                }
-                Item.Width = ((ItemParameter)param[EParameter.Item]).Width;
-                Item.Height = ((ItemParameter)param[EParameter.Item]).Height;
-                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
-                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
-        protected void HandlerContentParam()
+        protected override void HandlerContent()
         {
             if (param.ContainsKey(EParameter.Content))
             {
@@ -135,19 +98,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerBParam()
-        {
-            if (param.ContainsKey(EParameter.Border))
-            {
-                if (((BorderParameter)param[EParameter.Border]).IsBorder)
-                {
-                    Item.BorderThickness = new Thickness(((BorderParameter)param[EParameter.Border]).BorderThickness);
-                    Item.BorderBrush = new SolidColorBrush(((BorderParameter)param[EParameter.Border]).Color ?? Colors.Black);
-                }
-            }
-        }
-
-        protected void HandlerEParam()
+        public override void HandlerEParam()
         {
             if (param.ContainsKey(EParameter.Event))
             {
@@ -160,6 +111,25 @@ namespace diagramMaker.items
                 {
                     Item.MouseDoubleClick += Item_MouseDoubleClick;
                 }
+            }
+        }
+
+        protected override void HandlerIParam()
+        {
+            if (param.ContainsKey(EParameter.Item))
+            {
+                if (((ItemParameter)param[EParameter.Item]).BgColor != null)
+                {
+                    Item.Background = ((ItemParameter)param[EParameter.Item]).BgColor;
+                }
+                if (((ItemParameter)param[EParameter.Item]).FrColor != null)
+                {
+                    Item.Foreground = ((ItemParameter)param[EParameter.Item]).FrColor;
+                }
+                Item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                Item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
@@ -194,9 +164,19 @@ namespace diagramMaker.items
             }
         }
 
-        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        public void SetContent(string? message, ItemParameter? iParam = null)
         {
-            Trace.WriteLine("Item_MouseDown");
+            if (param.ContainsKey(EParameter.Content))
+            {
+                ((ContentParameter)param[EParameter.Content]).Content = message;
+            }
+            Item.Content = message;
+
+            if (iParam != null)
+            {
+                param[EParameter.Item] = iParam.Clone();
+                HandlerIParam();
+            }
         }
 
         public override void EventOutdataHandler(int id, ECommand command)
@@ -248,6 +228,10 @@ namespace diagramMaker.items
                 default:
                     break;
             }
+        }
+        public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Trace.WriteLine("Label Item_MouseDown");
         }
     }
 }

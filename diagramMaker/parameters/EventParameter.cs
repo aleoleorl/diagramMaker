@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using System;
 
 namespace diagramMaker.parameters

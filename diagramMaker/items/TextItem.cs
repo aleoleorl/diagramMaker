@@ -1,10 +1,11 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace diagramMaker.items
@@ -18,38 +19,7 @@ namespace diagramMaker.items
         {
             Item = new TextBox();
             Item.Text = "";
-
-            if (appCanvas != null)
-            {
-                if (parentId == -1)
-                {
-                    appCanvas.Children.Add(Item);
-                }
-                else
-                {
-                    int _id = data.GetItemByID(parentId);
-                    if (_id != -1 && data.items != null)
-                    {
-                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
-                    }
-                }
-            }
-        }
-
-        public override void SetParameters(
-            ItemParameter? iParam,
-            ContentParameter? content = null,
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParameter = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam);
-
-            HandlerIParam();
-            HandlerContentParam();
-            HandlerBParam();
-            HandlerEParam();
+            HandlerConnector();            
         }
 
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
@@ -63,7 +33,7 @@ namespace diagramMaker.items
                         HandlerBParam();
                         break;
                     case EParameter.Content:
-                        HandlerContentParam();
+                        HandlerContent();
                         break;
                     case EParameter.Event:
                         HandlerEParam();
@@ -81,7 +51,26 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerIParam()
+        protected override void HandlerConnector()
+        {
+            if (AppCanvas != null && param.ContainsKey(EParameter.Common))
+            {
+                if (((CommonParameter)param[EParameter.Common]).ParentId == -1)
+                {
+                    AppCanvas.Children.Add(Item);
+                }
+                else
+                {
+                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
+                    if (_id != -1 && Data.items != null)
+                    {
+                        ((CanvasItem)Data.items[_id]).Item.Children.Add(Item);
+                    }
+                }
+            }
+        }
+
+        protected override void HandlerIParam()
         {
             if (param.ContainsKey(EParameter.Item))
             {
@@ -100,7 +89,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerContentParam()
+        protected override void HandlerContent()
         {
             if (param.ContainsKey(EParameter.Content))
             {
@@ -124,7 +113,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerBParam()
+        protected override void HandlerBParam()
         {
             if (param.ContainsKey(EParameter.Border))
             {
@@ -136,7 +125,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerEParam()
+        public override void HandlerEParam()
         {
             if (param.ContainsKey(EParameter.Event))
             {
@@ -220,7 +209,7 @@ namespace diagramMaker.items
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             base.Item_MouseDown(sender, e);
-            Trace.WriteLine("Item_MouseDown");
+            Trace.WriteLine("TextItem_MouseDown");
         }
     }
 }

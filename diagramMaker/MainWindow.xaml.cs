@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.managers;
 using diagramMaker.managers.DefaultPreparation;

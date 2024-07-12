@@ -1,4 +1,4 @@
-﻿namespace diagramMaker.helpers
+﻿namespace diagramMaker.helpers.enumerators
 {
     public enum ETopMenuActionType
     {

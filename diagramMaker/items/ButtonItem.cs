@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Diagnostics;
@@ -38,22 +38,6 @@ namespace diagramMaker.items
             }
         }
 
-        public override void SetParameters(
-            ItemParameter? iParam = null,
-            ContentParameter? content = null,
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParameter = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam, imgParam);
-
-            HandlerIParam();
-            HandlerContent();
-            HandlerBParam();
-            HandlerEParam();
-            HandlerImgParam();
-        }
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
             base.SetParameter(type, dParam);
@@ -87,24 +71,22 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerIParam()
+        
+        protected override void HandlerBParam()
         {
-            ItemParameter? _iParam = param.ContainsKey(EParameter.Item) ? 
-                (ItemParameter)param[EParameter.Item] : 
+            BorderParameter? _bParam = param.ContainsKey(EParameter.Border) ?
+                (BorderParameter)param[EParameter.Border] :
                 null;
-            if (_iParam != null)
+            if (_bParam != null)
             {
-                if (_iParam.BgColor != null)
+                if (_bParam.IsBorder)
                 {
-                    Item.Background = _iParam.BgColor;
+                    Item.BorderThickness = new Thickness(_bParam.BorderThickness);
+                    Item.BorderBrush = new SolidColorBrush(_bParam.Color ?? Colors.Black);
                 }
-                Canvas.SetLeft(Item, _iParam.Left);
-                Canvas.SetTop(Item, _iParam.Top);
-                Item.Width = _iParam.Width;
-                Item.Height = _iParam.Height;
             }
         }
-        protected void HandlerContent()
+        protected override void HandlerContent()
         {
             ContentParameter? _content = param.ContainsKey(EParameter.Content) ?
                 (ContentParameter)param[EParameter.Content] :
@@ -126,21 +108,8 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void HandlerBParam()
-        {
-            BorderParameter? _bParam = param.ContainsKey(EParameter.Border) ?
-                (BorderParameter)param[EParameter.Border] :
-                null;
-            if (_bParam != null)
-            {
-                if (_bParam.IsBorder)
-                {
-                    Item.BorderThickness = new Thickness(_bParam.BorderThickness);
-                    Item.BorderBrush = new SolidColorBrush(_bParam.Color ?? Colors.Black);
-                }
-            }
-        }
-        protected void HandlerEParam()
+
+        public override void HandlerEParam()
         {
             EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
                 (EventParameter)param[EParameter.Event] :
@@ -154,7 +123,7 @@ namespace diagramMaker.items
             }
         }       
 
-        protected void HandlerImgParam()
+        protected override void HandlerImgParam()
         {
             ImageParameter? _imgParam = param.ContainsKey(EParameter.Image) ?
                 (ImageParameter)param[EParameter.Image] :
@@ -166,6 +135,24 @@ namespace diagramMaker.items
             ImageBrush imageBrush = new ImageBrush();
             imageBrush.ImageSource = new BitmapImage(new Uri(_imgParam.ImagePath, UriKind.RelativeOrAbsolute));
             Item.Background = imageBrush;
+        }
+
+        protected override void HandlerIParam()
+        {
+            ItemParameter? _iParam = param.ContainsKey(EParameter.Item) ?
+                (ItemParameter)param[EParameter.Item] :
+                null;
+            if (_iParam != null)
+            {
+                if (_iParam.BgColor != null)
+                {
+                    Item.Background = _iParam.BgColor;
+                }
+                Canvas.SetLeft(Item, _iParam.Left);
+                Canvas.SetTop(Item, _iParam.Top);
+                Item.Width = _iParam.Width;
+                Item.Height = _iParam.Height;
+            }
         }
 
         public void Item_Click(object sender, RoutedEventArgs e)

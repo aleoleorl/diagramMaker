@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -27,13 +27,6 @@ namespace diagramMaker.items
         }
         protected Canvas? AppCanvas { get; set; }
         public Dictionary<EParameter, DefaultParameter> param { get; set; }
-        //public CommonParameter Common { get; set; }
-        //public ItemParameter? IParam { get; set; }
-        //public ContentParameter? Content { get; set; }
-        //public BorderParameter? BParam { get; set; }
-        //public EventParameter? EParam { get; set; }
-        //public ImageParameter? ImgParam { get; set; }
-        //public ShapeParameter? ShapeParam { get; set; }
 
         public delegate void MouseAppHandler(string item);
         public event MouseAppHandler? MouseAppNotify;
@@ -58,7 +51,21 @@ namespace diagramMaker.items
             this.AppCanvas = appCanvas;
             _common.ParentId = parentId;
             SetId();
-            _common.Name = "item_" + _common.Id;
+            switch(itemType)
+            {
+                case EItem.Button:
+                    _common.Name = "btn_" + _common.Id;
+                    break;
+                case EItem.Canvas:
+                    _common.Name = "item_" + _common.Id;
+                    break;
+                case EItem.Figure:
+                    _common.Name = "figure_" + _common.Id;
+                    break;
+                default:
+                    _common.Name = "obj_" + _common.Id;
+                    break;
+            }
             _common.ItemType = itemType;
             _common.ItemAttach = EItemAttach.Menu;
             _common.ConnectorId = -1;
@@ -79,73 +86,9 @@ namespace diagramMaker.items
             ID = id;
         }
 
-        public virtual void SetParameters(
-            ItemParameter? iParam = null, 
-            ContentParameter? content = null, 
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParam = null)
-        {
-            if (iParam != null)
-            {
-                if (param.ContainsKey(EParameter.Item))
-                {
-                    param[EParameter.Item] = iParam.Clone();
-                } else
-                {
-                    param.Add(EParameter.Item, iParam.Clone());
-                }
-            }
-            if (content != null)
-            {
-                if (param.ContainsKey(EParameter.Content))
-                {
-                    param[EParameter.Content] = content.Clone();
-                }
-                else
-                {
-                    param.Add(EParameter.Content, content.Clone());
-                }
-            }
-            if (bParam != null)
-            {
-                if (param.ContainsKey(EParameter.Border))
-                {
-                    param[EParameter.Border] = bParam.Clone();
-                }
-                else
-                {
-                    param.Add(EParameter.Border, bParam.Clone());
-                }
-            }
-            if (eParam != null)
-            {
-                if (param.ContainsKey(EParameter.Event))
-                {
-                    param[EParameter.Event] = eParam.Clone();
-                }
-                else
-                {
-                    param.Add(EParameter.Event, eParam.Clone());
-                }
-            }
-            if (imgParam != null)
-            {
-                if (param.ContainsKey(EParameter.Image))
-                {
-                    param[EParameter.Image] = imgParam.Clone();
-                }
-                else
-                {
-                    param.Add(EParameter.Image, imgParam.Clone());
-                }
-            }
-        }
-
         public virtual void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
-            if (crazyChoice == 1)
+            if (crazyChoice == 1 || dParam == null)
             {
                 return;
             }
@@ -154,109 +97,127 @@ namespace diagramMaker.items
                 switch (type)
                 {
                     case EParameter.Border:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Border))
                         {
-                            if (param.ContainsKey(EParameter.Border))
-                            {
-                                param[EParameter.Border] = (BorderParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Border, (BorderParameter)dParam.Clone());
-                            }
+                            param[EParameter.Border] = (BorderParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Border, (BorderParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Common:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Common))
                         {
-                            if (param.ContainsKey(EParameter.Common))
-                            {
-                                param[EParameter.Common] = (CommonParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Common, (CommonParameter)dParam.Clone());
-                            }
+                            param[EParameter.Common] = (CommonParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Common, (CommonParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Content:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Content))
                         {
-                            if (param.ContainsKey(EParameter.Content))
-                            {
-                                param[EParameter.Content] = (ContentParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Content, (ContentParameter)dParam.Clone());
-                            }
+                            param[EParameter.Content] = (ContentParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Content, (ContentParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Event:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Event))
                         {
-                            if (param.ContainsKey(EParameter.Event))
-                            {
-                                param[EParameter.Event] = (EventParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Event, (EventParameter)dParam.Clone());
-                            }
+                            param[EParameter.Event] = (EventParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Event, (EventParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Image:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Image))
                         {
-                            if (param.ContainsKey(EParameter.Image))
-                            {
-                                param[EParameter.Image] = (ImageParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Image, (ImageParameter)dParam.Clone());
-                            }
+                            param[EParameter.Image] = (ImageParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Image, (ImageParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Item:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Item))
                         {
-                            if (param.ContainsKey(EParameter.Item))
-                            {
-                                param[EParameter.Item] = (ItemParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Item, (ItemParameter)dParam.Clone());
-                            }
-
-                            if (param.ContainsKey(EParameter.Item))
-                            {
-                                ((CommonParameter)param[EParameter.Item]).AppX = Data.topLeftX + ((ItemParameter)dParam).Left;
-                                ((CommonParameter)param[EParameter.Item]).AppY = Data.topLeftY + ((ItemParameter)dParam).Top;
-                            }
+                            param[EParameter.Item] = (ItemParameter)dParam.Clone();
+                            ((CommonParameter)param[EParameter.Common]).AppX = Data.topLeftX + ((ItemParameter)dParam).Left;
+                            ((CommonParameter)param[EParameter.Common]).AppY = Data.topLeftY + ((ItemParameter)dParam).Top;
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Item, (ItemParameter)dParam.Clone());
                         }
                         break;
                     case EParameter.Shape:
-                        if (dParam != null)
+                        if (param.ContainsKey(EParameter.Shape))
                         {
-                            if (param.ContainsKey(EParameter.Shape))
-                            {
-                                param[EParameter.Shape] = (ShapeParameter)dParam.Clone();
-                            }
-                            else
-                            {
-                                param.Add(EParameter.Shape, (ShapeParameter)dParam.Clone());
-                            }
+                            param[EParameter.Shape] = (ShapeParameter)dParam.Clone();
+                        }
+                        else
+                        {
+                            param.Add(EParameter.Shape, (ShapeParameter)dParam.Clone());
                         }
                         break;
                     default:
                         break;
                 }
-            } catch (Exception e) 
-            {
-                Trace.WriteLine("SetParameter:"+e);
             }
+            catch (Exception e)
+            {
+                Trace.WriteLine("SetParameter:" + e);
+            }
+        }
+
+        #region CommonMethods
+        protected virtual void HandlerBParam()
+        {
+        }
+        public virtual void HandlerEParam()
+        {
+        }
+        protected virtual void HandlerIParam()
+        {
+        }
+        protected virtual void HandlerContent()
+        {
+        }
+        protected virtual void HandlerImgParam()
+        {
+        }
+        public virtual void HandlerShapeParam()
+        {
+        }
+        protected virtual void HandlerConnector()
+        {
+        }
+
+        #endregion
+
+        #region Events
+        public virtual void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+
+        }
+
+        public virtual void FinishHandling()
+        {
+
+        }
+
+        public virtual void EventOutdataHandler(int id, ECommand command)
+        {
         }
 
         public virtual void Item_MouseDown(object sender, MouseButtonEventArgs e)
@@ -284,22 +245,6 @@ namespace diagramMaker.items
             }
         }
 
-        public virtual void ValueChanger(
-            EBindParameter eBindParameter = EBindParameter.None,
-            string txt = "")
-        {
-
-        }
-
-        public virtual void FinishHandling()
-        {
-
-        }
-
-        public virtual void EventOutdataHandler(int id, ECommand command)
-        {
-        }
-
         public void Item_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             
@@ -318,5 +263,6 @@ namespace diagramMaker.items
             MouseDoubleClickNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
             e.Handled = true;
         }
+        #endregion
     }
 }

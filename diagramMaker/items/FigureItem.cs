@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -21,63 +21,6 @@ namespace diagramMaker.items
             Item = new List<Line>();
         }
 
-        public void HandleAddItem(int id)
-        {
-            if (AppCanvas != null)
-            {
-                if (((CommonParameter)param[EParameter.Content]).ParentId == -1)
-                {
-                    AppCanvas.Children.Add(Item[id]);
-
-                }
-                else
-                {
-                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Content]).ParentId);
-                    if (_id != -1 && Data.items != null)
-                    {
-                        ((CanvasItem)Data.items[_id]).Item.Children.Add(Item[id]);
-
-                    }
-                }
-            }
-        }
-        public void HandleRemoveItem(int id)
-        {
-            if (AppCanvas != null)
-            {
-                if (((CommonParameter)param[EParameter.Content]).ParentId == -1)
-                {
-                    AppCanvas.Children.Remove(Item[id]);
-
-                }
-                else
-                {
-                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Content]).ParentId);
-                    if (_id != -1 && Data.items != null)
-                    {
-                        ((CanvasItem)Data.items[_id]).Item.Children.Remove(Item[id]);
-
-                    }
-                }
-
-                Item.RemoveAt(id);
-            }
-        }
-
-        public override void SetParameters(
-            ItemParameter? iParam = null,
-            ContentParameter? content = null,
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParam = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam);
-
-            HandlerIParam();
-            HandlerShapeParam();
-            HandlerEParam();
-        }
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
             base.SetParameter(type, dParam);
@@ -108,7 +51,51 @@ namespace diagramMaker.items
             }
         }
 
-        public void HandlerEParam()
+        public void HandleAddItem(int id)
+        {
+            if (AppCanvas != null)
+            {
+                if (((CommonParameter)param[EParameter.Common]).ParentId == -1)
+                {
+                    AppCanvas.Children.Add(Item[id]);
+
+                }
+                else
+                {
+                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Content]).ParentId);
+                    if (_id != -1 && Data.items != null)
+                    {
+                        ((CanvasItem)Data.items[_id]).Item.Children.Add(Item[id]);
+
+                    }
+                }
+            }
+        }
+
+        public void HandleRemoveItem(int id)
+        {
+            if (AppCanvas != null)
+            {
+                if (((CommonParameter)param[EParameter.Common]).ParentId == -1)
+                {
+                    AppCanvas.Children.Remove(Item[id]);
+
+                }
+                else
+                {
+                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
+                    if (_id != -1 && Data.items != null)
+                    {
+                        ((CanvasItem)Data.items[_id]).Item.Children.Remove(Item[id]);
+
+                    }
+                }
+
+                Item.RemoveAt(id);
+            }
+        }
+
+        public override void HandlerEParam()
         {
             if (((EventParameter)param[EParameter.Event]) != null)
             {
@@ -137,21 +124,11 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerIParam()
+        protected override void HandlerIParam()
         {
         }
 
-        public void AppCoord()
-        {
-            if (param[EParameter.Shape] != null && 
-                ((ShapeParameter)param[EParameter.Shape]).Vertex.Count > 0)
-            {
-                ((CommonParameter)param[EParameter.Common]).AppX = Data.topLeftX + ((ShapeParameter)param[EParameter.Shape]).Vertex[0].x;
-                ((CommonParameter)param[EParameter.Common]).AppY = Data.topLeftY + ((ShapeParameter)param[EParameter.Shape]).Vertex[0].y;
-            }
-        }
-
-        public void HandlerShapeParam()
+        public override void HandlerShapeParam()
         {
             if (param[EParameter.Shape] == null || Data.items == null) 
             {
@@ -241,46 +218,6 @@ namespace diagramMaker.items
             AppCoord();
         }
 
-        public void FigureItem_MouseMoveNotify(int id)
-        {
-            if (param[EParameter.Shape] == null || Data.items == null)
-            {
-                return;
-            }
-            for (int _i = 0; _i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count; _i++)
-            {
-                if (((ShapeParameter)param[EParameter.Shape]) != null && ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].id == id)
-                {
-                    if (_i > 0)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x =
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width/2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height/2;
-
-                        Item[_i - 1].X2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i - 1].Y2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-                    }
-                    if (_i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count - 1)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x = 
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width / 2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y = 
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height / 2;
-
-                        Item[_i].X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i].Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-
-                    }
-                }
-            }
-            AppCoord();
-        }
-
         public void ReVertex()
         {
             if (param[EParameter.Shape] == null || Data.items == null)
@@ -313,6 +250,56 @@ namespace diagramMaker.items
                         ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
                             ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Top +
                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Height / 2;
+
+                        Item[_i].X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
+                        Item[_i].Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
+
+                    }
+                }
+            }
+            AppCoord();
+        }
+
+        public void AppCoord()
+        {
+            if (param[EParameter.Shape] != null &&
+                ((ShapeParameter)param[EParameter.Shape]).Vertex.Count > 0)
+            {
+                ((CommonParameter)param[EParameter.Common]).AppX = Data.topLeftX + ((ShapeParameter)param[EParameter.Shape]).Vertex[0].x;
+                ((CommonParameter)param[EParameter.Common]).AppY = Data.topLeftY + ((ShapeParameter)param[EParameter.Shape]).Vertex[0].y;
+            }
+        }
+
+        public void FigureItem_MouseMoveNotify(int id)
+        {
+            if (param[EParameter.Shape] == null || Data.items == null)
+            {
+                return;
+            }
+            for (int _i = 0; _i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count; _i++)
+            {
+                if (((ShapeParameter)param[EParameter.Shape]) != null && ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].id == id)
+                {
+                    if (_i > 0)
+                    {
+                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x =
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width/2;
+                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height/2;
+
+                        Item[_i - 1].X2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
+                        Item[_i - 1].Y2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
+                    }
+                    if (_i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count - 1)
+                    {
+                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x = 
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width / 2;
+                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y = 
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
+                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height / 2;
 
                         Item[_i].X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
                         Item[_i].Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;

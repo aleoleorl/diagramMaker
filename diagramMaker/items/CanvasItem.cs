@@ -5,7 +5,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
 using diagramMaker.parameters;
-using diagramMaker.helpers;
+using diagramMaker.helpers.enumerators;
 
 namespace diagramMaker.items
 {
@@ -40,20 +40,6 @@ namespace diagramMaker.items
             }
         }
 
-        public override void SetParameters(
-            ItemParameter? iParam = null,
-            ContentParameter? content = null,
-            BorderParameter? bParam = null,
-            EventParameter? eParam = null,
-            ImageParameter? imgParam = null,
-            ShapeParameter? shapeParameter = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam);
-
-            HandlerIParam();
-            HandlerBParam();
-            HandlerEParam();
-        }
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
             base.SetParameter(type, dParam);
@@ -80,25 +66,8 @@ namespace diagramMaker.items
                 Trace.WriteLine("SetParameter:" + e);
             }
         }
-
-        protected void HandlerIParam()
-        {
-            ItemParameter? _iParam = param[EParameter.Item] != null ?
-                (ItemParameter)param[EParameter.Item] :
-                null;
-            if (_iParam != null)
-            {
-                if (_iParam.BgColor != null)
-                {
-                    Item.Background = _iParam.BgColor;
-                }
-                Canvas.SetLeft(Item, _iParam.Left);
-                Canvas.SetTop(Item, _iParam.Top);
-                Item.Width = _iParam.Width;
-                Item.Height = _iParam.Height;
-            }
-        }
-        protected void HandlerBParam()
+       
+        protected override void HandlerBParam()
         {
             BorderParameter? _bParam = param.ContainsKey(EParameter.Border) ?
                 (BorderParameter)param[EParameter.Border] :
@@ -131,7 +100,8 @@ namespace diagramMaker.items
                 }
             }
         }
-        protected void HandlerEParam()
+
+        public override void HandlerEParam()
         {
             EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
                 (EventParameter)param[EParameter.Event] :
@@ -154,6 +124,24 @@ namespace diagramMaker.items
                 {
                     Item.MouseWheel += Item_MouseWheel;
                 }
+            }
+        }
+
+        protected override void HandlerIParam()
+        {
+            ItemParameter? _iParam = param[EParameter.Item] != null ?
+                (ItemParameter)param[EParameter.Item] :
+                null;
+            if (_iParam != null)
+            {
+                if (_iParam.BgColor != null)
+                {
+                    Item.Background = _iParam.BgColor;
+                }
+                Canvas.SetLeft(Item, _iParam.Left);
+                Canvas.SetTop(Item, _iParam.Top);
+                Item.Width = _iParam.Width;
+                Item.Height = _iParam.Height;
             }
         }
 

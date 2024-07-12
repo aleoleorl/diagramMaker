@@ -1,5 +1,4 @@
-﻿using diagramMaker.helpers;
-using diagramMaker.items;
+﻿using diagramMaker.items;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,8 @@ using System.Windows;
 using System.Windows.Input;
 using diagramMaker.managers.DefaultPreparation;
 using System.Diagnostics;
+using diagramMaker.helpers.enumerators;
+using diagramMaker.helpers.containers;
 
 namespace diagramMaker.managers
 {
@@ -153,7 +154,7 @@ namespace diagramMaker.managers
 
         public void eventCreateItem(string itemName)
         {
-            ItemMaker _im = data.itemCollection[itemName];
+            ItemMakerContainer _im = data.itemCollection[itemName];
             if (_im == null)
             {
                 return;
@@ -164,7 +165,7 @@ namespace diagramMaker.managers
             NavigationPanelScrollCount_Activation();
         }
 
-        public int CreateItemUnit(ItemMaker im, int id = -1, bool connector = false)
+        public int CreateItemUnit(ItemMakerContainer im, int id = -1, bool connector = false)
         {
             Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item;
 

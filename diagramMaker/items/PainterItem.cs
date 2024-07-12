@@ -1,4 +1,4 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Diagnostics;
@@ -67,20 +67,6 @@ namespace diagramMaker.items
             }
         }
 
-        public override void SetParameters(
-           ItemParameter? iParam,
-           ContentParameter? content = null,
-           BorderParameter? bParam = null,
-           EventParameter? eParam = null,
-           ImageParameter? imgParam = null,
-           ShapeParameter? shapeParameter = null)
-        {
-            base.SetParameters(iParam, content, bParam, eParam, imgParam);
-
-            HandlerImgParam();
-            HandlerIParam();
-            HandlerEParam();
-        }
         public override void SetParameter(EParameter type, DefaultParameter dParam, int crazyChoice = 0)
         {
             base.SetParameter(type, dParam);
@@ -108,27 +94,7 @@ namespace diagramMaker.items
             }
         }
 
-        protected void HandlerImgParam()
-        {
-            if (param[EParameter.Image] == null &&
-                string.IsNullOrEmpty(((ImageParameter)param[EParameter.Image]).ImagePath))
-            {
-                return;
-            }
-        }
-
-        protected void HandlerIParam()
-        {
-            if (param[EParameter.Item] != null)
-            {
-                item.Width = ((ItemParameter)param[EParameter.Item]).Width;
-                item.Height = ((ItemParameter)param[EParameter.Item]).Height;
-                Canvas.SetLeft(item, ((ItemParameter)param[EParameter.Item]).Left);
-                Canvas.SetTop(item, ((ItemParameter)param[EParameter.Item]).Top);
-            }
-        }
-
-        protected void HandlerEParam()
+        public override void HandlerEParam()
         {
             if (param[EParameter.Event] != null)
             {
@@ -142,12 +108,32 @@ namespace diagramMaker.items
                 }
                 if (((EventParameter)param[EParameter.Event]).IsMouseMove)
                 {
-                    item.MouseMove += Item_MouseMove; 
+                    item.MouseMove += Item_MouseMove;
                 }
                 if (((EventParameter)param[EParameter.Event]).IsMouseLeave)
                 {
                     item.MouseLeave += Item_MouseLeave;
                 }
+            }
+        }
+
+        protected override void HandlerImgParam()
+        {
+            if (param[EParameter.Image] == null &&
+                string.IsNullOrEmpty(((ImageParameter)param[EParameter.Image]).ImagePath))
+            {
+                return;
+            }
+        }
+
+        protected override void HandlerIParam()
+        {
+            if (param[EParameter.Item] != null)
+            {
+                item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 

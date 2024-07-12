@@ -1,4 +1,5 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using System.Collections.Generic;
 using System.Windows.Media;
 

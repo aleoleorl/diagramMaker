@@ -1,4 +1,5 @@
-﻿using diagramMaker.helpers;
+﻿using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.parameters;
 using System;
@@ -60,7 +61,7 @@ namespace diagramMaker.managers
                 {
                     foreach (var _item in data.items)
                     {
-                        if (((CommonParameter)_item.param[EParameter.Common]).ItemAttach != helpers.EItemAttach.Custom)
+                        if (((CommonParameter)_item.param[EParameter.Common]).ItemAttach != EItemAttach.Custom)
                         {
                             continue;
                         }
@@ -76,7 +77,7 @@ namespace diagramMaker.managers
                         writer.WriteStartElement("itemSpecial");
                         switch (((CommonParameter)_item.param[EParameter.Common]).ItemType)
                         {
-                            case helpers.EItem.Painter:
+                            case EItem.Painter:
                                 writer.WriteAttributeString("isExist", "1");
                                 PngBitmapEncoder encoder = new PngBitmapEncoder();
                                 encoder.Frames.Add(BitmapFrame.Create(((PainterItem)_item).Painter));
