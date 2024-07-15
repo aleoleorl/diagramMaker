@@ -1,9 +1,9 @@
-﻿using diagramMaker.helpers.enumerators;
+﻿using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -68,7 +68,6 @@ namespace diagramMaker.items
             }
             _common.ItemType = itemType;
             _common.ItemAttach = EItemAttach.Menu;
-            _common.ConnectorId = -1;
 
             param.Add(EParameter.Item, new ItemParameter(0, 0, 0, 0, null, null));
         }
@@ -109,7 +108,16 @@ namespace diagramMaker.items
                     case EParameter.Common:
                         if (param.ContainsKey(EParameter.Common))
                         {
-                            param[EParameter.Common] = (CommonParameter)dParam.Clone();
+                            ((CommonParameter)param[EParameter.Common]).Connect = new Connection();
+                            ((CommonParameter)param[EParameter.Common]).Connect.IsConnector = ((CommonParameter)dParam).Connect.IsConnector;
+                            ((CommonParameter)param[EParameter.Common]).Connect.IsUser = ((CommonParameter)dParam).Connect.IsUser;
+                            ((CommonParameter)param[EParameter.Common]).Connect.Users.AddRange(((CommonParameter)dParam).Connect.Users);
+                            ((CommonParameter)param[EParameter.Common]).Connect.Connectors.AddRange(((CommonParameter)dParam).Connect.Connectors);
+                            ((CommonParameter)param[EParameter.Common]).Connect.support = new Dictionary<EConnectorSupport, int>();
+                            foreach(var _supp in ((CommonParameter)dParam).Connect.support)
+                            {
+                                ((CommonParameter)param[EParameter.Common]).Connect.support.Add(_supp.Key, _supp.Value);
+                            }
                         }
                         else
                         {
@@ -203,6 +211,15 @@ namespace diagramMaker.items
 
         #endregion
 
+        public virtual void PrepareConnections()
+        {
+        }
+
+        public virtual void HandleRemoveItem(int id = -1)
+        {
+
+        }
+
         #region Events
         public virtual void ValueChanger(
             EBindParameter eBindParameter = EBindParameter.None,
@@ -229,7 +246,7 @@ namespace diagramMaker.items
         {
             if (param.ContainsKey(EParameter.Event))
             {
-                MouseAppNotify?.Invoke(item: ((EventParameter)param[EParameter.Event]).MouseUpInfo);
+                MouseAppNotify?.Invoke(item: ((EventParameter)param[EParameter.Event]).MouseUpContent);
                 MouseAppIdNotify?.Invoke(id: ((CommonParameter)param[EParameter.Common]).Id);
             }
 

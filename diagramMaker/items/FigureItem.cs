@@ -1,4 +1,5 @@
-﻿using diagramMaker.helpers.enumerators;
+﻿using diagramMaker.helpers.containers;
+using diagramMaker.helpers.enumerators;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace diagramMaker.items
                 }
                 else
                 {
-                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Content]).ParentId);
+                    int _id = Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId);
                     if (_id != -1 && Data.items != null)
                     {
                         ((CanvasItem)Data.items[_id]).Item.Children.Add(Item[id]);
@@ -72,26 +73,49 @@ namespace diagramMaker.items
             }
         }
 
-        public void HandleRemoveItem(int id)
+        public override void HandleRemoveItem(int id = -1)
         {
             if (AppCanvas != null)
             {
                 if (((CommonParameter)param[EParameter.Common]).ParentId == -1)
                 {
-                    AppCanvas.Children.Remove(Item[id]);
+                    if (id != -1)
+                    {
+                        AppCanvas.Children.Remove(Item[id]);
+                    } else
+                    {
+                        while (Item.Count > 0)
+                        {
+                            AppCanvas.Children.Remove(Item[0]);
+                            Item.RemoveAt(0);
+                        }
+                    }
 
                 }
                 else
                 {
-                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
+                    int _id = Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId);
                     if (_id != -1 && Data.items != null)
                     {
-                        ((CanvasItem)Data.items[_id]).Item.Children.Remove(Item[id]);
+                        if (id != -1)
+                        {
+                            ((CanvasItem)Data.items[_id]).Item.Children.Remove(Item[id]);
+                        } else
+                        {
+                            while (Item.Count > 0)
+                            {
+                                ((CanvasItem)Data.items[_id]).Item.Children.Remove(Item[0]);
+                                Item.RemoveAt(0);
+                            }
+                        }
 
                     }
                 }
 
-                Item.RemoveAt(id);
+                if (id != -1)
+                {
+                    Item.RemoveAt(id);
+                }
             }
         }
 
@@ -130,137 +154,188 @@ namespace diagramMaker.items
 
         public override void HandlerShapeParam()
         {
-            if (param[EParameter.Shape] == null || Data.items == null) 
+            if (param[EParameter.Shape] == null)
             {
                 return;
             }
-            while (Item.Count > 0)
+            PrepareConnections();
+        }
+
+        public override void PrepareConnections()
+        {
+            ShapeParameter _shape = (ShapeParameter)param[EParameter.Shape];
+            CommonParameter _common = (CommonParameter)param[EParameter.Common];
+
+            //Check the equalance of vertex+connectors with items
+            /* 
+             * The order of connectors could by random. 
+             * The order of vertex should be strict
+             */
+            List<int> _currConnectors = new List<int>();
+            for (int _i = 0; _i < Data.items.Count; ++_i)
             {
-                HandleRemoveItem(0);
-            }
-            //
-            int _count = 0;
-            //
-            for (int _i = 0; _i < Data.items.Count; _i++)
-            {
-                if (((CommonParameter)Data.items[_i].param[EParameter.Common]).ConnectorId == ((CommonParameter)param[EParameter.Common]).Id)
+                CommonParameter _extComm = ((CommonParameter)Data.items[_i].param[EParameter.Common]);
+                //the item is not a connector
+                if (!_extComm.Connect.IsConnector)
                 {
-                    Data.items[_i].MouseMoveNotify -= this.FigureItem_MouseMoveNotify;
+                    continue;
                 }
-            }
-            //
-            int _j = 0;
-            while (_j < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count)
-            {
-                for (int _i = 0; _i < Data.items.Count; _i++)
+                //the connector just knows its group
+                if (_extComm.Connect.GroupID == _common.Connect.GroupID &&
+                    !_extComm.Connect.Users.Contains(_common.Id)
+                    )
                 {
-                    if (((CommonParameter)Data.items[_i].param[EParameter.Common]).ConnectorId == ((CommonParameter)param[EParameter.Common]).Id)
+                    _extComm.Connect.Users.Add(_common.Id);
+                }
+                //the connector knows this item Id
+                if (_extComm.Connect.Users.Contains(_common.Id))
+                {
+                    //but this item doesn't know about the connector
+                    if (!_common.Connect.Connectors.Contains(_extComm.Id))
                     {
-                        if (((ShapeParameter)param[EParameter.Shape]).Vertex[_j].id == -1)
+                        //fully new connector add to the end
+                        if (_extComm.Connect.support.ContainsKey(EConnectorSupport.NewConnector))
                         {
-                            bool _isNot = true;
-                            for (int _k = 0; _k < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count; _k++)
+                            _extComm.Connect.support.Remove(EConnectorSupport.NewConnector);
+                            _shape.Vertex.Add(
+                                new FigureContainer(
+                                    x: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Left,
+                                    y: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Top,
+                                    id: _extComm.Id
+                                    )
+                            );
+                            Data.items[_i].MouseMoveNotify += this.ConnectorItem_MouseMoveNotify;
+                            _common.Connect.Connectors.Add(_extComm.Id);
+                        }
+                        //connector that cloned from the one already existed added to left or to rigth from it
+                        if (_extComm.Connect.support.ContainsKey(EConnectorSupport.FromAncestorToRight) ||
+                            _extComm.Connect.support.ContainsKey(EConnectorSupport.FromAncestorToLeft))
+                        {
+                            Data.items[_i].MouseMoveNotify += this.ConnectorItem_MouseMoveNotify;
+                            int _ancId = _extComm.Connect.support[EConnectorSupport.Ancestor];
+                            int _ancVertexIndex = -1;
+                            
+                            for (int _j=0; _j < _shape.Vertex.Count; _j++)
                             {
-                                if (((ShapeParameter)param[EParameter.Shape]).Vertex[_k].id == ((CommonParameter)Data.items[_i].param[EParameter.Common]).Id)
+                                if (_shape.Vertex[_j].id == _ancId)
                                 {
-                                    _isNot = false;
+                                    _ancVertexIndex = _j;
                                     break;
                                 }
                             }
-                            if (_isNot)
+                            if (_ancVertexIndex != -1)
                             {
-                                ((ShapeParameter)param[EParameter.Shape]).Vertex[_j].id = ((CommonParameter)Data.items[_i].param[EParameter.Common]).Id;
+                                if (_extComm.Connect.support.ContainsKey(EConnectorSupport.FromAncestorToRight))
+                                {
+                                    _extComm.Connect.support.Remove(EConnectorSupport.FromAncestorToRight);
+                                    _shape.Vertex.Insert(
+                                        _ancVertexIndex + 1,
+                                        new FigureContainer(
+                                            x: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Left,
+                                            y: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Top,
+                                            id: _extComm.Id
+                                            )
+                                    );
+                                }
+                                if (_extComm.Connect.support.ContainsKey(EConnectorSupport.FromAncestorToLeft))
+                                {
+                                    _extComm.Connect.support.Remove(EConnectorSupport.FromAncestorToLeft);
+                                    _shape.Vertex.Insert(
+                                        _ancVertexIndex,
+                                        new FigureContainer(
+                                            x: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Left,
+                                            y: ((ItemParameter)Data.items[_i].param[EParameter.Item]).Top,
+                                            id: _extComm.Id
+                                            )
+                                    );
+                                }
+                                _extComm.Connect.support.Remove(EConnectorSupport.Ancestor);
                             }
+                            else
+                            {
+                                new Exception("Wrong index in the shape item");
+                            }
+                            _common.Connect.Connectors.Add(_extComm.Id);
                         }
-                        if (((ShapeParameter)param[EParameter.Shape]).Vertex[_j].id == ((CommonParameter)Data.items[_i].param[EParameter.Common]).Id)
+                    }
+                    
+                    _currConnectors.Add(_extComm.Id);
+                }
+            }
+            //check deleted connectors and vertex
+            int _con = 0;
+            while (_con < _common.Connect.Connectors.Count)
+            {
+                if (!_currConnectors.Contains(_common.Connect.Connectors[_con]))
+                {
+                    int _vertex = -1;
+                    for (int _j=0; _j< _shape.Vertex.Count; _j++)
+                    {
+                        if (_shape.Vertex[_j].id == _common.Connect.Connectors[_con])
                         {
-                            ((ShapeParameter)param[EParameter.Shape]).Vertex[_j].x = ((ItemParameter)Data.items[_i].param[EParameter.Item]).Left + ((ItemParameter)Data.items[_i].param[EParameter.Item]).Width / 2;
-                            ((ShapeParameter)param[EParameter.Shape]).Vertex[_j].y = ((ItemParameter)Data.items[_i].param[EParameter.Item]).Top + ((ItemParameter)Data.items[_i].param[EParameter.Item]).Height / 2;
-                            Data.items[_i].MouseMoveNotify += this.FigureItem_MouseMoveNotify;
-                            _count++;
-
-                            if (_count > 1)
-                            {
-                                Line _tmp = new Line();
-                                _tmp.Stroke = new SolidColorBrush(Colors.Black);
-                                _tmp.StrokeThickness = ((ShapeParameter)param[EParameter.Shape]).StrokeThickness;
-
-                                _tmp.X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_count - 2].x;
-                                _tmp.Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_count - 2].y;
-                                _tmp.X2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_count - 1].x;
-                                _tmp.Y2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_count - 1].y;
-                                Item.Add(_tmp);
-                                HandleAddItem(Item.Count - 1);
-                            }
-
+                            _vertex = _j;
                             break;
                         }
                     }
-                    if (_i == Data.items.Count - 1 && ((CommonParameter)Data.items[_i].param[EParameter.Common]).ConnectorId != ((CommonParameter)param[EParameter.Common]).Id)
+                    if (_vertex != -1)
                     {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex.RemoveAt(_j);
-                        _j--;
+                        _shape.Vertex.RemoveAt(_vertex);
                     }
+                    _common.Connect.Connectors.RemoveAt(_con);
+                    continue;
                 }
-                _j++;
+                _con++;
             }
-            if (_count < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count)
+            //check the count of Lines
+            if (_shape.Shape == EShape.Line)
             {
-                while (Item.Count > _count)
+                while (Item.Count < _shape.Vertex.Count-1)
                 {
-                    HandleRemoveItem(_count);
+                    Line _item = new Line();
+                    _item.Stroke = new SolidColorBrush(Colors.Black);
+                    _item.StrokeThickness = _shape.StrokeThickness;
+                    Item.Add(_item);
+                    HandleAddItem(Item.Count - 1);
                 }
-                while (((ShapeParameter)param[EParameter.Shape]).Vertex.Count > _count)
+                while (_shape.Vertex.Count>0 && Item.Count >= _shape.Vertex.Count)
                 {
-                    ((ShapeParameter)param[EParameter.Shape]).Vertex.RemoveAt(_count);
+                    HandleRemoveItem(Item.Count - 1);
                 }
             }
-            AppCoord();
+            // correct line view
+            ReFigure();
         }
 
-        public void ReVertex()
+        public void ReFigure()
         {
-            if (param[EParameter.Shape] == null || Data.items == null)
+            ShapeParameter _shape = (ShapeParameter)param[EParameter.Shape];
+            int _connId;
+            ItemParameter _connItem;
+            for (int _i=0; _i< _shape.Vertex.Count; _i++)
             {
-                return;
-            }
-            int _id = -1;
-            for (int _i = 0; _i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count; _i++)
-            {
-                if (((ShapeParameter)param[EParameter.Shape]) != null)
+                _connId = _shape.Vertex[_i].id;
+                _connItem = ((ItemParameter)Data.items[Data.GetItemIndexByID(_connId)].param[EParameter.Item]);
+                if (_i > 0)
                 {
-                    _id = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].id;
-                    if (_i > 0)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x =
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Width / 2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Top +
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Height / 2;
+                    _shape.Vertex[_i].x = _connItem.Left + _connItem.Width / 2;
+                    _shape.Vertex[_i].y = _connItem.Top + _connItem.Height / 2;
 
-                        Item[_i - 1].X2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i - 1].Y2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-                    }
-                    if (_i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count - 1)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x =
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Width / 2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
-                            ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Top +
-                           ((ItemParameter)Data.items[Data.GetItemByID(_id)].param[EParameter.Item]).Height / 2;
+                    Item[_i - 1].X2 = _shape.Vertex[_i].x;
+                    Item[_i - 1].Y2 = _shape.Vertex[_i].y;
+                }
+                if (_i < _shape.Vertex.Count - 1)
+                {
+                    _shape.Vertex[_i].x = _connItem.Left + _connItem.Width / 2;
+                    _shape.Vertex[_i].y = _connItem.Top + _connItem.Height / 2;
 
-                        Item[_i].X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i].Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-
-                    }
+                    Item[_i].X1 = _shape.Vertex[_i].x;
+                    Item[_i].Y1 = _shape.Vertex[_i].y;
                 }
             }
-            AppCoord();
+            AppCoordCorrection();
         }
 
-        public void AppCoord()
+        public void AppCoordCorrection()
         {
             if (param[EParameter.Shape] != null &&
                 ((ShapeParameter)param[EParameter.Shape]).Vertex.Count > 0)
@@ -270,44 +345,14 @@ namespace diagramMaker.items
             }
         }
 
-        public void FigureItem_MouseMoveNotify(int id)
+        public void ConnectorItem_MouseMoveNotify(int id)
         {
-            if (param[EParameter.Shape] == null || Data.items == null)
+            if (!param.ContainsKey(EParameter.Shape))
             {
                 return;
             }
-            for (int _i = 0; _i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count; _i++)
-            {
-                if (((ShapeParameter)param[EParameter.Shape]) != null && ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].id == id)
-                {
-                    if (_i > 0)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x =
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width/2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y =
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height/2;
-
-                        Item[_i - 1].X2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i - 1].Y2 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-                    }
-                    if (_i < ((ShapeParameter)param[EParameter.Shape]).Vertex.Count - 1)
-                    {
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x = 
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Left +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Width / 2;
-                        ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y = 
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Top +
-                            ((ItemParameter)Data.items[Data.GetItemByID(id)].param[EParameter.Item]).Height / 2;
-
-                        Item[_i].X1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].x;
-                        Item[_i].Y1 = ((ShapeParameter)param[EParameter.Shape]).Vertex[_i].y;
-
-                    }
-                }
-            }
-            AppCoord();
+            ReFigure();
+            AppCoordCorrection();
         }
 
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)

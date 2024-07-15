@@ -9,7 +9,7 @@ namespace diagramMaker.parameters
         public bool IsMouseDown { get; set; }
         public bool IsMouseMove { get; set; }
         public bool IsMouseUp { get; set; }
-        public string MouseUpInfo { get; set; }
+        public string MouseUpContent { get; set; }
         public bool IsHitTestVisible { get; set; }
         public bool IsMouseClick { get; set; }
         public bool IsMouseLeave { get; set; }
@@ -23,7 +23,7 @@ namespace diagramMaker.parameters
             bool moveSensitive = false,
             bool mouseDown = false,
             bool mouseUp = true,
-            string mouseUpInfo = "",
+            string mouseUpContent = "",
             Boolean IsHitTestVisible = true,
             bool mouseClick = false,
             ECommand command = ECommand.None,
@@ -36,7 +36,7 @@ namespace diagramMaker.parameters
             this.IsMoveSensitive = moveSensitive;
             this.IsMouseDown = mouseDown;
             this.IsMouseUp = mouseUp;
-            this.MouseUpInfo = mouseUpInfo;
+            this.MouseUpContent = mouseUpContent;
             this.IsHitTestVisible = IsHitTestVisible;
             this.IsMouseClick = mouseClick;
             this.Command = command;

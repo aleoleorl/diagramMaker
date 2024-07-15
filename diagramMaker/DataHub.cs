@@ -49,6 +49,7 @@ namespace diagramMaker
         public string? loadName;
 
         public bool btnControl;
+        public bool btnAlt;
 
         private static bool isClear = true;
         public static bool IsClear
@@ -65,12 +66,13 @@ namespace diagramMaker
             }
         }
 
+        public List<Connection> AddConnector;
+
         public DataHub()
         {
             ClearData();
         }
         
-
         public void ClearData()
         {
             isClear = true;
@@ -116,9 +118,12 @@ namespace diagramMaker
             saveName = "diaFile.dmf";
 
             btnControl = false;
+            btnAlt = false;
+
+            AddConnector = new List<Connection>();
         }
 
-        public int GetItemByID(int id)
+        public int GetItemIndexByID(int id)
         {
             if (items==null)
             {

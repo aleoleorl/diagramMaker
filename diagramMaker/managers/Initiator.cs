@@ -59,7 +59,7 @@ namespace diagramMaker.managers
             mainWindow.PreviewKeyDown -= mainWindow.eventner.MainWindow_PreviewKeyDown;
             mainWindow.KeyDown -= mainWindow.eventner.MainWindow_KeyDown;
             mainWindow.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
-            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Clear();
+            ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Clear();
             data.ClearData();
             DefaultItem.RestartID();
         }
@@ -93,12 +93,14 @@ namespace diagramMaker.managers
 
         public void SetParameters()
         {
-            DefaultParameter _ip;
             if (data.parameters == null)
             {
                 data.parameters = new Dictionary<string, DefaultParameter> ();
             }
-            
+
+            DefaultParameter _ip;
+            Connection _con;
+
             _ip = new ItemParameter(
                 left: 0,
                 top: 0,
@@ -185,6 +187,14 @@ namespace diagramMaker.managers
                 cornerRadius: 1);
             data.parameters.Add("borderVersion01", _ip);
 
+            //line
+            _con = new Connection();
+            _con.IsUser = true;
+            _ip = new CommonParameter(
+                connect: _con
+                );
+            data.parameters.Add("itemLineCommon", _ip);
+
             _ip = new ItemParameter(
                 left: 160,
                 top: 50,
@@ -195,8 +205,6 @@ namespace diagramMaker.managers
             data.parameters.Add("itemLineContent", _ip);
 
             List<FigureContainer> _vertex = new List<FigureContainer>();
-            _vertex.Add(new FigureContainer(x:160, y:50, id:-1));
-            _vertex.Add(new FigureContainer(x: 190, y: 50, id: -1));
             _ip = new ShapeParameter(
                 shape: EShape.Line,
                 vertex: _vertex,
@@ -211,6 +219,22 @@ namespace diagramMaker.managers
                 mouseMove: true
                 );
             data.parameters.Add("eventLineContent", _ip);
+
+            //connectors
+            _con = new Connection();
+            _con.IsConnector = true;
+            _con.support.Add(EConnectorSupport.NewConnector, -1);
+            _ip = new CommonParameter(
+                connect: _con
+                );
+            data.parameters.Add("itemCommonConnector", _ip);
+
+            _con = new Connection();
+            _con.IsConnector = true;
+            _ip = new CommonParameter(
+                connect: _con
+                );
+            data.parameters.Add("itemCommonSpecialConnector", _ip);
 
             _ip = new ItemParameter(
                 left: 160,
@@ -274,6 +298,7 @@ namespace diagramMaker.managers
 
             //line
             _im = new ItemMakerContainer();
+            _im.Props.Add("itemLineCommon", EParameter.Common);
             _im.Props.Add("itemLineContent", EParameter.Item);
             _im.Props.Add("figureLineContent", EParameter.Shape);
             _im.Props.Add("eventLineContent", EParameter.Event);
@@ -281,6 +306,7 @@ namespace diagramMaker.managers
             data.itemCollection.Add("Line", _im);
 
             _imConnect = new ItemMakerContainer();
+            _imConnect.Props.Add("itemCommonConnector", EParameter.Common);
             _imConnect.Props.Add("itemLineConnect01Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
@@ -288,6 +314,7 @@ namespace diagramMaker.managers
             _im.Connector.Add(_imConnect);
 
             _imConnect = new ItemMakerContainer();
+            _imConnect.Props.Add("itemCommonConnector", EParameter.Common);
             _imConnect.Props.Add("itemLineConnect02Content", EParameter.Item);
             _imConnect.Props.Add("eventLineConnect", EParameter.Event);
             _imConnect.Item = EItem.Canvas;
@@ -296,6 +323,7 @@ namespace diagramMaker.managers
 
             //connector
             _im = new ItemMakerContainer();
+            _im.Props.Add("itemCommonSpecialConnector", EParameter.Common);
             _im.Props.Add("itemLineConnect02Content", EParameter.Item);
             _im.Props.Add("eventLineConnect", EParameter.Event);
             _im.Item = EItem.Canvas;

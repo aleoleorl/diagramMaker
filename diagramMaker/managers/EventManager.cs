@@ -7,7 +7,6 @@ using System.Windows.Media;
 using System.Windows;
 using System.Windows.Input;
 using diagramMaker.managers.DefaultPreparation;
-using System.Diagnostics;
 using diagramMaker.helpers.enumerators;
 using diagramMaker.helpers.containers;
 
@@ -27,7 +26,8 @@ namespace diagramMaker.managers
             this.data = data;
         }
 
-        #region navigation
+        #region Navigation
+
         public void EventNavigationPanelScrollCount(int digit)
         {
             data.menuNavigationPanel_ScrollCount += digit;
@@ -63,7 +63,7 @@ namespace diagramMaker.managers
                 {
                     if (((CommonParameter)data.items[_i].param[EParameter.Common]).ParentId == -1)
                     {
-                        if (((CommonParameter)data.items[_i].param[EParameter.Common]).ConnectorId == -1)
+                        if (((CommonParameter)data.items[_i].param[EParameter.Common]).Connect.IsConnector == false)
                         {
                             _tmp.Add(_i);
                         }
@@ -78,7 +78,7 @@ namespace diagramMaker.managers
             int _id = -1;
             for (int _i = 0; _i < data.items.Count; ++_i)
             {
-                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Name == ((ContentParameter)data.items[data.GetItemByID(id)].param[EParameter.Content]).Content)
+                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Name == ((ContentParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Content]).Content)
                 {
                     _id = _i;
                     break;
@@ -140,7 +140,7 @@ namespace diagramMaker.managers
                                             ((CommonParameter)data.items[_i].param[EParameter.Common]).AppY - 
                                             data.topLeftY;
                                     }
-                                    ((FigureItem)data.items[_i]).ReVertex();
+                                    ((FigureItem)data.items[_i]).ReFigure();
                                     break;
                                 default:
                                     break;
@@ -152,6 +152,8 @@ namespace diagramMaker.managers
         }
         #endregion
 
+        #region ItemCreation
+
         public void eventCreateItem(string itemName)
         {
             ItemMakerContainer _im = data.itemCollection[itemName];
@@ -160,47 +162,35 @@ namespace diagramMaker.managers
                 return;
             }
             int _id = CreateItemUnit(_im);
-            //data.items[_id].MouseAppIdNotify += eventItemMenuHandler;
-            //
             NavigationPanelScrollCount_Activation();
         }
-
-        public int CreateItemUnit(ItemMakerContainer im, int id = -1, bool connector = false)
+        
+        public int CreateItemUnit(ItemMakerContainer im, int parentId = -1, int conId = -1)
         {
-            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item;
+            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
 
             switch (im.Item)
             {
                 case EItem.Canvas:
-                    data.items.Add(new CanvasItem(data, _appCanvas, connector ? -1 : id));
+                    data.items.Add(new CanvasItem(data, _appCanvas, parentId));
                     break;
                 case EItem.Label:
-                    data.items.Add(new LabelItem(data, _appCanvas, connector ? -1 : id));
+                    data.items.Add(new LabelItem(data, _appCanvas, parentId));
                     break;
                 case EItem.Painter:
-                    data.items.Add(new PainterItem(data, _appCanvas, connector ? -1 : id));
+                    data.items.Add(new PainterItem(data, _appCanvas, parentId));
                     break;
                 case EItem.Figure:
-                    data.items.Add(new FigureItem(data, _appCanvas, connector ? -1 : id));
+                    data.items.Add(new FigureItem(data, _appCanvas, parentId));
                     break;
                 default:
                     break;
             }
+
             int _id = data.items.Count - 1;
             data.items[_id].MouseAppIdNotify += EventItemMenuHandler;
-            ((CommonParameter)data.items[_id].param[EParameter.Common]).ItemAttach = EItemAttach.Custom;
-            ((CommonParameter)data.items[_id].param[EParameter.Common]).ConnectorId = connector ? id : -1;
+            ((CommonParameter)data.items[_id].param[EParameter.Common]).ItemAttach = EItemAttach.Custom;            
 
-            //children
-            for (int _i = 0; _i < im.Children.Count; _i++)
-            {
-                CreateItemUnit(im.Children[_i], ((CommonParameter)data.items[_id].param[EParameter.Common]).Id);
-            }
-            //connected
-            for (int _i = 0; _i < im.Connector.Count; _i++)
-            {
-                CreateItemUnit(im.Connector[_i], ((CommonParameter)data.items[_id].param[EParameter.Common]).Id, true);
-            }
             //currParameters
             foreach (var _prop in im.Props)
             {
@@ -217,33 +207,133 @@ namespace diagramMaker.managers
                         switch (im.Item)
                         {
                             case EItem.Canvas:
-                                ((CanvasItem)data.items[_id]).EEventNotify += EventAddMultiLine;
+                                ((CanvasItem)data.items[_id]).EEventNotify += EventAddConnector;
                                 break;
                             default:
                                 break;
                         }
                         break;
-                    case EEvent.Connector:
-                        ((CommonParameter)data.items[_id].param[EParameter.Common]).ConnectorId = -2;
+                    case EEvent.Connector:                        
                         break;
                     default:
                         break;
                 }
             }
 
+            //children
+            for (int _i = 0; _i < im.Children.Count; _i++)
+            {
+                CreateItemUnit(im.Children[_i], ((CommonParameter)data.items[_id].param[EParameter.Common]).Id);
+            }
+
+            //group id for connections
+            if (conId != -1)
+            {
+                ((CommonParameter)data.items[_id].param[EParameter.Common]).Connect.GroupID = conId;
+            }
+            int _conId = conId;
+            if (im.Connector.Count > 0 && _conId == -1)
+            {
+                _conId = Connection.GetID();
+                ((CommonParameter)data.items[_id].param[EParameter.Common]).Connect.GroupID = _conId;
+            }
+            //connected
+            for (int _i = 0; _i < im.Connector.Count; _i++)
+            {
+                CreateItemUnit(im:im.Connector[_i], conId:_conId);
+            }
+
+            MakeConnections(_id);
+
             return _id;
         }
 
+        public void MakeConnections(int id)
+        {
+            Connection _con = ((CommonParameter)data.items[id].param[EParameter.Common]).Connect;
+            if (_con.IsConnector)
+            {
+                if (_con.support.ContainsKey(EConnectorSupport.FromAncestorToLeft) || _con.support.ContainsKey(EConnectorSupport.FromAncestorToRight))
+                {
+                    //connector created from the ancestor
+
+                } else
+                if (_con.Users.Count == 0)
+                {
+                    //new connector added by found connector>specialId
+                    for (int _i= 0; _i< data.items.Count; _i++)
+                    {
+                        if (((CommonParameter)data.items[_i].param[EParameter.Common]).Connect.IsUser && ((CommonParameter)data.items[_i].param[EParameter.Common]).Connect.GroupID == _con.GroupID)
+                        {
+                            _con.Users.Add(((CommonParameter)data.items[_i].param[EParameter.Common]).Id);
+                        }
+                    }
+                }
+            }
+            if (_con.IsUser)
+            {
+                data.items[id].PrepareConnections();
+            }
+        }
+
+        public void EventAddConnector(int id)
+        {
+            if (!data.btnControl && !data.btnAlt)
+            {
+                return;
+            }
+
+            int _ancestorArrIndex = data.GetItemIndexByID(id);
+            CommonParameter _ancCommon = ((CommonParameter)data.items[_ancestorArrIndex].param[EParameter.Common]);
+            ItemParameter _ancItem = (ItemParameter)data.items[_ancestorArrIndex].param[EParameter.Item];
+
+            for (int _i = 0; _i < _ancCommon.Connect.Users.Count; _i++)
+            {
+                eventCreateItem("Connector");
+                int _connArrIndex = data.items.Count - 1;
+
+                CommonParameter _conCommon = (CommonParameter)data.items[_connArrIndex].param[EParameter.Common];
+                _conCommon.ParentId = -1;
+                _conCommon.Connect.GroupID = _ancCommon.Connect.GroupID;
+                _conCommon.Connect.support.Add(EConnectorSupport.Ancestor, _ancCommon.Id);
+
+                ItemParameter _conItem = (ItemParameter)data.items[_connArrIndex].param[EParameter.Item];
+                _conItem.Left = _ancItem.Left;
+                _conItem.Top = _ancItem.Top;
+                Canvas.SetLeft(((CanvasItem)data.items[_connArrIndex]).Item, _ancItem.Left);
+                Canvas.SetTop(((CanvasItem)data.items[_connArrIndex]).Item, _ancItem.Top);
+                data.choosenItemID = _conCommon.Id;
+                data.tapped = _conCommon.Id;
+
+                if (data.btnControl)
+                {
+                    //next
+                    _conCommon.Connect.support.Add(EConnectorSupport.FromAncestorToRight, _ancCommon.Id);
+                }
+                else if (data.btnAlt)
+                {
+                    //previous
+                    _conCommon.Connect.support.Add(EConnectorSupport.FromAncestorToLeft, _ancCommon.Id);
+                }
+
+                int _userArrIndex = data.GetItemIndexByID(((CommonParameter)data.items[_ancestorArrIndex].param[EParameter.Common]).Connect.Users[0]);
+                data.items[_userArrIndex].PrepareConnections();
+            }
+        }
+        #endregion
+
+        #region MenuHandling
+
         public void EventItemMenuHandler(int id)
         {
-            ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Visible;
+            ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Visible;
             data.isMenuItem = true;
             data.choosenItemID = id;
             ItemParametersMenuAdd();
 
-            if (((CommonParameter)data.items[data.GetItemByID(id)].param[EParameter.Common]).ItemType == EItem.Painter)
+            if (((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ItemType == EItem.Painter)
             {
-                ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Visible;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Visible;
                 data.isMenuPainter = true;
                 ItemPaintMakerMenuAdd();
             }
@@ -252,7 +342,7 @@ namespace diagramMaker.managers
         public void ItemPaintMakerMenuAdd()
         {
             ItemMenuDelete(data.menuItemPaintMakerID);
-            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item;
+            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
             MenuMaker.Make_PainterMakerMenu_Content(data, _appCanvas, this);
         }
 
@@ -260,14 +350,14 @@ namespace diagramMaker.managers
         {
             ItemMenuDelete(data.menuItemParametersID);
             //
-            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item;
-            DefaultItem _item = data.items[data.GetItemByID(data.choosenItemID)];
+            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
+            DefaultItem _item = data.items[data.GetItemIndexByID(data.choosenItemID)];
             MenuMaker.Make_ParameterMenu_Content(data, _appCanvas, _item, this);
         }
 
         public void ItemMenuDelete(int id)
         {
-            ((CanvasItem)data.items[data.GetItemByID(id)]).Item.Children.Clear();
+            ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Children.Clear();
 
             int _i = 0;
             while (_i < data.items.Count)
@@ -280,6 +370,9 @@ namespace diagramMaker.managers
                 _i++;
             }
         }
+        #endregion
+
+        #region MoveMouse_ItemShift
 
         public void EventItemsShifter(double x, double y)
         {
@@ -290,7 +383,8 @@ namespace diagramMaker.managers
                     switch (((CommonParameter)item.param[EParameter.Common]).ItemType)
                     {
                         case EItem.Figure:
-                            ((FigureItem)item).HandlerShapeParam();
+                            item.HandlerShapeParam();
+                            item.HandlerEParam();
                             break;
                         default:
                             item.SetParameter(EParameter.Item,
@@ -330,6 +424,9 @@ namespace diagramMaker.managers
                 }
             }
         }
+        #endregion
+
+        #region DeleteItem
 
         public void EventItemDeleteHandler(int id, ECommand command)
         {
@@ -338,64 +435,55 @@ namespace diagramMaker.managers
                 List<int> _ids = new List<int>();
                 _ids.Add(id);
                 _ids.AddRange(SearchItemChildren(id));
-                switch (((CommonParameter)data.items[data.GetItemByID(id)].param[EParameter.Common]).ItemType)
+                switch (((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ItemType)
                 {
                     case EItem.Canvas:
-                        ((CanvasItem)data.items[data.GetItemByID(id)]).Item.Children.Clear();
-                        ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Remove(((CanvasItem)data.items[data.GetItemByID(id)]).Item);
+                        ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Children.Clear();
+                        ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item);
                         break;
                     case EItem.Painter:
-                        ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Remove(((PainterItem)data.items[data.GetItemByID(id)]).item);
+                        ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((PainterItem)data.items[data.GetItemIndexByID(id)]).item);
                         break;
                     case EItem.Figure:
-                        for (int _i = 0; _i < ((FigureItem)data.items[data.GetItemByID(id)]).Item.Count; _i++)
-                        {
-                            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Remove(((FigureItem)data.items[data.GetItemByID(id)]).Item[_i]);
-                        }
-                        int _j = 0;
-                        while (_j < data.items.Count)
-                        {
-                            if (((CommonParameter)data.items[_j].param[EParameter.Common]).ConnectorId == id)
-                            {
-                                _ids.Add(((CommonParameter)data.items[_j].param[EParameter.Common]).Id);
-                                switch (((CommonParameter)data.items[_j].param[EParameter.Common]).ItemType)
-                                {
-                                    case EItem.Canvas:
-                                        ((CanvasItem)data.items[_j]).Item.Children.Clear();
-                                        ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Remove(((CanvasItem)data.items[_j]).Item);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            _j++;
-                        }
+                        data.items[data.GetItemIndexByID(id)].HandleRemoveItem();
                         break;
                     default:
                         break;
                 }
-                if (((CommonParameter)data.items[data.GetItemByID(id)].param[EParameter.Common]).ConnectorId != -1) 
+                //connections
+                CommonParameter _comm = ((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]);
+                _comm.Connect.GroupID = -2;
+                //users
+                for (int _i=0; _i < _comm.Connect.Users.Count; _i++)
                 {
-                    int _tmp = ((CommonParameter)data.items[data.GetItemByID(id)].param[EParameter.Common]).ConnectorId;
-                    ((CommonParameter)data.items[data.GetItemByID(id)].param[EParameter.Common]).ConnectorId = -1;
-                    EventDeleteMultiLine(_tmp);
+                    int _tmp = _comm.Connect.Users[_i];
+                    _comm.Connect.Users.RemoveAt(_i);
+                    EventDeleteUser(_tmp);
                 }
+                //connectors
+                for (int _i = 0; _i < _comm.Connect.Connectors.Count; _i++)
+                {
+                    int _tmp = _comm.Connect.Connectors[_i];
+                    EventDeleteConnector(_tmp, id);
+
+                }
+
                 //
                 for (int _i = 0; _i < _ids.Count; _i++)
                 {
-                    data.items.RemoveAt(data.GetItemByID(_ids[_i]));
+                    data.items.RemoveAt(data.GetItemIndexByID(_ids[_i]));
                 }
                 //
                 if (id == data.choosenItemID)
                 {
                     ItemMenuDelete(data.menuItemParametersID);
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuItem = false;
                     data.choosenItemID = -1;
                 }
                 if (data.isMenuPainter)
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuPainter = false;
                     ItemMenuDelete(data.menuItemPaintMakerID);
                 }
@@ -417,6 +505,30 @@ namespace diagramMaker.managers
             return _itms;
         }
 
+        public void EventDeleteUser(int id)
+        {
+            int _userArrIndex = data.GetItemIndexByID(id);
+            data.items[_userArrIndex].HandlerShapeParam();
+            data.items[_userArrIndex].HandlerEParam();
+
+            if (((ShapeParameter)data.items[_userArrIndex].param[EParameter.Shape]).Vertex.Count == 0)
+            {
+                EventItemDeleteHandler(id, ECommand.DeleteItem);
+            }
+        }
+        public void EventDeleteConnector(int id, int friedId)
+        {
+            int _conArrIndex = data.GetItemIndexByID(id);
+            CommonParameter _conCommon = (CommonParameter)data.items[_conArrIndex].param[EParameter.Common];
+             _conCommon.Connect.Users.Remove(friedId);
+            if (_conCommon.Connect.Users.Count == 0)
+            {
+                EventItemDeleteHandler(id, ECommand.DeleteItem);
+            }
+        }
+        #endregion
+
+        #region KeyEvents
         public void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
@@ -439,13 +551,19 @@ namespace diagramMaker.managers
             {
                 data.btnControl = true;
             }
+            if (Keyboard.Modifiers == ModifierKeys.Alt)
+            {
+                data.btnAlt = true;
+            }
             KeyDownNotify?.Invoke(sender, e);
         }
         
         public void MainWindow_KeyUp(object sender, KeyEventArgs e)
         {
             data.btnControl = false;
+            data.btnAlt = false;
         }
+        #endregion
 
         public void EventButtonClickHandler(int id, ECommand command)
         {
@@ -466,79 +584,6 @@ namespace diagramMaker.managers
                     break;
                 default:
                     break;
-            }
-        }
-
-        public void EventAddMultiLine(int id)
-        {
-            if (!data.btnControl)
-            {
-                return;
-            }
-            int _arrConnecterId = data.GetItemByID(id);
-            var _shapeArrId = data.GetItemByID(((CommonParameter)data.items[_arrConnecterId].param[EParameter.Common]).ConnectorId);
-            int _i = 0;
-            bool _found = false;
-            while (_i < ((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Count)
-            {
-                if (((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex[_i].id == id)
-                {
-                    _found = true;
-                    break;
-                }
-                _i++;
-            }
-            if (_found)
-            {
-                eventCreateItem("Connector");
-                int _connArrId = data.items.Count - 1;
-                ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).ParentId = -1;
-                ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).ConnectorId = ((CommonParameter)data.items[_shapeArrId].param[EParameter.Common]).Id;
-                ((ItemParameter)data.items[_connArrId].param[EParameter.Item]).Left = ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Left;
-                ((ItemParameter)data.items[_connArrId].param[EParameter.Item]).Top = ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Top;
-                Canvas.SetLeft(((CanvasItem)data.items[_connArrId]).Item, ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Left);
-                Canvas.SetTop(((CanvasItem)data.items[_connArrId]).Item, ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Top);
-
-                if (_i == ((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Count - 1)
-                {
-                    ((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Add(
-                        new FigureContainer(
-                            x: ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Left,
-                            y: ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Top,
-                            id: ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).Id
-                            ));
-                }
-                else
-                {
-                    ((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Insert(
-                       _i + 1,
-                       new FigureContainer(
-                           x: ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Left,
-                           y: ((ItemParameter)data.items[_arrConnecterId].param[EParameter.Item]).Top,
-                           id: ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).Id
-                           ));
-                }
-                data.choosenItemID = ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).Id;
-                data.tapped = ((CommonParameter)data.items[_connArrId].param[EParameter.Common]).Id;
-                ((FigureItem)data.items[_shapeArrId]).HandlerShapeParam();
-                ((FigureItem)data.items[_shapeArrId]).HandlerEParam();
-            }
-        }
-
-        public void EventDeleteMultiLine(int id)
-        {
-            var _shapeArrId = data.GetItemByID(id);
-            ((FigureItem)data.items[_shapeArrId]).HandlerShapeParam();
-            ((FigureItem)data.items[_shapeArrId]).HandlerEParam();
-
-            if (((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Count == 1)
-            {
-                EventItemDeleteHandler(
-                    ((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex[0].id, 
-                    ECommand.DeleteItem);
-            } else if (((ShapeParameter)data.items[_shapeArrId].param[EParameter.Shape]).Vertex.Count == 0)
-            {
-                EventItemDeleteHandler(id, ECommand.DeleteItem);
             }
         }
     }

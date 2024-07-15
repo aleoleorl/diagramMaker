@@ -73,7 +73,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(3, 33, 144, 50, Brushes.Beige, null));
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2));
-            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpInfo: "InfoBlock"));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpContent: "InfoBlock"));
 
             int menuInfoBlockID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
@@ -101,7 +101,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(3, 84, 144, 50, Brushes.Beige, null));
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2));
-            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpInfo: "PaintMaker"));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpContent: "PaintMaker"));
 
             int menuPaintID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
@@ -123,7 +123,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new CanvasItem(data, appCanvas, ((CommonParameter)data.items[data.menuCreation].param[EParameter.Common]).Id));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(3, 135, 144, 50, Brushes.Beige, null));
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2));
-            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpInfo: "Line"));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseUp: true, mouseUpContent: "Line"));
 
             int menuLineID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
@@ -308,7 +308,7 @@ namespace diagramMaker.managers.DefaultPreparation
                             data.items[^1].SetParameter(
                                 EParameter.Content, 
                                 new ContentParameter(
-                                    content: ((LabelItem)data.items[data.GetItemByID(((CommonParameter)item.param[EParameter.Common]).Id)]).Item.Content.ToString(),
+                                    content: ((LabelItem)data.items[data.GetItemIndexByID(((CommonParameter)item.param[EParameter.Common]).Id)]).Item.Content.ToString(),
                                     horAlign: HorizontalAlignment.Left,
                                     verAlign: VerticalAlignment.Center,
                                     isTextChanged: true,

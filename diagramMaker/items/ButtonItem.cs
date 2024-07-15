@@ -29,7 +29,7 @@ namespace diagramMaker.items
                 }
                 else
                 {
-                    int _id = data.GetItemByID(parentId);
+                    int _id = data.GetItemIndexByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
                         ((CanvasItem)data.items[_id]).Item.Children.Add(Item);

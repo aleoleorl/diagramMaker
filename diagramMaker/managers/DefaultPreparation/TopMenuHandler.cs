@@ -89,18 +89,18 @@ namespace diagramMaker.managers.DefaultPreparation
             subItem_CurrentVersion = new MenuItem { Header = "Version Info" };
             menuItem_Info.Items.Add(subItem_CurrentVersion);
             menuItem_Info.Click += CurrentVersion_Click;
-            ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item.Children.Add(mainMenu);
+            ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Add(mainMenu);
         }
 
         private void NavigationPanel_Click(object sender, RoutedEventArgs e)
         {
             if (subItem_NavigationPanelMenu.IsChecked)
             {
-                ((CanvasItem)data.items[data.GetItemByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Visible;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Visible;
             }
             else
             {
-                ((CanvasItem)data.items[data.GetItemByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
             }
         }
 
@@ -147,11 +147,11 @@ namespace diagramMaker.managers.DefaultPreparation
         {
             if (subItem_InfoLine.IsChecked)
             {
-                ((LabelItem)data.items[data.GetItemByID(data.informerID)]).Item.Visibility = Visibility.Visible;
+                ((LabelItem)data.items[data.GetItemIndexByID(data.informerID)]).Item.Visibility = Visibility.Visible;
             }
             else
             {
-                ((LabelItem)data.items[data.GetItemByID(data.informerID)]).Item.Visibility = Visibility.Hidden;
+                ((LabelItem)data.items[data.GetItemIndexByID(data.informerID)]).Item.Visibility = Visibility.Hidden;
             }
         }
 
@@ -164,11 +164,11 @@ namespace diagramMaker.managers.DefaultPreparation
         {
             if (subItem_ConstructorMenu.IsChecked)
             {
-                ((CanvasItem)data.items[data.GetItemByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
             }
             else
             {
-                ((CanvasItem)data.items[data.GetItemByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
             }
         }
 
@@ -178,11 +178,11 @@ namespace diagramMaker.managers.DefaultPreparation
             {
                 if (subItem_ConstructorMenu.IsChecked)
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
                 }
                 subItem_ConstructorMenu.IsChecked = !subItem_ConstructorMenu.IsChecked;
             }
@@ -190,11 +190,11 @@ namespace diagramMaker.managers.DefaultPreparation
             {
                 if (subItem_InfoLine.IsChecked)
                 {
-                    ((LabelItem)data.items[data.GetItemByID(data.informerID)]).Item.Visibility = Visibility.Hidden;
+                    ((LabelItem)data.items[data.GetItemIndexByID(data.informerID)]).Item.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    ((LabelItem)data.items[data.GetItemByID(data.informerID)]).Item.Visibility = Visibility.Visible;
+                    ((LabelItem)data.items[data.GetItemIndexByID(data.informerID)]).Item.Visibility = Visibility.Visible;
                 }
                 subItem_InfoLine.IsChecked = !subItem_InfoLine.IsChecked;
             }
@@ -202,11 +202,11 @@ namespace diagramMaker.managers.DefaultPreparation
             {
                 if (subItem_NavigationPanelMenu.IsChecked)
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Visible;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Visible;
                 }
                 subItem_NavigationPanelMenu.IsChecked = !subItem_NavigationPanelMenu.IsChecked;
             }            

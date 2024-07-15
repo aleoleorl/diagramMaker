@@ -3,23 +3,9 @@ using diagramMaker.items;
 using diagramMaker.managers;
 using diagramMaker.managers.DefaultPreparation;
 using diagramMaker.parameters;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace diagramMaker
 {
@@ -89,7 +75,7 @@ namespace diagramMaker
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    if (data.tapped == ((CommonParameter)data.items[data.GetItemByID(data.appCanvasID)].param[EParameter.Common]).Id)
+                    if (data.tapped == ((CommonParameter)data.items[data.GetItemIndexByID(data.appCanvasID)].param[EParameter.Common]).Id)
                     {
                         data.topLeftX += (_mousePosition.X - data.oldMouseX);
                         data.topLeftY += (_mousePosition.Y - data.oldMouseY);
@@ -119,15 +105,15 @@ namespace diagramMaker
             TapControl();
             if (data.isMenuItem)
             { 
-                ((CanvasItem)data.items[data.GetItemByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
                 data.isMenuItem = false;
                 eventner.ItemMenuDelete(data.menuItemParametersID);
-                data.items[data.GetItemByID(data.choosenItemID)].FinishHandling();
+                data.items[data.GetItemIndexByID(data.choosenItemID)].FinishHandling();
                 data.choosenItemID = -1;
 
                 if (data.isMenuPainter)
                 {
-                    ((CanvasItem)data.items[data.GetItemByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
+                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuPainter = false;
                     eventner.ItemMenuDelete(data.menuItemPaintMakerID);
                     

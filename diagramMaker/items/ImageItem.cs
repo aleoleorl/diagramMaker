@@ -56,7 +56,7 @@ namespace diagramMaker.items
                     }
                     else
                     {
-                        int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
+                        int _id = Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId);
                         if (_id != -1 && Data.items != null)
                         {
                             ((CanvasItem)Data.items[_id]).Item.Children.Add(Item);

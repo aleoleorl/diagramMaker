@@ -68,7 +68,7 @@ namespace diagramMaker.managers
                         writer.WriteStartElement("item");
                         writer.WriteAttributeString("id", ((CommonParameter)_item.param[EParameter.Common]).Id.ToString());
                         writer.WriteAttributeString("parentId", ((CommonParameter)_item.param[EParameter.Common]).ParentId.ToString());
-                        writer.WriteAttributeString("connectorId", ((CommonParameter)_item.param[EParameter.Common]).ConnectorId.ToString());
+                        writer.WriteAttributeString("connectorId", ((CommonParameter)_item.param[EParameter.Common]).Connect.ToString());
                         writer.WriteAttributeString("name", ((CommonParameter)_item.param[EParameter.Common]).Name);
                         writer.WriteAttributeString("itemType", ((CommonParameter)_item.param[EParameter.Common]).ItemType.ToString());
                         writer.WriteAttributeString("appX", ((CommonParameter)_item.param[EParameter.Common]).AppX.ToString());
@@ -144,7 +144,7 @@ namespace diagramMaker.managers
                             writer.WriteElementString("isMouseDown", ((EventParameter)_item.param[EParameter.Event]).IsMouseDown.ToString());
                             writer.WriteElementString("isMouseMove", ((EventParameter)_item.param[EParameter.Event]).IsMouseMove.ToString());
                             writer.WriteElementString("isMouseUp", ((EventParameter)_item.param[EParameter.Event]).IsMouseUp.ToString());
-                            writer.WriteElementString("mouseUpInfo", ((EventParameter)_item.param[EParameter.Event]).MouseUpInfo);
+                            writer.WriteElementString("mouseUpInfo", ((EventParameter)_item.param[EParameter.Event]).MouseUpContent);
                             writer.WriteElementString("isHitTestVisible", ((EventParameter)_item.param[EParameter.Event]).IsHitTestVisible.ToString());
                             writer.WriteElementString("isMouseClick", ((EventParameter)_item.param[EParameter.Event]).IsMouseClick.ToString());
                             writer.WriteElementString("isMouseLeave", ((EventParameter)_item.param[EParameter.Event]).IsMouseLeave.ToString());
@@ -255,7 +255,7 @@ namespace diagramMaker.managers
                             case "Painter":
                                 _itm = new PainterItem(
                                     data,
-                                    ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item,
+                                    ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
                                     _parentId);
                                 V0_5_DefaultParams(_itm, reader, ev);
                                 data.items.Add(_itm);
@@ -263,7 +263,7 @@ namespace diagramMaker.managers
                             case "Canvas":
                                 _itm = new CanvasItem(
                                     data,
-                                    ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item,
+                                    ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
                                     _parentId);
                                 V0_5_DefaultParams(_itm, reader, ev);
                                 data.items.Add(_itm);
@@ -271,7 +271,7 @@ namespace diagramMaker.managers
                             case "Label":
                                 _itm = new LabelItem(
                                     data,
-                                    ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item,
+                                    ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
                                     _parentId);
                                 V0_5_DefaultParams(_itm, reader, ev);
                                 data.items.Add(_itm);
@@ -279,7 +279,7 @@ namespace diagramMaker.managers
                             case "Figure":
                                 _itm = new FigureItem(
                                     data,
-                                    ((CanvasItem)data.items[data.GetItemByID(data.appCanvasID)]).Item,
+                                    ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
                                     _parentId);
                                 V0_5_DefaultParams(_itm, reader, ev);
                                 data.items.Add(_itm);
@@ -584,7 +584,7 @@ namespace diagramMaker.managers
         public void V0_5_DefaultParams(DefaultItem itm, XmlReader reader, EventManager ev)
         {
             ((CommonParameter)itm.param[EParameter.Common]).Id = int.Parse(reader.GetAttribute("id"));
-            ((CommonParameter)itm.param[EParameter.Common]).ConnectorId = int.Parse(reader.GetAttribute("connectorId"));
+            //((CommonParameter)itm.param[EParameter.Common]).Connect = int.Parse(reader.GetAttribute("connectorId"));
             ((CommonParameter)itm.param[EParameter.Common]).ParentId = int.Parse(reader.GetAttribute("parentId"));
             ((CommonParameter)itm.param[EParameter.Common]).Name = reader.GetAttribute("name");
             ((CommonParameter)itm.param[EParameter.Common]).AppX = int.Parse(reader.GetAttribute("appX"));

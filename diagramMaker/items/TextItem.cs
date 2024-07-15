@@ -61,7 +61,7 @@ namespace diagramMaker.items
                 }
                 else
                 {
-                    int _id = Data.GetItemByID(((CommonParameter)param[EParameter.Common]).ParentId);
+                    int _id = Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId);
                     if (_id != -1 && Data.items != null)
                     {
                         ((CanvasItem)Data.items[_id]).Item.Children.Add(Item);
@@ -165,7 +165,7 @@ namespace diagramMaker.items
         {
             if (param.ContainsKey(EParameter.Content) && ((ContentParameter)param[EParameter.Content]).BindID != 0 && Data.items != null)
             {
-                Data.items[Data.GetItemByID(((ContentParameter)param[EParameter.Content]).BindID)].ValueChanger(((ContentParameter)param[EParameter.Content]).BindParameter, Item.Text);
+                Data.items[Data.GetItemIndexByID(((ContentParameter)param[EParameter.Content]).BindID)].ValueChanger(((ContentParameter)param[EParameter.Content]).BindParameter, Item.Text);
             }
         }
 

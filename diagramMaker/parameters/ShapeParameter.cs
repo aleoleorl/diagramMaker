@@ -19,20 +19,7 @@ namespace diagramMaker.parameters
             double strokeThickness = 10)
         {
             this.Shape = shape;
-            this.Vertex =
-                    new List<FigureContainer>
-                    {
-                    new FigureContainer(x:1, y:1, id:-1),
-                    new FigureContainer(x:1, y:1, id:-1)
-                    };
-            if (vertex != null)
-            {
-                for (int _i=0; _i< vertex.Count; _i++)
-                {
-                    this.Vertex[_i].x = vertex[_i].x;
-                    this.Vertex[_i].y = vertex[_i].y;
-                }
-            }
+            this.Vertex = new List<FigureContainer>();
             this.Color = color;
             this.StrokeThickness = strokeThickness;
         }
