@@ -75,23 +75,25 @@ namespace diagramMaker.managers.DefaultPreparation
             subItem_Load = new MenuItem { Header = "Load" };
             subItem_Load.Click += LoadMenuItem_Click;
             menuItem_File.Items.Add(subItem_Load);
-                        
-            subItem_ConstructorMenu = new MenuItem { Header = "Constructor menu", IsCheckable = true, IsChecked = true, InputGestureText="Ctrl+C"};
+
+            subItem_ConstructorMenu = new MenuItem { Header = "Item Creation Panel", IsCheckable = true, IsChecked = true, InputGestureText="Ctrl+C"};
             menuItem_View.Items.Add(subItem_ConstructorMenu);
-            subItem_ConstructorMenu.Click += ConstructorMenuItem_Click;
-            subItem_NavigationPanelMenu = new MenuItem { Header = "Navigation Panel", IsCheckable = true, InputGestureText = "Ctrl+N" };
-            menuItem_View.Items.Add(subItem_NavigationPanelMenu);
-            subItem_NavigationPanelMenu.Click += NavigationPanel_Click;
+            subItem_ConstructorMenu.Click += ItemCreationPanel_Click;
+
             subItem_InfoLine = new MenuItem { Header = "Info Line", IsCheckable = true, IsChecked = true, InputGestureText = "Ctrl+I" };
             menuItem_View.Items.Add(subItem_InfoLine);
             subItem_InfoLine.Click += InfoLine_Click;
 
-            subItem_CurrentVersion = new MenuItem { Header = "Version Info" };
+            subItem_NavigationPanelMenu = new MenuItem { Header = "Navigation Panel", IsCheckable = true, InputGestureText = "Ctrl+N" };
+            menuItem_View.Items.Add(subItem_NavigationPanelMenu);
+            subItem_NavigationPanelMenu.Click += NavigationPanel_Click;
+            
+
+            subItem_CurrentVersion = new MenuItem { Header = "Version Info Line" };
             menuItem_Info.Items.Add(subItem_CurrentVersion);
             menuItem_Info.Click += CurrentVersion_Click;
             ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Add(mainMenu);
         }
-
         private void NavigationPanel_Click(object sender, RoutedEventArgs e)
         {
             if (subItem_NavigationPanelMenu.IsChecked)
@@ -160,31 +162,31 @@ namespace diagramMaker.managers.DefaultPreparation
             MenuHandlerNotify?.Invoke(action:ETopMenuActionType.New, isIt: true);
         }
 
-        private void ConstructorMenuItem_Click(object sender, RoutedEventArgs e)
+        private void ItemCreationPanel_Click(object sender, RoutedEventArgs e)
         {
-            if (subItem_ConstructorMenu.IsChecked)
+            ItemCreationPanel();
+        }
+        private void ItemCreationPanel()
+        {
+            if (data.panel["itemCreationPanel"].isVisual)
             {
-                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
+                data.panel["itemCreationPanel"].isVisual = false;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
+
             }
             else
             {
-                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
+                data.panel["itemCreationPanel"].isVisual = true;
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
             }
+            subItem_ConstructorMenu.IsChecked = !subItem_ConstructorMenu.IsChecked;
         }
 
         public void KeyDown(object sender, KeyEventArgs e)
         {
             if ((Keyboard.Modifiers == ModifierKeys.Control) && (e.Key == Key.C))
             {
-                if (subItem_ConstructorMenu.IsChecked)
-                {
-                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Hidden;
-                }
-                else
-                {
-                    ((CanvasItem)data.items[data.GetItemIndexByID(data.menuCreationCanvasID)]).Item.Visibility = Visibility.Visible;
-                }
-                subItem_ConstructorMenu.IsChecked = !subItem_ConstructorMenu.IsChecked;
+                ItemCreationPanel();
             }
             if ((Keyboard.Modifiers == ModifierKeys.Control) && (e.Key == Key.I))
             {

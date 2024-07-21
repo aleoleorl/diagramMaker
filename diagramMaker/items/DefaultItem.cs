@@ -36,8 +36,13 @@ namespace diagramMaker.items
         public event MouseMoveHandler? MouseMoveNotify;
         public delegate void MouseScrollHandler(int digit);
         public event MouseScrollHandler? MouseScrollNotify;
+        public delegate void MouseScrollWithIdHandler(int digit, int id);
+        public event MouseScrollWithIdHandler? MouseScrolWithIdNotify;
         public delegate void MouseDoubleClickHandler(int id);
         public event MouseDoubleClickHandler? MouseDoubleClickNotify;
+        public event MouseDoubleClickHandler? MouseDoubleClickParentNotify;
+        public delegate void ItemChangeHandler(EBindParameter eBindParameter, string txt);
+        public event ItemChangeHandler? ItemChangeNotify;
 
         public DefaultItem(DataHub data, Canvas? appCanvas = null, int parentId = -1, EItem itemType = EItem.Default)
         {
@@ -220,12 +225,17 @@ namespace diagramMaker.items
 
         }
 
+        public virtual void doVisual(bool flag)
+        {
+
+        }
+
         #region Events
         public virtual void ValueChanger(
             EBindParameter eBindParameter = EBindParameter.None,
             string txt = "")
         {
-
+            ItemChangeNotify?.Invoke(EBindParameter.Content, txt);
         }
 
         public virtual void FinishHandling()
@@ -239,7 +249,7 @@ namespace diagramMaker.items
 
         public virtual void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            Trace.WriteLine("Item_MouseDown:"+((CommonParameter)param[EParameter.Common]).Id);
         }
 
         public virtual void Item_MouseUp(object sender, MouseButtonEventArgs e)
@@ -268,16 +278,21 @@ namespace diagramMaker.items
             if (e.Delta > 0)
             {
                 MouseScrollNotify?.Invoke(-1);
+                
+                MouseScrolWithIdNotify?.Invoke(-1, ((CommonParameter)param[EParameter.Common]).Id);
             }
             else
             {
                 MouseScrollNotify?.Invoke(1);
+
+                MouseScrolWithIdNotify?.Invoke(1, ((CommonParameter)param[EParameter.Common]).Id);
             }
         }
 
         public void Item_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             MouseDoubleClickNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
+            MouseDoubleClickParentNotify?.Invoke(((CommonParameter)param[EParameter.Common]).ParentId);
             e.Handled = true;
         }
         #endregion

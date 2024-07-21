@@ -139,6 +139,10 @@ namespace diagramMaker.items
 
         private void PaintHandler(int mX, int mY)
         {   
+            if (((CanvasItem)Data.items[Data.GetItemIndexByID(Data.menuItemPaintMakerID)]).Item.Visibility != Visibility.Visible)
+            {
+                return;
+            }
             if (mX<0)
             {
                 mX=0;
@@ -318,6 +322,8 @@ namespace diagramMaker.items
                 default:
                     break;
             }
+
+            base.ValueChanger(eBindParameter, txt);
         }
     }
 }

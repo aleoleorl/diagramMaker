@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using diagramMaker.helpers.enumerators;
+using System.Windows.Media;
 
 namespace diagramMaker.parameters
 {
@@ -11,8 +12,17 @@ namespace diagramMaker.parameters
         public Brush? BgColor { get; set; }
         public Brush? FrColor { get; set; }
 
-        public ItemParameter(double left, double top, double width, double height,
-            Brush? bgColor = null, Brush? frColor = null) 
+        public EChildItemPosition Vertical {  get; set; }
+        public EChildItemPosition Horizontal { get; set; }
+
+        public ItemParameter(double left, 
+            double top, 
+            double width, 
+            double height,
+            Brush? bgColor = null, 
+            Brush? frColor = null,
+            EChildItemPosition vert = EChildItemPosition.None,
+            EChildItemPosition hor = EChildItemPosition.None) 
         {   
             this.Left = left;
             this.Top = top;
@@ -20,6 +30,8 @@ namespace diagramMaker.parameters
             this.Height = height;
             this.BgColor = bgColor;
             this.FrColor = frColor;
+            this.Vertical = vert;
+            this.Horizontal = hor;
         }
 
         public ItemParameter(ItemParameter param)

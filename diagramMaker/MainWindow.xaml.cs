@@ -2,10 +2,12 @@
 using diagramMaker.items;
 using diagramMaker.managers;
 using diagramMaker.managers.DefaultPreparation;
+using diagramMaker.managers.EventHandler;
 using diagramMaker.parameters;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Markup;
 
 namespace diagramMaker
 {
@@ -16,6 +18,7 @@ namespace diagramMaker
     {        
         private DataHub data;
         public diagramMaker.managers.EventManager eventner;
+        public PanelEvents panelEvent;
         public TopMenuHandler topMenu;
         private Initiator initiator;
 
@@ -47,8 +50,9 @@ namespace diagramMaker
             this.Width = 1024;
             this.Height = 768;
 
-            eventner = new managers.EventManager(data);
+            eventner = new managers.EventManager(data, this);
             topMenu = new TopMenuHandler(data, this);
+            panelEvent = new PanelEvents(data);
             initiator = new Initiator(data, this);
             initiator.Prepare();
         }
@@ -85,7 +89,9 @@ namespace diagramMaker
                         AppCanvasMoveSensitiveNotify?.Invoke(_mousePosition.X - data.oldMouseX, _mousePosition.Y - data.oldMouseY);
                     }
                     else
-                    {                        
+                    {
+                        data.oldMouseX = _mousePosition.X; 
+                        data.oldMouseY = _mousePosition.Y;
                         ItemMoveNotify?.Invoke(
                             _mousePosition.X,
                             _mousePosition.Y);
@@ -114,9 +120,7 @@ namespace diagramMaker
                 if (data.isMenuPainter)
                 {
                     ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
-                    data.isMenuPainter = false;
-                    eventner.ItemMenuDelete(data.menuItemPaintMakerID);
-                    
+                    data.isMenuPainter = false;                    
                 }
             }
         }

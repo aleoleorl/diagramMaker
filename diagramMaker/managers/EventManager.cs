@@ -1,4 +1,7 @@
-﻿using diagramMaker.items;
+﻿using diagramMaker.helpers.enumerators;
+using diagramMaker.helpers.containers;
+using diagramMaker.items;
+using diagramMaker.managers.DefaultPreparation;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -6,42 +9,29 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Input;
-using diagramMaker.managers.DefaultPreparation;
-using diagramMaker.helpers.enumerators;
-using diagramMaker.helpers.containers;
+using Microsoft.VisualBasic.FileIO;
 
 namespace diagramMaker.managers
 {
     public class EventManager
     {
         private DataHub data;
+        private MainWindow mainWindow;
 
         public delegate void NavigationItemHandler(ECommand command, List<int> items);
         public event NavigationItemHandler? NavigationItemNotify;
         public delegate void KeyDownHandler(object sender, KeyEventArgs e);
         public event KeyDownHandler? KeyDownNotify;
+        public delegate void ChoosenItemHandler(EBindParameter eBindParameter, string txt);
+        public event ChoosenItemHandler? ChoosenItemNotify;
 
-        public EventManager(DataHub data)
+        public EventManager(DataHub data, MainWindow mainWindow)
         {
             this.data = data;
+            this.mainWindow = mainWindow;
         }
 
         #region Navigation
-
-        public void EventNavigationPanelScrollCount(int digit)
-        {
-            data.menuNavigationPanel_ScrollCount += digit;
-            if (data.menuNavigationPanel_ScrollCount < 0)
-            {
-                data.menuNavigationPanel_ScrollCount = 0;
-            }
-            List<int> _tmp = NavigationPanelScrollCount();
-            if (data.menuNavigationPanel_ScrollCount > _tmp.Count - data.menuNavigationPanel_SlotNumber)
-            {
-                data.menuNavigationPanel_ScrollCount = _tmp.Count - data.menuNavigationPanel_SlotNumber;
-            }
-            NavigationPanelScrollCount_Activation();
-        }
 
         public void NavigationPanelScrollCount_Activation()
         {
@@ -76,9 +66,11 @@ namespace diagramMaker.managers
         public void NavigationMoveToItem(int id)
         {
             int _id = -1;
+            CommonParameter _comPar = ((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]);
             for (int _i = 0; _i < data.items.Count; ++_i)
             {
-                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Name == ((ContentParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Content]).Content)
+                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Id ==
+                    _comPar.Connect.Users[0])
                 {
                     _id = _i;
                     break;
@@ -150,6 +142,120 @@ namespace diagramMaker.managers
                 }
             }
         }
+
+        public void NavigationPanel_AddItem(int ItemArrIndex)
+        {
+            DefaultItem _itm = data.items[ItemArrIndex];
+            if (((CommonParameter)_itm.param[EParameter.Common]).ItemAttach == EItemAttach.Menu)
+            {
+                return;
+            }
+            if (((CommonParameter)_itm.param[EParameter.Common]).Connect.IsConnector)
+            {
+                return;
+            }
+
+            MenuMakeOptions _option = new MenuMakeOptions();
+            _option.category = EMenuCategory.SubMenu;
+            MenuContainer _layer = data.panel["itemNavigationPanel"];
+            _option.parentId = _layer.menu[0].itemId;
+            _option.panelLabel = "> Layer 0";
+            _option.x = 3;
+            _option.y = _layer.menu[0].option.y + _layer.menu[0].childrenId.Count*30;
+            _option.w = _layer.menu[0].option.w*0.95;
+            _option.h = 28;
+            _option.itmStringContent.Add(((CommonParameter)_itm.param[EParameter.Common]).Name);
+            _option.itmStringContent.Add(((CommonParameter)_itm.param[EParameter.Common]).Id.ToString());
+            int _id = MenuMaker.Make_SubPanelItem_EventNavigationItem(
+                data, 
+                mainWindow, 
+                ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
+                _option,
+                - 1
+                );
+            _layer.menu[0].childrenId.Add(_id);
+
+            bool _found = false;
+            foreach(var _panel in _layer.menu)
+            {
+                if (_panel.itemId == _layer.menu[0].itemId)
+                {
+                    _found = true;
+                    _panel.option.h += 30;
+
+                    CanvasItem _subItm = (CanvasItem)data.items[data.GetItemIndexByID(_panel.itemId)];
+                    ((ItemParameter)_subItm.param[EParameter.Item]).Height += 30;
+                    if (_panel.isOpen)
+                    {
+                        _subItm.Item.Height += 30;
+                        _subItm.Item.Clip = new RectangleGeometry(new Rect(
+                            0,
+                            0,
+                            _subItm.Item.Width,
+                            _subItm.Item.Height));
+                    }
+                }
+                if (_found && _panel.itemId != _layer.menu[0].itemId)
+                {
+
+                }
+            }
+
+        }
+
+        public void NavigationPanel_DeleteItem(int id)
+        {
+            MenuContainer _layer = data.panel["itemNavigationPanel"];
+            int _panelItemId = -1;
+            foreach(int _id in _layer.menu[0].childrenId)
+            {
+                if (data.GetItemIndexByID(_id) != -1)
+                {
+                    CommonParameter _comPar = (CommonParameter)data.items[data.GetItemIndexByID(_id)].param[EParameter.Common];
+                    if (_comPar.Connect.Users[0] == id)
+                    {
+                        _panelItemId = _id;
+                        break;
+                    }
+                }
+            }
+            if (_panelItemId == -1)
+            {
+                return;
+            }
+            int _childIndex = _layer.menu[0].childrenId.IndexOf(_panelItemId);
+
+            //remove from parent item
+            for (int _i=0; _i< data.items.Count; _i++)
+            {
+                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Id == _layer.menu[0].itemId)
+                {
+                    Canvas _parent = ((CanvasItem)data.items[_i]).Item;
+                    Canvas _child = ((CanvasItem)data.items[data.GetItemIndexByID(_panelItemId)]).Item;
+                    _parent.Children.Remove(_child);
+                    break;
+                }
+            }
+
+            //delete from data items
+            EventItemDeleteHandler(_panelItemId, ECommand.DeleteItem);
+
+            //shift menu
+            if (_childIndex < _layer.menu[0].childrenId.Count - 1)
+            {
+                for (int _i = _childIndex + 1; _i < _layer.menu[0].childrenId.Count; _i++)
+                {
+                    int _id = _layer.menu[0].childrenId[_i];
+                    CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(_id)];
+                    ((ItemParameter)_item.param[EParameter.Item]).Top -= 30;
+                    Canvas.SetTop(_item.Item, ((ItemParameter)_item.param[EParameter.Item]).Top);
+                }
+            }
+
+            //delete from menu
+            _layer.menu[0].childrenId.RemoveAt(_childIndex);
+        }
+
         #endregion
 
         #region ItemCreation
@@ -161,8 +267,8 @@ namespace diagramMaker.managers
             {
                 return;
             }
-            int _id = CreateItemUnit(_im);
-            NavigationPanelScrollCount_Activation();
+            int _index = CreateItemUnit(_im);
+            NavigationPanel_AddItem(_index);
         }
         
         public int CreateItemUnit(ItemMakerContainer im, int parentId = -1, int conId = -1)
@@ -187,14 +293,14 @@ namespace diagramMaker.managers
                     break;
             }
 
-            int _id = data.items.Count - 1;
-            data.items[_id].MouseAppIdNotify += EventItemMenuHandler;
-            ((CommonParameter)data.items[_id].param[EParameter.Common]).ItemAttach = EItemAttach.Custom;            
+            int _index = data.items.Count - 1;
+            data.items[_index].MouseAppIdNotify += EventItemMenuHandler;
+            ((CommonParameter)data.items[_index].param[EParameter.Common]).ItemAttach = EItemAttach.Custom;            
 
             //currParameters
             foreach (var _prop in im.Props)
             {
-                data.items[_id].SetParameter(
+                data.items[_index].SetParameter(
                 type: _prop.Value,
                     dParam: data.parameters[_prop.Key]);
             }
@@ -207,7 +313,7 @@ namespace diagramMaker.managers
                         switch (im.Item)
                         {
                             case EItem.Canvas:
-                                ((CanvasItem)data.items[_id]).EEventNotify += EventAddConnector;
+                                ((CanvasItem)data.items[_index]).EEventNotify += EventAddConnector;
                                 break;
                             default:
                                 break;
@@ -223,19 +329,19 @@ namespace diagramMaker.managers
             //children
             for (int _i = 0; _i < im.Children.Count; _i++)
             {
-                CreateItemUnit(im.Children[_i], ((CommonParameter)data.items[_id].param[EParameter.Common]).Id);
+                CreateItemUnit(im.Children[_i], ((CommonParameter)data.items[_index].param[EParameter.Common]).Id);
             }
 
             //group id for connections
             if (conId != -1)
             {
-                ((CommonParameter)data.items[_id].param[EParameter.Common]).Connect.GroupID = conId;
+                ((CommonParameter)data.items[_index].param[EParameter.Common]).Connect.GroupID = conId;
             }
             int _conId = conId;
             if (im.Connector.Count > 0 && _conId == -1)
             {
                 _conId = Connection.GetID();
-                ((CommonParameter)data.items[_id].param[EParameter.Common]).Connect.GroupID = _conId;
+                ((CommonParameter)data.items[_index].param[EParameter.Common]).Connect.GroupID = _conId;
             }
             //connected
             for (int _i = 0; _i < im.Connector.Count; _i++)
@@ -243,9 +349,9 @@ namespace diagramMaker.managers
                 CreateItemUnit(im:im.Connector[_i], conId:_conId);
             }
 
-            MakeConnections(_id);
+            MakeConnections(_index);
 
-            return _id;
+            return _index;
         }
 
         public void MakeConnections(int id)
@@ -322,54 +428,85 @@ namespace diagramMaker.managers
         }
         #endregion
 
-        #region MenuHandling
+        #region PanelsHandling
 
         public void EventItemMenuHandler(int id)
         {
             ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Visible;
             data.isMenuItem = true;
             data.choosenItemID = id;
+
             ItemParametersMenuAdd();
 
             if (((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ItemType == EItem.Painter)
             {
                 ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Visible;
                 data.isMenuPainter = true;
-                ItemPaintMakerMenuAdd();
             }
         }
 
-        public void ItemPaintMakerMenuAdd()
+        public void EventButtonClickHandler(int id, ECommand command)
         {
-            ItemMenuDelete(data.menuItemPaintMakerID);
-            Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
-            MenuMaker.Make_PainterMakerMenu_Content(data, _appCanvas, this);
+            switch (command)
+            {
+                case ECommand.Data_PainterTool:
+                    switch (id)
+                    {
+                        case 1:
+                            data.painterTool = EPainterTool.Move;
+                            break;
+                        case 2:
+                            data.painterTool = EPainterTool.Draw;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void ItemParametersMenuAdd()
         {
+            ChoosenItemNotify?.Invoke(EBindParameter.Content, data.choosenItemID.ToString());
+
             ItemMenuDelete(data.menuItemParametersID);
-            //
+
             Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
-            DefaultItem _item = data.items[data.GetItemIndexByID(data.choosenItemID)];
-            MenuMaker.Make_ParameterMenu_Content(data, _appCanvas, _item, this);
+            MenuMakeOptions _option = new MenuMakeOptions();
+            var _panel = data.panel["itemParametersPanel"];
+            _option.parentId = _panel.menu[0].childrenId[0];
+
+            for (int _i=0; _i<_panel.menu[0].option.addFunc.Count; _i++)
+            {
+                _panel.menu[0].option.addFunc[_i](data, mainWindow, _appCanvas, _option, _i);
+            }
         }
 
         public void ItemMenuDelete(int id)
         {
-            ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Children.Clear();
-
-            int _i = 0;
-            while (_i < data.items.Count)
+            foreach (var panel in data.panel)
             {
-                if (((CommonParameter)data.items[_i].param[EParameter.Common]).ParentId == data.menuItemParametersID)
+                if (panel.Value.itemId == id)
                 {
-                    data.items.RemoveAt(_i);
-                    continue;
+                    Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
+                    MenuMakeOptions _option = new MenuMakeOptions();
+                    _option.parentId = panel.Value.menu[0].childrenId[0];
+
+                    for (int _i = 0; _i < panel.Value.menu[0].option.addFunc.Count; _i++)
+                    {
+                        panel.Value.menu[0].option.delFunc[_i](data, mainWindow, _appCanvas, _option, _i);
+                    }
                 }
-                _i++;
             }
         }
+
+        public void ParameterMenuAdd(int id)
+        {
+
+        }
+
         #endregion
 
         #region MoveMouse_ItemShift
@@ -406,7 +543,8 @@ namespace diagramMaker.managers
         {
             for (int _i = 0; _i < data.items.Count; _i++)
             {
-                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Id == data.tapped)
+                if (((CommonParameter)data.items[_i].param[EParameter.Common]).ParentId == -1 &&
+                    ((CommonParameter)data.items[_i].param[EParameter.Common]).Id == data.tapped)
                 {
                     data.items[_i].SetParameter(
                         EParameter.Item,
@@ -454,18 +592,20 @@ namespace diagramMaker.managers
                 CommonParameter _comm = ((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]);
                 _comm.Connect.GroupID = -2;
                 //users
-                for (int _i=0; _i < _comm.Connect.Users.Count; _i++)
+                if (_comm.Connect.IsConnector)
                 {
-                    int _tmp = _comm.Connect.Users[_i];
-                    _comm.Connect.Users.RemoveAt(_i);
-                    EventDeleteUser(_tmp);
+                    for (int _i = 0; _i < _comm.Connect.Users.Count; _i++)
+                    {
+                        int _tmp = _comm.Connect.Users[_i];
+                        _comm.Connect.Users.RemoveAt(_i);
+                        EventDeleteUser(_tmp);
+                    }
                 }
                 //connectors
                 for (int _i = 0; _i < _comm.Connect.Connectors.Count; _i++)
                 {
                     int _tmp = _comm.Connect.Connectors[_i];
                     EventDeleteConnector(_tmp, id);
-
                 }
 
                 //
@@ -487,7 +627,8 @@ namespace diagramMaker.managers
                     data.isMenuPainter = false;
                     ItemMenuDelete(data.menuItemPaintMakerID);
                 }
-                EventNavigationPanelScrollCount(0);
+                NavigationPanel_DeleteItem(id);
+                //EventNavigationPanelScrollCount(0);
             }
         }
 
@@ -565,26 +706,5 @@ namespace diagramMaker.managers
         }
         #endregion
 
-        public void EventButtonClickHandler(int id, ECommand command)
-        {
-            switch (command)
-            {
-                case ECommand.Data_PainterTool:
-                    switch (id)
-                    {
-                        case 1:
-                            data.painterTool = EPainterTool.Move;
-                            break;
-                        case 2:
-                            data.painterTool = EPainterTool.Draw;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

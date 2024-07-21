@@ -66,7 +66,11 @@ namespace diagramMaker
             }
         }
 
-        public List<Connection> AddConnector;
+        public List<Connection> addConnector;
+
+        public Dictionary <string, MenuContainer> panel;
+
+        public int activeLayer;
 
         public DataHub()
         {
@@ -120,7 +124,11 @@ namespace diagramMaker
             btnControl = false;
             btnAlt = false;
 
-            AddConnector = new List<Connection>();
+            addConnector = new List<Connection>();
+
+            panel = new Dictionary<string, MenuContainer>();
+
+            activeLayer = -1;
         }
 
         public int GetItemIndexByID(int id)

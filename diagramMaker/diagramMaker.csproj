@@ -16,6 +16,12 @@
     <None Remove="assets\item04.png" />
     <None Remove="assets\item05.png" />
     <None Remove="assets\item06.png" />
+    <None Remove="assets\item07.png" />
+    <None Remove="assets\item08.png" />
+    <None Remove="assets\item09.png" />
+    <None Remove="assets\item10.png" />
+    <None Remove="assets\item11.png" />
+    <None Remove="assets\item12.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +41,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\item06.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item07.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item08.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item09.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item10.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item11.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\item12.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

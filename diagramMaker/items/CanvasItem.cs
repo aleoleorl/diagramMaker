@@ -17,6 +17,9 @@ namespace diagramMaker.items
         public delegate void EEventHandler(int id);
         public event EEventHandler? EEventNotify;
 
+        public delegate void ItemClickHandler(int id, ECommand command);
+        public event ItemClickHandler? ItemClickHandlerNotify;
+
         public CanvasItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Canvas)
         {
@@ -91,6 +94,8 @@ namespace diagramMaker.items
                     Border.BorderThickness = new Thickness(_bParam.BorderThickness);
                     Border.BorderBrush = new SolidColorBrush(_bParam.Color ?? Colors.Black);
                     Border.CornerRadius = new CornerRadius(_bParam.CornerRadius);
+                    Border.IsHitTestVisible = false;
+                    Panel.SetZIndex(Border, 499999);
                     if (_iParam != null)
                     {
                         Border.Width = _iParam.Width;
@@ -186,6 +191,8 @@ namespace diagramMaker.items
                 default:
                     break;
             }
+
+            base.ValueChanger(eBindParameter, txt);
         }
 
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
@@ -213,6 +220,18 @@ namespace diagramMaker.items
                 ((ItemParameter)param[EParameter.Item]).Top = top;
                 ((ItemParameter)param[EParameter.Item]).Width = width;
                 ((ItemParameter)param[EParameter.Item]).Height = height;
+            }
+        }
+
+        public override void doVisual(bool flag)
+        {
+            if (flag) 
+            {
+                Item.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Item.Visibility = Visibility.Hidden;
             }
         }
     }

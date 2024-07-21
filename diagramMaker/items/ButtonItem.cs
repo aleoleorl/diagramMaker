@@ -14,7 +14,8 @@ namespace diagramMaker.items
         public Button Item { get; set; }
 
         public delegate void ItemClickHandler(int id, ECommand command);
-        public event ItemClickHandler? ItemClickHandlerNotify;
+        public event ItemClickHandler? ItemClickNotify;
+
 
         public ButtonItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Button)
@@ -160,9 +161,13 @@ namespace diagramMaker.items
             EventParameter? _eParam = param.ContainsKey(EParameter.Event) ?
                 (EventParameter)param[EParameter.Event] :
                 null;
+            int _send = 
+                _eParam!=null && _eParam.CommandParameter != -1?
+                _eParam.CommandParameter:
+                ((CommonParameter)param[EParameter.Common]).Id;            
             if (_eParam != null)
             {
-                ItemClickHandlerNotify?.Invoke(_eParam.CommandParameter, _eParam.Command);
+                ItemClickNotify?.Invoke(_send, _eParam.Command);
             }
         }
     }

@@ -355,6 +355,22 @@ namespace diagramMaker.items
             AppCoordCorrection();
         }
 
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Name:
+                    ((CommonParameter)param[EParameter.Common]).Name = txt;
+                    break;
+                default:
+                    break;
+            }
+
+            base.ValueChanger(eBindParameter, txt);
+        }
+
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Point mousePosition = e.GetPosition(Item[0]);

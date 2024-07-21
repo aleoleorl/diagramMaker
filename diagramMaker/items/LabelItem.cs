@@ -162,6 +162,8 @@ namespace diagramMaker.items
                 default:
                     break;
             }
+
+            base.ValueChanger(eBindParameter, txt);
         }
 
         public void SetContent(string? message, ItemParameter? iParam = null)
@@ -229,6 +231,7 @@ namespace diagramMaker.items
                     break;
             }
         }
+
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Trace.WriteLine("Label Item_MouseDown");
