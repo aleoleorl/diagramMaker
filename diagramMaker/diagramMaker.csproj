@@ -67,4 +67,8 @@
     <PackageReference Include="WriteableBitmapEx" Version="1.6.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="managers\EventHandler\" />
+  </ItemGroup>
+
 </Project>

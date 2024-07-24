@@ -2,20 +2,18 @@
 using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.parameters;
-using System;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace diagramMaker.managers.DefaultPreparation
+namespace diagramMaker.managers.DefaultPanels
 {
     public class MenuMaker
     {
         public MenuMaker() { }
 
-        public static Canvas Make_AppCanvas(DataHub data, MainWindow mainWindow)
+        public static Canvas Make_AppCanvas(DataHub data, DefaultManager defMan)
         {
             //appCanvas
             data.items.Add(new CanvasItem(data, null));
@@ -23,14 +21,17 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameter(EParameter.Event, new EventParameter(moveSensitive: false, mouseDown: true, mouseUp: false));
 
             Canvas appCanvas = ((CanvasItem)data.items[^1]).Item;
-            mainWindow.Content = appCanvas;
+            defMan.windowManager.mainWindow.Content = appCanvas;
             data.appCanvasID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
-            mainWindow.ResizeNotify += ((CanvasItem)data.items[^1]).CommonResizeHandler;
+            defMan.windowManager.ResizeNotify += ((CanvasItem)data.items[^1]).CommonResizeHandler;
 
             return appCanvas;
         }
 
-        public static void Make_InfoLine(DataHub data, MainWindow mainWindow, Canvas appCanvas)
+        public static void Make_InfoLine(
+            DataHub data,
+            DefaultManager defMan,
+            Canvas appCanvas)
         {
             data.items.Add(new LabelItem(data, appCanvas));
             data.items[^1].SetParameter(EParameter.Item, (ItemParameter)data.parameters["itemLabelInfoLine"]);
@@ -40,33 +41,33 @@ namespace diagramMaker.managers.DefaultPreparation
 
             data.informerID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
             ((LabelItem)data.items[^1]).Item.SetValue(AutomationProperties.NameProperty, "InfoLine");
-            mainWindow.CommonInfoNotify += ((LabelItem)data.items[^1]).SetContent;
-            mainWindow.AppCanvasMoveNotify += ((LabelItem)data.items[^1]).SetContent;
+            defMan.windowManager.CommonInfoNotify += ((LabelItem)data.items[^1]).SetContent;
+            defMan.windowManager.AppCanvasMoveNotify += ((LabelItem)data.items[^1]).SetContent;
             Panel.SetZIndex(((LabelItem)data.items[^1]).Item, 30);
-            mainWindow.AppCanvasMoveSensitiveNotify += mainWindow.eventner.EventItemsShifter;
+            defMan.windowManager.AppCanvasMoveSensitiveNotify += defMan.eve.EventItemsShifter;
         }
 
         public static MenuContainer Make_CreationPanelMenu(
-            DataHub data, 
-            MainWindow mainWindow, 
-            Canvas appCanvas, 
+            DataHub data,
+            DefaultManager defMan,
+            Canvas appCanvas,
             MenuMakeOptions option)
         {
-            MenuContainer _item = new MenuContainer(id:1);
+            MenuContainer _item = new MenuContainer(id: 1);
             _item.option = option.Clone();
 
-            int _indexArray = MenuCreatePanelCarcas(data, mainWindow, appCanvas, _item);
+            int _indexArray = MenuCreatePanelCarcas(data, defMan, appCanvas, _item);
             _item.itemId = ((CommonParameter)data.items[_indexArray].param[EParameter.Common]).Id;
             _item.isOpen = true;
 
-            Panel.SetZIndex(((CanvasItem)data.items[_indexArray]).Item, 20);     
+            Panel.SetZIndex(((CanvasItem)data.items[_indexArray]).Item, 20);
 
             return _item;
         }
 
         public static int MenuCreatePanelCarcas(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuContainer item)
         {
@@ -85,14 +86,15 @@ namespace diagramMaker.managers.DefaultPreparation
                         frColor: null));
                 data.items[^1].SetParameter(EParameter.Border, (BorderParameter)data.parameters["borderVersion01"]);
                 data.items[^1].SetParameter(
-                    EParameter.Event, 
+                    EParameter.Event,
                     new EventParameter(
-                        moveSensitive: false, 
+                        moveSensitive: false,
                         mouseDown: true,
-                        mouseWheel:true));
+                        mouseWheel: true));
                 ((CommonParameter)data.items[^1].param[EParameter.Common]).AppX = data.topLeftX + item.option.x;
                 ((CommonParameter)data.items[^1].param[EParameter.Common]).AppY = data.topLeftY + item.option.y;
-                data.items[^1].MouseScrolWithIdNotify += mainWindow.panelEvent.EventScrollPanelHandler;
+                data.items[^1].MouseScrolWithIdNotify +=
+                    defMan.panelEvent.EventScrollPanelHandler;
 
                 int _topItem = data.items.Count - 1;
                 int _topItemId = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
@@ -103,7 +105,8 @@ namespace diagramMaker.managers.DefaultPreparation
                 data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.Panel_MinMax, commandParameter: _topItemId));
                 data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item07.png"));
                 ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
-                ((ButtonItem)data.items[^1]).ItemClickNotify += mainWindow.panelEvent.EventPanelHandler;
+                ((ButtonItem)data.items[^1]).ItemClickNotify +=
+                    defMan.panelEvent.EventPanelHandler;
                 Panel.SetZIndex(((ButtonItem)data.items[^1]).Item, 100003);
 
                 //top panel > btn close
@@ -112,7 +115,8 @@ namespace diagramMaker.managers.DefaultPreparation
                 data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.Panel_Close, commandParameter: _topItemId));
                 data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item08.png"));
                 ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
-                ((ButtonItem)data.items[^1]).ItemClickNotify += mainWindow.panelEvent.EventPanelHandler;
+                ((ButtonItem)data.items[^1]).ItemClickNotify +=
+                    defMan.panelEvent.EventPanelHandler;
                 Panel.SetZIndex(((ButtonItem)data.items[^1]).Item, 100002);
 
                 //top panel > txt label
@@ -145,26 +149,27 @@ namespace diagramMaker.managers.DefaultPreparation
                 //top panel > btn size change bottom
                 data.items.Add(new ImageItem(data, appCanvas, _topItemId));
                 data.items[^1].SetParameter(
-                    EParameter.Item, 
+                    EParameter.Item,
                     new ItemParameter(
-                        item.option.w/2 - 130/2, 
-                        item.option.h-12, 
-                        130, 
-                        12, 
-                        null, 
+                        item.option.w / 2 - 130 / 2,
+                        item.option.h - 12,
+                        130,
+                        12,
+                        null,
                         null,
                         vert: EChildItemPosition.Bottom));
                 data.items[^1].SetParameter(
-                    EParameter.Event, 
+                    EParameter.Event,
                     new EventParameter(
                         mouseDown: true,
                         mouseMove: true,
-                        command: ECommand.Panel_SizeChange_Bottom, 
+                        command: ECommand.Panel_SizeChange_Bottom,
                         commandParameter: _topItemId));
-                data.items[^1].SetParameter(EParameter.Image, new ImageParameter(imagePath:"..\\..\\assets\\item12.png"));
-                
-                mainWindow.ItemMoveNotify += ((ImageItem)data.items[^1]).EventBindedCommands;
-                ((ImageItem)data.items[^1]).BindByIdAndCommandNotify += mainWindow.panelEvent.EventPanelHandler;
+                data.items[^1].SetParameter(EParameter.Image, new ImageParameter(imagePath: "..\\..\\assets\\item12.png"));
+
+                defMan.windowManager.ItemMoveNotify += ((ImageItem)data.items[^1]).EventBindedCommands;
+                ((ImageItem)data.items[^1]).BindByIdAndCommandNotify +=
+                    defMan.panelEvent.EventPanelHandler;
                 Panel.SetZIndex(((ImageItem)data.items[^1]).Item, 700100);
 
                 return _topItem;
@@ -192,7 +197,8 @@ namespace diagramMaker.managers.DefaultPreparation
                 data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.SubPanel_MinMax, commandParameter: _canvasId));
                 data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item09.png"));
                 ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
-                ((ButtonItem)data.items[^1]).ItemClickNotify += mainWindow.panelEvent.EventPanelHandler;
+                ((ButtonItem)data.items[^1]).ItemClickNotify +=
+                    defMan.panelEvent.EventPanelHandler;
 
                 //canvas > txt
                 data.items.Add(new LabelItem(data, appCanvas, _canvasId));
@@ -219,8 +225,8 @@ namespace diagramMaker.managers.DefaultPreparation
         }
 
         public static MenuContainer Make_CreationSubPanelCarcas(
-            DataHub data, 
-            MainWindow mainWindow, 
+            DataHub data,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option)
         {
@@ -228,7 +234,7 @@ namespace diagramMaker.managers.DefaultPreparation
             _item.option = option.Clone();
             _item.isOpen = true;
 
-            int _indexArray = MenuCreatePanelCarcas(data, mainWindow, appCanvas, _item);
+            int _indexArray = MenuCreatePanelCarcas(data, defMan, appCanvas, _item);
             _item.itemId = ((CommonParameter)data.items[_indexArray].param[EParameter.Common]).Id;
 
             MenuMakeOptions _itmOption = new MenuMakeOptions();
@@ -239,12 +245,12 @@ namespace diagramMaker.managers.DefaultPreparation
             _itmOption.itmStringContent = option.itmStringContent;
             _itmOption.itmEventContent = option.itmEventContent;
             _itmOption.itmImgPath = option.itmImgPath;
-            
+
             for (int _i = 0; _i < option.itmFunc.Count; _i++)
             {
                 _itmOption.y = option.itmPosSize.y + (_itmOption.h + 2) * _i;
                 _item.childrenId.Add(
-                    option.itmFunc[_i](data, mainWindow, appCanvas, _itmOption, _i)
+                    option.itmFunc[_i](data, defMan, appCanvas, _itmOption, _i)
                 );
             }
             for (int _i = 0; _i < option.addFunc.Count; _i++)
@@ -264,7 +270,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
         public static int Make_SubPanelItem_EventCreateItem(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option,
             int counter)
@@ -277,26 +283,26 @@ namespace diagramMaker.managers.DefaultPreparation
             int _id = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
 
             int _menuID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
-            data.items[^1].MouseAppNotify += mainWindow.eventner.eventCreateItem;
+            data.items[^1].MouseAppNotify += defMan.eve.eventCreateItem;
 
             //item canvas > img
             data.items.Add(new ImageItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(
-                left: option.w * 0.02, 
-                top: option.h * 0.06, 
-                width: option.w * 0.3, 
-                height: option.h * (1 - 0.12), 
-                null, 
+                left: option.w * 0.02,
+                top: option.h * 0.06,
+                width: option.w * 0.3,
+                height: option.h * (1 - 0.12),
+                null,
                 Brushes.Black));
             data.items[^1].SetParameter(EParameter.Image, new ImageParameter(option.itmImgPath[counter]));
 
             //item canvas > txt
             data.items.Add(new LabelItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(
-                left: option.w * 0.3 + option.w * 0.02, 
-                top: option.h * 0.06, 
+                left: option.w * 0.3 + option.w * 0.02,
+                top: option.h * 0.06,
                 width: option.w * 0.7,
-                height: option.h * (1 - 0.12), 
+                height: option.h * (1 - 0.12),
                 null, Brushes.Black));
             data.items[^1].SetParameter(
                 EParameter.Content,
@@ -310,9 +316,9 @@ namespace diagramMaker.managers.DefaultPreparation
 
         public static int Make_SubPanelItem_EventNavigationItem(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
-            MenuMakeOptions option, 
+            MenuMakeOptions option,
             int counter)
         {
             int userId = int.Parse(option.itmStringContent[1]);
@@ -339,17 +345,17 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Gray, cornerRadius: 0));
             data.items[^1].SetParameter(EParameter.Event, new EventParameter(IsHitTestVisible: true, mouseDoubleClick: true));
             //change content
-            data.items[data.GetItemIndexByID(userId)].ItemChangeNotify += (data.items[^1]).ValueChanger;
+            data.items[data.GetItemIndexByID(userId)].ItemChangeNotify += data.items[^1].ValueChanger;
             //move to item          
             data.items[^1].MouseDoubleClickParentNotify +=
-                 mainWindow.eventner.NavigationMoveToItem;
+                 defMan.navPanel.NavigationMoveToItem;
 
             return _id;
         }
 
         public static int Make_ParameterMenu_Content(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option,
             int counter)
@@ -382,14 +388,14 @@ namespace diagramMaker.managers.DefaultPreparation
                     horAlign: HorizontalAlignment.Left,
                     verAlign: VerticalAlignment.Center)
             );
-            mainWindow.eventner.ChoosenItemNotify += data.items[^1].ValueChanger;            
+            defMan.eve.ChoosenItemNotify += data.items[^1].ValueChanger;
 
             return _menuID;
         }
 
         public static int Make_ParameterMenu_Panel1Content(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option,
             int counter)
@@ -422,16 +428,16 @@ namespace diagramMaker.managers.DefaultPreparation
                 _superTopItem.Border.Height = _superTopItem.Item.Height;
             }
 
-            Make_ParameterMenu_Content(data, mainWindow, appCanvas, option, counter);
+            Make_ParameterMenu_Content(data, defMan, appCanvas, option, counter);
 
             //menuCreation > btn delete
             data.items.Add(new ButtonItem(data, appCanvas, _menuID));
-            data.items[^1].SetParameter(EParameter.Item, new ItemParameter(_topItem.Item.Width-35, 5, 30, 30, null, Brushes.Black));
+            data.items[^1].SetParameter(EParameter.Item, new ItemParameter(_topItem.Item.Width - 35, 5, 30, 30, null, Brushes.Black));
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 2, color: Colors.DarkSlateGray, cornerRadius: 2));
             data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.DeleteItem, commandParameter: data.choosenItemID));
             data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item04.png"));
             ((ButtonItem)data.items[^1]).ItemClickNotify
-                += mainWindow.eventner.EventItemDeleteHandler;
+                += defMan.eve.EventItemDeleteHandler;
 
 
             DefaultItem _item = data.items[data.GetItemIndexByID(data.choosenItemID)];
@@ -599,7 +605,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
         public static int ParameterMenu_DeleteContent(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option,
             int counter)
@@ -621,7 +627,7 @@ namespace diagramMaker.managers.DefaultPreparation
 
         public static int Make_PainterMakerMenu_Content(
             DataHub data,
-            MainWindow mainWindow,
+            DefaultManager defMan,
             Canvas appCanvas,
             MenuMakeOptions option,
             int counter)
@@ -630,14 +636,14 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new CanvasItem(data, appCanvas, option.parentId));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(option.x, option.y, option.w, option.h, Brushes.Beige, null));
             data.items[^1].SetParameter(EParameter.Border, new BorderParameter(isBorder: true, borderThickness: 1, color: Colors.Black, cornerRadius: 2));
-            
+
             int _menuID = ((CommonParameter)data.items[^1].param[EParameter.Common]).Id;
 
             //menuPainter > txt label tool
             data.items.Add(new LabelItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(3, 0, 40, 30, null, Brushes.Black));
             data.items[^1].SetParameter(
-                EParameter.Content, 
+                EParameter.Content,
                 new ContentParameter(
                     content: "Tool:",
                     horAlign: HorizontalAlignment.Left,
@@ -648,7 +654,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new LabelItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(34, 0, 123, 30, null, Brushes.Black));
             data.items[^1].SetParameter(
-                EParameter.Content, 
+                EParameter.Content,
                 new ContentParameter(
                     content: "Move",
                     horAlign: HorizontalAlignment.Left,
@@ -660,7 +666,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new ButtonItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(5, 30, 42, 42, null, Brushes.Black));
             data.items[^1].SetParameter(
-                EParameter.Border, 
+                EParameter.Border,
                 new BorderParameter(
                     isBorder: true,
                     borderThickness: 0,
@@ -668,7 +674,7 @@ namespace diagramMaker.managers.DefaultPreparation
                     cornerRadius: 0)
             );
             data.items[^1].SetParameter(
-                EParameter.Event, 
+                EParameter.Event,
                 new EventParameter(
                     mouseClick: true,
                     command: ECommand.Data_PainterTool,
@@ -677,7 +683,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameter(EParameter.Image, new ImageParameter(option.itmImgPath[0]));
 
             ((ButtonItem)data.items[^1]).ItemClickNotify
-                += mainWindow.eventner.EventButtonClickHandler;
+                += defMan.eve.EventButtonClickHandler;
             ((ButtonItem)data.items[^1]).ItemClickNotify
                 += data.items[_looker].EventOutdataHandler;
 
@@ -686,7 +692,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items.Add(new ButtonItem(data, appCanvas, _menuID));
             data.items[^1].SetParameter(EParameter.Item, new ItemParameter(48, 30, 42, 42, null, Brushes.Black));
             data.items[^1].SetParameter(
-                EParameter.Border, 
+                EParameter.Border,
                 new BorderParameter(
                     isBorder: true,
                     borderThickness: 0,
@@ -694,7 +700,7 @@ namespace diagramMaker.managers.DefaultPreparation
                     cornerRadius: 0)
             );
             data.items[^1].SetParameter(
-                EParameter.Event, 
+                EParameter.Event,
                 new EventParameter(
                     mouseClick: true,
                     command: ECommand.Data_PainterTool,
@@ -704,7 +710,7 @@ namespace diagramMaker.managers.DefaultPreparation
             data.items[^1].SetParameter(EParameter.Image, new ImageParameter(option.itmImgPath[1]));
 
             ((ButtonItem)data.items[^1]).ItemClickNotify
-                += mainWindow.eventner.EventButtonClickHandler;
+                += defMan.eve.EventButtonClickHandler;
             ((ButtonItem)data.items[^1]).ItemClickNotify
                 += data.items[_looker].EventOutdataHandler;
 

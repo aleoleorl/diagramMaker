@@ -1,7 +1,7 @@
 ﻿using diagramMaker.helpers.containers;
 using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
-using diagramMaker.managers.DefaultPreparation;
+using diagramMaker.managers.DefaultPanels;
 using diagramMaker.parameters;
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,13 @@ namespace diagramMaker.managers
     {
         private DataHub data;
         private Canvas? appCanvas;
-        private MainWindow mainWindow;
+        private DefaultManager defMan;
         private ExternalManager extManager;
        
-        public Initiator(DataHub data, MainWindow mainWindow)
+        public Initiator(DataHub data, DefaultManager defMan)
         {
             this.data = data;
-            this.mainWindow = mainWindow;
+            this.defMan = defMan;
             extManager = new ExternalManager(data);
         }
         public void Prepare()
@@ -44,8 +44,8 @@ namespace diagramMaker.managers
                 case ETopMenuActionType.Load:
                     ClearApp();
                     DefaultPreparation();
-                    extManager.Load(mainWindow.eventner);
-                    mainWindow.eventner.NavigationPanelScrollCount_Activation();
+                    extManager.Load(defMan.eve);
+                    defMan.navPanel.NavigationPanelScrollCount_Activation();
                     break;
                 default:
                     break;
@@ -54,12 +54,12 @@ namespace diagramMaker.managers
 
         private void ClearApp()
         {
-            mainWindow.Width = 1024;
-            mainWindow.Height = 768;
-            mainWindow.ItemMoveNotify -= mainWindow.eventner.EventItemMoveHandler;
-            mainWindow.PreviewKeyDown -= mainWindow.eventner.MainWindow_PreviewKeyDown;
-            mainWindow.KeyDown -= mainWindow.eventner.MainWindow_KeyDown;
-            mainWindow.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
+            defMan.windowManager.mainWindow.Width = 1024;
+            defMan.windowManager.mainWindow.Height = 768;
+            defMan.windowManager.ItemMoveNotify -= defMan.eve.EventItemMoveHandler;
+            defMan.windowManager.mainWindow.PreviewKeyDown -= defMan.eve.MainWindow_PreviewKeyDown;
+            defMan.windowManager.mainWindow.KeyDown -= defMan.eve.MainWindow_KeyDown;
+            defMan.topMenu.MenuHandlerNotify -= TopMenu_MenuHandlerNotify;
             ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Clear();
             data.ClearData();
             DefaultItem.RestartID();
@@ -71,21 +71,28 @@ namespace diagramMaker.managers
             SetDefaultItemPanels();
             SetItemCollections();
             //
-            mainWindow.ItemMoveNotify += mainWindow.eventner.EventItemMoveHandler;
-            mainWindow.PreviewKeyDown += mainWindow.eventner.MainWindow_PreviewKeyDown;
-            mainWindow.KeyDown += mainWindow.eventner.MainWindow_KeyDown;
-            mainWindow.KeyUp += mainWindow.eventner.MainWindow_KeyUp;
+            defMan.windowManager.ItemMoveNotify += defMan.eve.EventItemMoveHandler;
+            defMan.windowManager.mainWindow.PreviewKeyDown += defMan.eve.MainWindow_PreviewKeyDown;
+            defMan.windowManager.mainWindow.KeyDown += defMan.eve.MainWindow_KeyDown;
+            defMan.windowManager.mainWindow.KeyUp += defMan.eve.MainWindow_KeyUp;
             //
-            mainWindow.topMenu.SetMainMenu();
-            mainWindow.topMenu.MenuHandlerNotify += TopMenu_MenuHandlerNotify;
+            defMan.topMenu.SetMainMenu();
+            defMan.topMenu.MenuHandlerNotify += TopMenu_MenuHandlerNotify;
+            //
+            data.activeLayer = 1;
+            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuCreationCanvasID, curZ: 0));
+            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuNavigationPanelID, curZ: 0));
+            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuItemParametersID, curZ: 0));
+            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuItemPaintMakerID, curZ: 0));
+            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.informerID, curZ: 0));
         }
 
         public void SetDefaultItemPanels()
         {
-            appCanvas = MenuMaker.Make_AppCanvas(data, mainWindow);
+            appCanvas = MenuMaker.Make_AppCanvas(data, defMan);
             appCanvas.SetValue(AutomationProperties.NameProperty, "appCanvas");
 
-            MenuMaker.Make_InfoLine(data, mainWindow, appCanvas);
+            MenuMaker.Make_InfoLine(data, defMan, appCanvas);
 
             MenuMakeOptions _option;
             MenuContainer _menu;
@@ -98,7 +105,7 @@ namespace diagramMaker.managers
             _option.y = 20;
             _option.w = 150;
             _option.h = 450;            
-            _menu = MenuMaker.Make_CreationPanelMenu(data, mainWindow, appCanvas, _option);
+            _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuCreationCanvasID = _menu.itemId;
             data.menuCreation = data.GetItemIndexByID(data.menuCreationCanvasID);
 
@@ -124,7 +131,7 @@ namespace diagramMaker.managers
             _option.itmImgPath.Add("..\\..\\assets\\item02.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
 
             //multiline
             _option = new MenuMakeOptions();
@@ -140,7 +147,7 @@ namespace diagramMaker.managers
             _option.itmEventContent.Add("Line");
             _option.itmImgPath.Add("..\\..\\assets\\item03.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
 
             //multiline 2(test)
             _option = new MenuMakeOptions();
@@ -156,7 +163,7 @@ namespace diagramMaker.managers
             _option.itmEventContent.Add("Line");
             _option.itmImgPath.Add("..\\..\\assets\\item03.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
 
 
             //MenuMaker.Make_ParameterMenu(data, mainWindow, appCanvas);
@@ -167,7 +174,7 @@ namespace diagramMaker.managers
             _option.y = 20;
             _option.w = 150;
             _option.h = 450;
-            _menu = MenuMaker.Make_CreationPanelMenu(data, mainWindow, appCanvas, _option);
+            _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuItemParametersID = _menu.itemId;
             data.panel.Add("itemParametersPanel", _menu);
             ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
@@ -185,7 +192,7 @@ namespace diagramMaker.managers
             _option.addFunc.Add(MenuMaker.Make_ParameterMenu_Panel1Content);
             _option.delFunc.Add(MenuMaker.ParameterMenu_DeleteContent);
             _option.itmPosSize = new Vector4<double>(x: 1, y: 26, w: 144, h: 40);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
 
             //MenuMaker.Make_PainterMakerMenu(data, mainWindow, appCanvas);
             _option = new MenuMakeOptions();
@@ -195,7 +202,7 @@ namespace diagramMaker.managers
             _option.y = 24;
             _option.w = 150;
             _option.h = 450;
-            _menu = MenuMaker.Make_CreationPanelMenu(data, mainWindow, appCanvas, _option);
+            _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuItemPaintMakerID = _menu.itemId;
             data.panel.Add("itemPainterMakerPanel", _menu);
             ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;    
@@ -213,7 +220,7 @@ namespace diagramMaker.managers
             _option.itmImgPath.Add("..\\..\\assets\\item06.png");
             _option.itmFunc.Add(MenuMaker.Make_PainterMakerMenu_Content);
             _option.itmPosSize = new Vector4<double>(x: 1, y: 26, w: 144, h: 80);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
 
 
             //itemNavigationPanel
@@ -224,7 +231,7 @@ namespace diagramMaker.managers
             _option.y = 20;
             _option.w = 150;
             _option.h = 450;
-            _menu = MenuMaker.Make_CreationPanelMenu(data, mainWindow, appCanvas, _option);
+            _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuNavigationPanelID = _menu.itemId;
             data.panel.Add("itemNavigationPanel", _menu);
             ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
@@ -235,13 +242,13 @@ namespace diagramMaker.managers
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
-            _option.panelLabel = "> Layer 0";
+            _option.panelLabel = "> Layer 1";
             _option.x = 2;
             _option.y = 24;
             _option.w = 146;
             _option.h = 50;
             _option.itmPosSize = new Vector4<double>(x: 1, y: 28, w: 144, h: 40);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, mainWindow, appCanvas, _option));
+            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
             data.activeLayer = _menu.menu[0].itemId;
         }
 

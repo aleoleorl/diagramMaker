@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace diagramMaker.managers.EventHandler
+namespace diagramMaker.managers.DefaultPanels
 {
     public class PanelEvents
     {
@@ -34,17 +34,17 @@ namespace diagramMaker.managers.EventHandler
                             {
                                 ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Height = 24;
                                 ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Border.Height = 24;
-                                ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Clip = 
+                                ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Clip =
                                     new RectangleGeometry(
                                         new Rect(
-                                            0, 
-                                            0, 
-                                            ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Width, 
+                                            0,
+                                            0,
+                                            ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Width,
                                             24));
                             }
                             else
                             {
-                                ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Height = 
+                                ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Height =
                                     ((ItemParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Item]).Height;
                                 ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Border.Height =
                                     ((ItemParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Item]).Height;
@@ -141,7 +141,7 @@ namespace diagramMaker.managers.EventHandler
                     break;
                 case ECommand.Panel_SizeChange_Bottom:
                     {
-                        CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(id)];                        
+                        CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(id)];
                         if (data.oldMouseY - ((ItemParameter)_item.param[EParameter.Item]).Top > 30)
                         {
                             _item.Item.Height = data.oldMouseY - ((ItemParameter)_item.param[EParameter.Item]).Top;
@@ -213,7 +213,7 @@ namespace diagramMaker.managers.EventHandler
 
             }
         }
-   
+
         public void EventScrollPanelHandler(int digit, int id)
         {
             MenuContainer _topPanel = null;
@@ -260,7 +260,7 @@ namespace diagramMaker.managers.EventHandler
                 }
             }
 
-            double _dist = _topPanel.curPos+20;
+            double _dist = _topPanel.curPos + 20;
             foreach (var _subPanel in _topPanel.menu)
             {
                 CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(_subPanel.itemId)];
@@ -272,7 +272,7 @@ namespace diagramMaker.managers.EventHandler
                 }
                 else
                 {
-                    _dist += ((CanvasItem)_item).Item.Height;
+                    _dist += _item.Item.Height;
                 }
             }
         }

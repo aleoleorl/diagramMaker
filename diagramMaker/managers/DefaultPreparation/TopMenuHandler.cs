@@ -13,7 +13,7 @@ namespace diagramMaker.managers.DefaultPreparation
     public class TopMenuHandler
     {
         private DataHub data;
-        private MainWindow mainWindow;
+        private DefaultManager defMan;
 
         public Menu mainMenu;
         public MenuItem menuItem_File;
@@ -33,26 +33,26 @@ namespace diagramMaker.managers.DefaultPreparation
 
         private VersionInfo winVersionInfo;
 
-        public TopMenuHandler(DataHub data, MainWindow mainWindow) 
+        public TopMenuHandler(DataHub data, DefaultManager defMan) 
         {
             this.data = data;
-            this.mainWindow = mainWindow;
+            this.defMan = defMan;
 
             winVersionInfo = new VersionInfo();
-            winVersionInfo.Left = mainWindow.Left;
-            winVersionInfo.Top = mainWindow.Top;
+            winVersionInfo.Left = defMan.windowManager.mainWindow.Left;
+            winVersionInfo.Top = defMan.windowManager.mainWindow.Top;
 
             string _exePath = Assembly.GetExecutingAssembly().Location;
             string _directoryPath = Path.GetDirectoryName(_exePath);
             data.saveName = _directoryPath +"\\" + "diaFile.dmf";
 
-            mainWindow.eventner.KeyDownNotify += KeyDown;
+            defMan.eve.KeyDownNotify += KeyDown;
         }
 
         public void SetMainMenu()
         {
             mainMenu = new Menu();
-            mainMenu.Width = mainWindow.Width;
+            mainMenu.Width = defMan.windowManager.mainWindow.Width;
             Panel.SetZIndex(mainMenu, 100);
 
             menuItem_File = new MenuItem { Header = "File" };

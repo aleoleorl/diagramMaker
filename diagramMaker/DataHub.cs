@@ -71,6 +71,9 @@ namespace diagramMaker
         public Dictionary <string, MenuContainer> panel;
 
         public int activeLayer;
+        public int countOfLayers;
+        public List<LayerInfo> layerInfoItems;
+        public List<LayerInfo> layerInfoDefPanels;
 
         public DataHub()
         {
@@ -111,7 +114,7 @@ namespace diagramMaker
             isMenuItem = false;
             choosenItemID = -1;
 
-            menuNavigationPanelID = -1;
+            menuNavigationPanelID = 1;
             menuNavigationPanel_ScrollCount = 0;
             menuNavigationPanel_SlotNumber = 15;
 
@@ -128,7 +131,10 @@ namespace diagramMaker
 
             panel = new Dictionary<string, MenuContainer>();
 
-            activeLayer = -1;
+            activeLayer = 1;
+            countOfLayers = 1;
+            layerInfoItems = new List<LayerInfo>();
+            layerInfoDefPanels = new List<LayerInfo>();
         }
 
         public int GetItemIndexByID(int id)

@@ -1,4 +1,5 @@
 ﻿using diagramMaker.helpers.enumerators;
+using diagramMaker.managers;
 using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
@@ -21,9 +22,9 @@ namespace diagramMaker.helpers.containers
         public List<string> itmEventContent;
         public List<string> itmImgPath;
         public Vector4<double> itmPosSize;
-        public List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>> itmFunc;
-        public List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>> addFunc;
-        public List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>> delFunc;
+        public List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>> itmFunc;
+        public List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>> addFunc;
+        public List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>> delFunc;
 
         public MenuMakeOptions()
         {
@@ -37,9 +38,9 @@ namespace diagramMaker.helpers.containers
             itmStringContent = new List<string>();
             itmEventContent = new List<string>();
             itmImgPath = new List<string>();
-            itmFunc = new List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>>();
-            addFunc = new List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>>();
-            delFunc = new List<Func<DataHub, MainWindow, Canvas, MenuMakeOptions, int, int>>();
+            itmFunc = new List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>>();
+            addFunc = new List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>>();
+            delFunc = new List<Func<DataHub, DefaultManager, Canvas, MenuMakeOptions, int, int>>();
             itmPosSize = new Vector4<double>(x: 0, y: 0, w: 0, h: 0);
         }
 
