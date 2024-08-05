@@ -15,6 +15,12 @@ namespace diagramMaker.parameters
         public EChildItemPosition Vertical {  get; set; }
         public EChildItemPosition Horizontal { get; set; }
 
+        public double shiftLeft;
+        public double shiftTop;
+        public double shiftRight;
+        public double shiftBottom;
+
+
         public ItemParameter(double left, 
             double top, 
             double width, 
@@ -32,6 +38,11 @@ namespace diagramMaker.parameters
             this.FrColor = frColor;
             this.Vertical = vert;
             this.Horizontal = hor;
+
+            shiftLeft = 0;
+            shiftTop = 0;
+            shiftRight = 0;
+            shiftBottom = 0;
         }
 
         public ItemParameter(ItemParameter param)
@@ -57,6 +68,14 @@ namespace diagramMaker.parameters
         public override ItemParameter Clone()
         {
             return (ItemParameter)this.MemberwiseClone();
+        }
+
+        public void addShift(double parentWidth, double parentHeight)
+        {
+            shiftLeft = Left;
+            shiftTop = Top;
+            shiftRight = parentWidth - Left - Width;
+            shiftBottom = parentHeight - Top - Height;
         }
     }
 }

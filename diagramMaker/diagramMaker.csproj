@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="managers\EventHandler\**" />
+    <EmbeddedResource Remove="managers\EventHandler\**" />
+    <None Remove="managers\EventHandler\**" />
+    <Page Remove="managers\EventHandler\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="assets\item01.png" />
     <None Remove="assets\item02.png" />
     <None Remove="assets\item03.png" />
@@ -22,6 +29,7 @@
     <None Remove="assets\item10.png" />
     <None Remove="assets\item11.png" />
     <None Remove="assets\item12.png" />
+    <None Remove="assets\item13.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,14 +69,13 @@
     <Content Include="assets\item12.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\item13.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="WriteableBitmapEx" Version="1.6.8" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="managers\EventHandler\" />
   </ItemGroup>
 
 </Project>

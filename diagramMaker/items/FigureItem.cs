@@ -364,6 +364,14 @@ namespace diagramMaker.items
                 case EBindParameter.Name:
                     ((CommonParameter)param[EParameter.Common]).Name = txt;
                     break;
+                case EBindParameter.Z:
+                    {
+                        for (int _i = 0; _i < Item.Count; _i++)
+                        {
+                            Panel.SetZIndex(Item[_i], int.Parse(txt));
+                        }
+                    }
+                    break;
                 default:
                     break;
             }

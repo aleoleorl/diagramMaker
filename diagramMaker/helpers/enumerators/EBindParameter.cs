@@ -6,6 +6,7 @@
         None,
         Name,
         Content,
-        Width
+        Width,
+        Z
     }
 }

@@ -36,7 +36,8 @@ namespace diagramMaker.managers
                 return;
             }
             int _index = CreateItemUnit(_im);
-            defMan.navPanel.NavigationPanel_AddItem(_index);
+            defMan.navPanel.NavigationPanel_AddItem(_index, ECommand.AddItem);
+            defMan.layerControl.ReDraw();
         }
         
         public int CreateItemUnit(ItemMakerContainer im, int parentId = -1, int conId = -1)
@@ -118,6 +119,8 @@ namespace diagramMaker.managers
             }
 
             MakeConnections(_index);
+
+            //defMan.layerControl.AddNewItems(_index);
 
             return _index;
         }
@@ -244,11 +247,11 @@ namespace diagramMaker.managers
             Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
             MenuMakeOptions _option = new MenuMakeOptions();
             var _panel = data.panel["itemParametersPanel"];
-            _option.parentId = _panel.menu[0].childrenId[0];
+            _option.parentId = _panel.subPanel[0].childrenId[0];
 
-            for (int _i=0; _i<_panel.menu[0].option.addFunc.Count; _i++)
+            for (int _i=0; _i<_panel.subPanel[0].option.addFunc.Count; _i++)
             {
-                _panel.menu[0].option.addFunc[_i](data, defMan, _appCanvas, _option, _i);
+                _panel.subPanel[0].option.addFunc[_i](data, defMan, _appCanvas, _option, _i);
             }
         }
 
@@ -260,11 +263,11 @@ namespace diagramMaker.managers
                 {
                     Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
                     MenuMakeOptions _option = new MenuMakeOptions();
-                    _option.parentId = panel.Value.menu[0].childrenId[0];
+                    _option.parentId = panel.Value.subPanel[0].childrenId[0];
 
-                    for (int _i = 0; _i < panel.Value.menu[0].option.addFunc.Count; _i++)
+                    for (int _i = 0; _i < panel.Value.subPanel[0].option.addFunc.Count; _i++)
                     {
-                        panel.Value.menu[0].option.delFunc[_i](data, defMan, _appCanvas, _option, _i);
+                        panel.Value.subPanel[0].option.delFunc[_i](data, defMan, _appCanvas, _option, _i);
                     }
                 }
             }
@@ -395,6 +398,7 @@ namespace diagramMaker.managers
                     data.isMenuPainter = false;
                     ItemMenuDelete(data.menuItemPaintMakerID);
                 }
+                defMan.layerControl.ClearUnexistItems();
                 defMan.navPanel.NavigationPanel_DeleteItem(id);
                 //EventNavigationPanelScrollCount(0);
             }

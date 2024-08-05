@@ -67,6 +67,9 @@ namespace diagramMaker.items
                 case EItem.Figure:
                     _common.Name = "figure_" + _common.Id;
                     break;
+                case EItem.Image:
+                    _common.Name = "image_" + _common.Id;
+                    break;
                 default:
                     _common.Name = "obj_" + _common.Id;
                     break;

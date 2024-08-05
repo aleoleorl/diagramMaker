@@ -296,6 +296,9 @@ namespace diagramMaker.items
         {
             switch (eBindParameter)
             {
+                case EBindParameter.Z:
+                    Panel.SetZIndex(Image, int.Parse(txt));
+                    break;
                 case EBindParameter.Name:
                     ((CommonParameter)param[EParameter.Common]).Name = txt;
                     break;

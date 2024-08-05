@@ -2,6 +2,7 @@
 using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.parameters;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -74,22 +75,18 @@ namespace diagramMaker.managers.DefaultPanels
                     break;
                 case ECommand.SubPanel_MinMax:
                     {
-                        int _topPanelId = -1;
+                        int _sizeSubPanelId = -1;
                         foreach (var topPanel in data.panel)
                         {
                             bool _hasPanel = false;
                             double _heightShift = 0;
-                            foreach (var panel in topPanel.Value.menu)
+                            foreach (var panel in topPanel.Value.subPanel)
                             {
-                                if (_hasPanel && panel.itemId != id)
-                                {
-                                    //_heightShift +=
-                                }
                                 if (panel.itemId == id)
                                 {
-                                    _topPanelId = panel.itemId;
+                                    _sizeSubPanelId = panel.itemId;
                                     _hasPanel = true;
-                                    DefaultItem _itm = data.items[data.GetItemIndexByID(id)];
+                                    DefaultItem _itm = data.items[data.GetItemIndexByID(_sizeSubPanelId)];
                                     if (panel.isOpen)
                                     {
                                         ((CanvasItem)_itm).Item.Height = 24;
@@ -133,9 +130,9 @@ namespace diagramMaker.managers.DefaultPanels
                                 }
                             }
                         }
-                        if (_topPanelId != -1)
+                        if (_sizeSubPanelId != -1)
                         {
-                            EventScrollPanelHandler(0, _topPanelId);
+                            EventScrollPanelHandler(0, _sizeSubPanelId);
                         }
                     }
                     break;
@@ -232,17 +229,10 @@ namespace diagramMaker.managers.DefaultPanels
             }
 
             double _commonHeight = 0;
-            foreach (var _subPanel in _topPanel.menu)
+            foreach (int _child in _topPanel.childrenId)
             {
-                if (_subPanel.isOpen && _subPanel.childrenId.Count > 0)
-                {
-                    _commonHeight += _subPanel.option.h;
-                }
-                else
-                {
-                    DefaultItem _itm = data.items[data.GetItemIndexByID(_topPanel.itemId)];
-                    _commonHeight += ((CanvasItem)_itm).Item.Height;
-                }
+                CanvasItem _itm = (CanvasItem)data.items[data.GetItemIndexByID(_child)];
+                _commonHeight += _itm.Item.Height;
             }
 
             if (digit > 0) //content goes up
@@ -261,19 +251,12 @@ namespace diagramMaker.managers.DefaultPanels
             }
 
             double _dist = _topPanel.curPos + 20;
-            foreach (var _subPanel in _topPanel.menu)
+            foreach (int _child in _topPanel.childrenId)
             {
-                CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(_subPanel.itemId)];
-                Canvas.SetTop(_item.Item, _dist);
-                ((ItemParameter)_item.param[EParameter.Item]).Top = _dist;
-                if (_subPanel.isOpen && _subPanel.childrenId.Count > 0)
-                {
-                    _dist += _subPanel.option.h;
-                }
-                else
-                {
-                    _dist += _item.Item.Height;
-                }
+                CanvasItem _itm = (CanvasItem)data.items[data.GetItemIndexByID(_child)];
+                Canvas.SetTop(_itm.Item, _dist);
+                ((ItemParameter)_itm.param[EParameter.Item]).Top = _dist;
+                _dist += _itm.Item.Height;
             }
         }
     }

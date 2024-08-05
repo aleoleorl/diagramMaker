@@ -11,6 +11,7 @@ namespace diagramMaker.managers
         public PanelEvents panelEvent;
         public TopMenuHandler topMenu;
         public MainWindowManager windowManager;
+        public LayerControl layerControl;
 
         public MainWindow mainWindow;
         private DataHub data;
@@ -26,6 +27,7 @@ namespace diagramMaker.managers
             panelEvent = new PanelEvents(this.data);
             windowManager = new MainWindowManager(this.mainWindow, this.data, this);
             topMenu = new TopMenuHandler(this.data, this);
+            layerControl = new LayerControl(this.data);
         }
     }
 }

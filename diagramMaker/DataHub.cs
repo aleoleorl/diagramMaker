@@ -70,10 +70,10 @@ namespace diagramMaker
 
         public Dictionary <string, MenuContainer> panel;
 
-        public int activeLayer;
+        public int activePersonalId;
         public int countOfLayers;
         public List<LayerInfo> layerInfoItems;
-        public List<LayerInfo> layerInfoDefPanels;
+        public List<int> layerInfoDefPanels;
 
         public DataHub()
         {
@@ -131,15 +131,15 @@ namespace diagramMaker
 
             panel = new Dictionary<string, MenuContainer>();
 
-            activeLayer = 1;
+            activePersonalId = -1;
             countOfLayers = 1;
             layerInfoItems = new List<LayerInfo>();
-            layerInfoDefPanels = new List<LayerInfo>();
+            layerInfoDefPanels = new List<int>();
         }
 
         public int GetItemIndexByID(int id)
         {
-            if (items==null)
+            if (items == null)
             {
                 return -1;
             }

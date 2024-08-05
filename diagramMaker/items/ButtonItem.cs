@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -154,6 +155,124 @@ namespace diagramMaker.items
                 Item.Width = _iParam.Width;
                 Item.Height = _iParam.Height;
             }
+        }
+
+        public void EventBindedCommands(double x, double y)
+        {
+            switch (((ItemParameter)param[EParameter.Item]).Vertical)
+            {
+                case EChildItemPosition.Bottom:
+                    {
+                        if (((CommonParameter)param[EParameter.Common]).ParentId != -1)
+                        {
+                            DefaultItem _itm = Data.items[Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId)];
+                            if (((ItemParameter)param[EParameter.Item]).Top !=
+                                ((ItemParameter)_itm.param[EParameter.Item]).Height - ((ItemParameter)param[EParameter.Item]).Height)
+                            {
+                                ((ItemParameter)param[EParameter.Item]).Top =
+                                    ((ItemParameter)_itm.param[EParameter.Item]).Height -
+                                    ((ItemParameter)param[EParameter.Item]).Height;
+                                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
+                            }
+                        }
+                    }
+                    break;
+                case EChildItemPosition.BottomWithShift:
+                    {
+                        if (((CommonParameter)param[EParameter.Common]).ParentId != -1)
+                        {
+                            DefaultItem _itm = Data.items[Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId)];
+                            if (((ItemParameter)param[EParameter.Item]).Top !=
+                                ((ItemParameter)_itm.param[EParameter.Item]).Height - 
+                                ((ItemParameter)param[EParameter.Item]).Height -
+                                ((ItemParameter)param[EParameter.Item]).shiftBottom)
+                            {
+                                ((ItemParameter)param[EParameter.Item]).Top =
+                                    ((ItemParameter)_itm.param[EParameter.Item]).Height -
+                                    ((ItemParameter)param[EParameter.Item]).Height -
+                                ((ItemParameter)param[EParameter.Item]).shiftBottom;
+                                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            switch (((ItemParameter)param[EParameter.Item]).Horizontal)
+            {
+                case EChildItemPosition.Left:
+                    {
+                        if (((CommonParameter)param[EParameter.Common]).ParentId != -1)
+                        {
+                            double _left = Canvas.GetLeft(Item);
+                            if (_left != 0)
+                            {
+                                ((ItemParameter)param[EParameter.Item]).Left = 0;
+                                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+                            }
+                        }
+                    }
+                    break;
+                case EChildItemPosition.Right:
+                    {
+                        if (((CommonParameter)param[EParameter.Common]).ParentId != -1)
+                        {
+                            DefaultItem _itm = Data.items[Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId)];
+                            double _left = Canvas.GetLeft(Item);
+                            if (_left !=
+                                ((CanvasItem)_itm).Item.Width - ((ItemParameter)param[EParameter.Item]).Width)
+                            {
+                                ((ItemParameter)param[EParameter.Item]).Left =
+                                    ((CanvasItem)_itm).Item.Width -
+                                    ((ItemParameter)param[EParameter.Item]).Width;
+                                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+
+                            }
+                        }
+                    }
+                    break;
+                case EChildItemPosition.RightWithShift:
+                    {
+                        if (((CommonParameter)param[EParameter.Common]).ParentId != -1)
+                        {
+                            DefaultItem _itm = Data.items[Data.GetItemIndexByID(((CommonParameter)param[EParameter.Common]).ParentId)];
+                            double _left = Canvas.GetLeft(Item);
+                            if (_left !=
+                                ((CanvasItem)_itm).Item.Width - 
+                                ((ItemParameter)param[EParameter.Item]).Width -
+                                ((ItemParameter)param[EParameter.Item]).shiftRight)
+                            {
+                                ((ItemParameter)param[EParameter.Item]).Left =
+                                    ((CanvasItem)_itm).Item.Width -
+                                    ((ItemParameter)param[EParameter.Item]).Width -
+                                    ((ItemParameter)param[EParameter.Item]).shiftRight;
+                                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Z:
+                    Panel.SetZIndex(Item, int.Parse(txt));
+                    break;
+                default:
+                    break;
+            }
+
+            base.ValueChanger(eBindParameter, txt);
         }
 
         public void Item_Click(object sender, RoutedEventArgs e)

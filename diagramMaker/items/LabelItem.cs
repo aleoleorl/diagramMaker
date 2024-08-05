@@ -15,6 +15,9 @@ namespace diagramMaker.items
     {
         public Label Item { get; set; }
 
+        public delegate void EEventHandler(int id);
+        public event EEventHandler? EEventNotify;
+
         public LabelItem(DataHub data, Canvas? appCanvas = null, int parentId = -1) : 
             base(data, appCanvas, parentId, EItem.Label)
         {
@@ -139,6 +142,9 @@ namespace diagramMaker.items
         {
             switch (eBindParameter)
             {
+                case EBindParameter.Z:
+                    Panel.SetZIndex(Item, int.Parse(txt));
+                    break;
                 case EBindParameter.Name:
                     ((CommonParameter)param[EParameter.Common]).Name = txt;
                     break;
@@ -235,6 +241,7 @@ namespace diagramMaker.items
         public override void Item_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Trace.WriteLine("Label Item_MouseDown");
+            EEventNotify?.Invoke(((CommonParameter)param[EParameter.Common]).Id);
         }
     }
 }

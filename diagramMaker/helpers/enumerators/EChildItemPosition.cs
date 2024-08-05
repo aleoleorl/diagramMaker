@@ -4,9 +4,13 @@
     {
         None,
         Top,
+        TopWithShift,
         Middle,
         Bottom,
+        BottomWithShift,
         Left,
-        Right
+        LeftWithShift,
+        Right,
+        RightWithShift
     }
 }

@@ -207,6 +207,21 @@ namespace diagramMaker.items
                     break;
             }
         }
+        public override void ValueChanger(
+            EBindParameter eBindParameter = EBindParameter.None,
+            string txt = "")
+        {
+            switch (eBindParameter)
+            {
+                case EBindParameter.Z:
+                    Panel.SetZIndex(Item, int.Parse(txt));
+                    break;
+                default:
+                    break;
+            }
+
+            base.ValueChanger(eBindParameter, txt);
+        }
 
         public void Item_ImageMouseDown(object sender, MouseButtonEventArgs e)
         {

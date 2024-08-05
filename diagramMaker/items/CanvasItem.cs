@@ -156,6 +156,9 @@ namespace diagramMaker.items
         {
             switch (eBindParameter)
             {
+                case EBindParameter.Z:
+                    Panel.SetZIndex(Item, int.Parse(txt));
+                    break;
                 case EBindParameter.Name:
                     if (param.ContainsKey(EParameter.Common))
                     {

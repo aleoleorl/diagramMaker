@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace diagramMaker.managers
@@ -79,12 +81,11 @@ namespace diagramMaker.managers
             defMan.topMenu.SetMainMenu();
             defMan.topMenu.MenuHandlerNotify += TopMenu_MenuHandlerNotify;
             //
-            data.activeLayer = 1;
-            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuCreationCanvasID, curZ: 0));
-            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuNavigationPanelID, curZ: 0));
-            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuItemParametersID, curZ: 0));
-            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.menuItemPaintMakerID, curZ: 0));
-            data.layerInfoDefPanels.Add(new LayerInfo(layerId: 0, itemId: data.informerID, curZ: 0));
+            data.layerInfoDefPanels.Add(data.menuCreationCanvasID);
+            data.layerInfoDefPanels.Add(data.menuNavigationPanelID);
+            data.layerInfoDefPanels.Add(data.menuItemParametersID);
+            data.layerInfoDefPanels.Add(data.menuItemPaintMakerID);
+            data.layerInfoDefPanels.Add(data.informerID);
         }
 
         public void SetDefaultItemPanels()
@@ -96,8 +97,11 @@ namespace diagramMaker.managers
 
             MenuMakeOptions _option;
             MenuContainer _menu;
+            MenuContainer _subMenu1;
 
-            //itemCreationPanel
+            /* Items Menu */
+
+            //menu1: itemCreationPanel
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.TopMenu;
             _option.panelLabel = "Items Menu";
@@ -108,12 +112,9 @@ namespace diagramMaker.managers
             _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuCreationCanvasID = _menu.itemId;
             data.menuCreation = data.GetItemIndexByID(data.menuCreationCanvasID);
-
             data.panel.Add("itemCreationPanel", _menu);
 
-            //itemSubPanels
-
-            //infoBlock, PaintMaker
+            //menu1 > itemSubPanel1: 
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
@@ -122,7 +123,17 @@ namespace diagramMaker.managers
             _option.y = 24;
             _option.w = 146;
             _option.h = 130;
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 28, w: 144, h: 50);
+            _subMenu1 = MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option);
+            _menu.subPanel.Add(_subMenu1);
+            _menu.childrenId.Add(_subMenu1.itemId);
+
+            //infoBlock, PaintMaker
+            _option = new MenuMakeOptions();
+            _option.parentId = _subMenu1.itemId;
+            _option.x = 1;
+            _option.y = 28;
+            _option.w = 144;
+            _option.h = 50;
             _option.itmStringContent.Add("info block");
             _option.itmStringContent.Add("image maker");
             _option.itmEventContent.Add("InfoBlock");
@@ -131,9 +142,9 @@ namespace diagramMaker.managers
             _option.itmImgPath.Add("..\\..\\assets\\item02.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
+            _subMenu1.childrenId.AddRange(MenuMaker.Make_CreationAddItems(data, defMan, appCanvas, _option));
 
-            //multiline
+            //menu1 > itemSubPanel2
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
@@ -142,14 +153,24 @@ namespace diagramMaker.managers
             _option.y = 155;
             _option.w = 146;
             _option.h = 80;
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 28, w: 144, h: 50);
+            _subMenu1 = MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option);
+            _menu.subPanel.Add(_subMenu1);
+            _menu.childrenId.Add(_subMenu1.itemId);
+
+            //multiline
+            _option = new MenuMakeOptions();
+            _option.parentId = _subMenu1.itemId;
+            _option.x = 1;
+            _option.y = 28;
+            _option.w = 144;
+            _option.h = 50;
             _option.itmStringContent.Add("multiline");
             _option.itmEventContent.Add("Line");
             _option.itmImgPath.Add("..\\..\\assets\\item03.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
+            _subMenu1.childrenId.AddRange(MenuMaker.Make_CreationAddItems(data, defMan, appCanvas, _option));
 
-            //multiline 2(test)
+            //menu3 > itemSubPanel3(test)
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
@@ -158,15 +179,25 @@ namespace diagramMaker.managers
             _option.y = 235;
             _option.w = 146;
             _option.h = 80;
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 28, w: 144, h: 50);
+            _subMenu1 = MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option);
+            _menu.subPanel.Add(_subMenu1);
+            _menu.childrenId.Add(_subMenu1.itemId);
+
+            //multiline 2(test)
+            _option = new MenuMakeOptions();
+            _option.parentId = _subMenu1.itemId;
+            _option.x = 1;
+            _option.y = 28;
+            _option.w = 144;
+            _option.h = 50;
             _option.itmStringContent.Add("multiline");
             _option.itmEventContent.Add("Line");
             _option.itmImgPath.Add("..\\..\\assets\\item03.png");
             _option.itmFunc.Add(MenuMaker.Make_SubPanelItem_EventCreateItem);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
+            _subMenu1.childrenId.AddRange(MenuMaker.Make_CreationAddItems(data, defMan, appCanvas, _option));
 
+            /* Parameters Menu */
 
-            //MenuMaker.Make_ParameterMenu(data, mainWindow, appCanvas);
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.TopMenu;
             _option.panelLabel = "Parameters Menu";
@@ -179,7 +210,7 @@ namespace diagramMaker.managers
             data.panel.Add("itemParametersPanel", _menu);
             ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
 
-            //itemSubPanels
+            //menu > itemSubPanel1
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
@@ -188,13 +219,24 @@ namespace diagramMaker.managers
             _option.y = 24;
             _option.w = 146;
             _option.h = 120;
-            _option.itmFunc.Add(MenuMaker.Make_ParameterMenu_Content);
             _option.addFunc.Add(MenuMaker.Make_ParameterMenu_Panel1Content);
             _option.delFunc.Add(MenuMaker.ParameterMenu_DeleteContent);
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 26, w: 144, h: 40);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
+            _subMenu1 = MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option);
+            _menu.subPanel.Add(_subMenu1);
+            _menu.childrenId.Add(_subMenu1.itemId);
 
-            //MenuMaker.Make_PainterMakerMenu(data, mainWindow, appCanvas);
+            //items
+            _option = new MenuMakeOptions();
+            _option.parentId = _subMenu1.itemId;
+            _option.x = 1;
+            _option.y = 26;
+            _option.w = 144;
+            _option.h = 40;
+            _option.itmFunc.Add(MenuMaker.Make_ParameterMenu_Content);
+            _subMenu1.childrenId.AddRange(MenuMaker.Make_CreationAddItems(data, defMan, appCanvas, _option));
+
+            /* Paint Maker Menu */
+
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.TopMenu;
             _option.panelLabel = "Paint Maker Menu";
@@ -205,9 +247,9 @@ namespace diagramMaker.managers
             _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuItemPaintMakerID = _menu.itemId;
             data.panel.Add("itemPainterMakerPanel", _menu);
-            ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;    
+            ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
 
-            //itemSubPanels
+            //menu > itemSubPanel1
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.SubMenu;
             _option.parentId = _menu.itemId;
@@ -216,40 +258,48 @@ namespace diagramMaker.managers
             _option.y = 24;
             _option.w = 146;
             _option.h = 120;
+            _subMenu1 = MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option);
+            _menu.subPanel.Add(_subMenu1);
+            _menu.childrenId.Add(_subMenu1.itemId);
+
+            //itemSubPanels
+            _option = new MenuMakeOptions();
+            _option.parentId = _subMenu1.itemId;
+            _option.x = 1;
+            _option.y = 26;
+            _option.w = 144;
+            _option.h = 80;
             _option.itmImgPath.Add("..\\..\\assets\\item05.png");
             _option.itmImgPath.Add("..\\..\\assets\\item06.png");
             _option.itmFunc.Add(MenuMaker.Make_PainterMakerMenu_Content);
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 26, w: 144, h: 80);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
+            _subMenu1.childrenId.AddRange(MenuMaker.Make_CreationAddItems(data, defMan, appCanvas, _option));
 
+            /* Navigation Panel */
 
-            //itemNavigationPanel
             _option = new MenuMakeOptions();
             _option.category = EMenuCategory.TopMenu;
             _option.panelLabel = "Navigation Panel";
             _option.x = data.winWidth - 170;
-            _option.y = 20;
+            _option.y = 24;
             _option.w = 150;
             _option.h = 450;
             _menu = MenuMaker.Make_CreationPanelMenu(data, defMan, appCanvas, _option);
             data.menuNavigationPanelID = _menu.itemId;
             data.panel.Add("itemNavigationPanel", _menu);
-            ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item.Visibility = Visibility.Hidden;
+            CanvasItem _itm = (CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)];
+            _itm.Item.Visibility = Visibility.Hidden;
 
-            //itemSubPanels
-
-            //layer 0
+            //add a button "add layer"
             _option = new MenuMakeOptions();
-            _option.category = EMenuCategory.SubMenu;
-            _option.parentId = _menu.itemId;
-            _option.panelLabel = "> Layer 1";
-            _option.x = 2;
-            _option.y = 24;
-            _option.w = 146;
-            _option.h = 50;
-            _option.itmPosSize = new Vector4<double>(x: 1, y: 28, w: 144, h: 40);
-            _menu.menu.Add(MenuMaker.Make_CreationSubPanelCarcas(data, defMan, appCanvas, _option));
-            data.activeLayer = _menu.menu[0].itemId;
+            _option.parentId = data.menuNavigationPanelID;
+            _option.x = ((ItemParameter)_itm.param[EParameter.Item]).Width - 22;
+            _option.y = ((ItemParameter)_itm.param[EParameter.Item]).Height - 31;
+            _option.w = 20;
+            _option.h = 20;
+            MenuMaker.Make_PanelItem_EventCreateButton(data, defMan, appCanvas, _option);
+
+
+            data.activePersonalId = -1;
         }
 
         public void SetParameterCollections()

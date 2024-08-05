@@ -3,6 +3,8 @@
     public enum ECommand
     {
         None,
+        AddItem,
+        AddLayer,
         DeleteItem,
         DescribeItem,
         Data_PainterTool,
