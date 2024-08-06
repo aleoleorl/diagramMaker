@@ -2,6 +2,7 @@
 using diagramMaker.helpers.enumerators;
 using diagramMaker.items;
 using diagramMaker.parameters;
+using System.Collections.Generic;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,64 +76,112 @@ namespace diagramMaker.managers.DefaultPanels
                     break;
                 case ECommand.SubPanel_MinMax:
                     {
-                        int _sizeSubPanelId = -1;
-                        foreach (var topPanel in data.panel)
+                        MenuContainer _topPanel = null;
+                        foreach (var _panel in data.panel)
                         {
-                            bool _hasPanel = false;
-                            double _heightShift = 0;
-                            foreach (var panel in topPanel.Value.subPanel)
+                            if (_panel.Value.GetSubPanel(id) != null)
                             {
-                                if (panel.itemId == id)
-                                {
-                                    _sizeSubPanelId = panel.itemId;
-                                    _hasPanel = true;
-                                    DefaultItem _itm = data.items[data.GetItemIndexByID(_sizeSubPanelId)];
-                                    if (panel.isOpen)
-                                    {
-                                        ((CanvasItem)_itm).Item.Height = 24;
-                                        if (((CanvasItem)_itm).Border != null)
-                                        {
-                                            ((CanvasItem)_itm).Border.Height = 24;
-                                        }
-                                        ((CanvasItem)_itm).Item.Clip =
-                                            new RectangleGeometry(
-                                                new Rect(
-                                                    0,
-                                                    0,
-                                                    ((CanvasItem)_itm).Item.Width,
-                                                    24));
-                                        _heightShift = 24 - ((ItemParameter)_itm.param[EParameter.Item]).Height;
-                                    }
-                                    else
-                                    {
-                                        ((CanvasItem)_itm).Item.Height = ((ItemParameter)_itm.param[EParameter.Item]).Height;
-                                        if (((CanvasItem)_itm).Border != null)
-                                        {
-                                            ((CanvasItem)_itm).Border.Height = ((ItemParameter)_itm.param[EParameter.Item]).Height;
-                                        }
-                                        ((CanvasItem)_itm).Item.Clip =
-                                           new RectangleGeometry(
-                                               new Rect(
-                                                   0,
-                                                   0,
-                                                   ((CanvasItem)_itm).Item.Width,
-                                                   ((CanvasItem)_itm).Item.Height));
-                                        _heightShift = ((ItemParameter)_itm.param[EParameter.Item]).Height - 24;
-                                    }
-                                    panel.isOpen = !panel.isOpen;
-                                }
-                                if (_hasPanel && panel.itemId != id)
-                                {
-                                    ((ItemParameter)data.items[data.GetItemIndexByID(panel.itemId)].param[EParameter.Item]).Top += _heightShift;
-                                    Canvas.SetTop(
-                                        ((CanvasItem)data.items[data.GetItemIndexByID(panel.itemId)]).Item,
-                                        ((ItemParameter)data.items[data.GetItemIndexByID(panel.itemId)].param[EParameter.Item]).Top);
-                                }
+                                _topPanel = _panel.Value;
+                                break;
                             }
                         }
-                        if (_sizeSubPanelId != -1)
+                        if (_topPanel == null)
                         {
-                            EventScrollPanelHandler(0, _sizeSubPanelId);
+                            return;
+                        }
+
+                        bool _hasPanel = false;
+                        double _heightShift = 0;
+                        int _id = id;
+                        CanvasItem _itm = null;
+                        bool _isOpen = false;
+
+                        List<int> _panelListId = _topPanel.GetParentIndexList_SubPanelChain(_id);
+                        //go from the last inner layer to the top one
+                        for (int _i = _panelListId.Count - 1; _i>=0; _i--)
+                        {
+                            //get parent layer of items
+                            int _j = 0;
+                            MenuContainer _parentPanel = _topPanel;
+                            while (_j < _i)
+                            {
+                                _parentPanel = _parentPanel.subPanel[_panelListId[_j]];
+                                _j++;
+                            }
+                            //goto throw All children from the first one
+                            for (_j = _panelListId[_i]; _j < _parentPanel.childrenId.Count; _j++)
+                            {
+                                if (_parentPanel.childrenId[_j] == _id)
+                                {
+                                    if (!_hasPanel)
+                                    {
+                                        _itm = (CanvasItem)data.items[data.GetItemIndexByID(_id)];
+                                        int _subIndex = _parentPanel.subPanel.FindIndex(item => item.itemId == _parentPanel.childrenId[_panelListId[_i]]);
+                                        if (_parentPanel.subPanel[_subIndex].isOpen)
+                                        {
+                                            _itm.Item.Height = 24;
+                                            if (_itm.Border != null)
+                                            {
+                                                _itm.Border.Height = 24;
+                                            }
+                                            _itm.Item.Clip = new RectangleGeometry(new Rect(0, 0, _itm.Item.Width, 24));
+                                            _heightShift = 24 - ((ItemParameter)_itm.param[EParameter.Item]).Height;
+                                        }
+                                        else
+                                        {
+                                            _itm.Item.Height = ((ItemParameter)_itm.param[EParameter.Item]).Height;
+                                            if (_itm.Border != null)
+                                            {
+                                                _itm.Border.Height = ((ItemParameter)_itm.param[EParameter.Item]).Height;
+                                            }
+                                            _itm.Item.Clip = new RectangleGeometry(new Rect(0, 0, _itm.Item.Width, _itm.Item.Height));
+                                            _heightShift = ((ItemParameter)_itm.param[EParameter.Item]).Height - 24;
+                                        }
+                                        _parentPanel.subPanel[_subIndex].isOpen = !_parentPanel.subPanel[_subIndex].isOpen;
+                                        _isOpen = _parentPanel.subPanel[_subIndex].isOpen;
+                                        _hasPanel = true;
+                                    } 
+                                    
+                                    if (_parentPanel != _topPanel)
+                                    {
+                                        CanvasItem _parentItm = (CanvasItem)data.items[data.GetItemIndexByID(_parentPanel.itemId)];
+                                        if (_isOpen)
+                                        {
+                                            _parentItm.Item.Height += (((ItemParameter)_itm.param[EParameter.Item]).Height - 24);
+                                            if (_parentItm.Border != null)
+                                            {
+                                                _parentItm.Border.Height += _parentItm.Item.Height;
+                                            }
+                                            _parentItm.Item.Clip = new RectangleGeometry(new Rect(
+                                                0,
+                                                0,
+                                                _parentItm.Item.Width,
+                                                _parentItm.Item.Height));
+                                        } else
+                                        {
+                                            _parentItm.Item.Height -= (((ItemParameter)_itm.param[EParameter.Item]).Height - 24);
+                                            if (_parentItm.Border != null)
+                                            {
+                                                _parentItm.Border.Height -= _parentItm.Item.Height;
+                                            }
+                                            _parentItm.Item.Clip = new RectangleGeometry(new Rect(
+                                                0,
+                                                0,
+                                                _parentItm.Item.Width,
+                                                _parentItm.Item.Height));
+                                        }
+                                    }
+                                }
+
+                                if (_hasPanel && _parentPanel.childrenId[_j] != _id)
+                                {
+                                    ((ItemParameter)data.items[data.GetItemIndexByID(_parentPanel.childrenId[_j])].param[EParameter.Item]).Top += _heightShift;
+                                    Canvas.SetTop(
+                                        ((CanvasItem)data.items[data.GetItemIndexByID(_parentPanel.childrenId[_j])]).Item,
+                                        ((ItemParameter)data.items[data.GetItemIndexByID(_parentPanel.childrenId[_j])].param[EParameter.Item]).Top);
+                                }
+                                _id = _parentPanel.itemId;
+                            }
                         }
                     }
                     break;
