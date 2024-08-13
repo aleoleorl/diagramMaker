@@ -376,9 +376,93 @@ namespace diagramMaker.managers.DefaultPanels
             data.items[^1].MouseDoubleClickParentNotify +=
                  defMan.navPanel.NavigationMoveToItem;
 
-
             return _id;
         }
+        public static int Make_SubPanelAddItemContent_EventNavigationItem(
+            DataHub data,
+            DefaultManager defMan,
+            Canvas appCanvas,
+            MenuMakeOptions option,
+            int counter)
+        {
+            //btn delete
+            data.items.Add(new ButtonItem(data, appCanvas, option.parentId));
+            data.items[^1].SetParameter(EParameter.Item, new ItemParameter(
+                left: option.w-20,
+                top: 4,
+                width: 20,
+                height: 20,
+                bgColor: null,
+                frColor: Brushes.Black,
+                vert: EChildItemPosition.BottomWithShift,
+                hor: EChildItemPosition.RightWithShift));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.DeleteItem, commandParameter: int.Parse(option.itmStringContent[1])));
+            data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item04.png"));
+            
+            ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
+            ((ItemParameter)((ButtonItem)data.items[^1]).param[EParameter.Item]).addShift(
+                parentWidth: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Width,
+                parentHeight: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Height
+                );
+            Panel.SetZIndex(((ButtonItem)data.items[^1]).Item, 100);
+            //delete item from stage
+            ((ButtonItem)data.items[^1]).ItemClickNotify
+                += defMan.eve.EventItemDeleteHandler;
+            //((ButtonItem)data.items[^1]).ItemClickNotify += defMan.navPanel.NavigationPanel_AddItem;
+            //defMan.windowManager.ItemMoveNotify += ((ButtonItem)data.items[^1]).EventBindedCommands;
+
+            //btn do visible
+            data.items.Add(new ButtonItem(data, appCanvas, option.parentId));
+            data.items[^1].SetParameter(EParameter.Item, new ItemParameter(
+                left: option.w - 42,
+                top: 4,
+                width: 20,
+                height: 20,
+                bgColor: null,
+                frColor: Brushes.Black,
+                vert: EChildItemPosition.BottomWithShift,
+                hor: EChildItemPosition.RightWithShift));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.VisibleItem, commandParameter: int.Parse(option.itmStringContent[1])));
+            data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item15.png"));
+            
+            ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
+            ((ItemParameter)((ButtonItem)data.items[^1]).param[EParameter.Item]).addShift(
+                parentWidth: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Width,
+                parentHeight: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Height
+                );
+            Panel.SetZIndex(((ButtonItem)data.items[^1]).Item, 100);
+            ((ButtonItem)data.items[^1]).Item.Visibility = Visibility.Hidden;
+            ((ButtonItem)data.items[^1]).ItemClickNotify += defMan.navPanel.NavigationPanel_AddItem;
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).Name = "visItem";
+            ((ButtonItem)data.items[^1]).ItemParentClickNotify += defMan.navPanel.NavigationPanel_VisibleHiddenItem;
+
+            //btn do invisible
+            data.items.Add(new ButtonItem(data, appCanvas, option.parentId));
+            data.items[^1].SetParameter(EParameter.Item, new ItemParameter(
+                left: option.w - 42,
+                top: 4,
+                width: 20,
+                height: 20,
+                bgColor: null,
+                frColor: Brushes.Black,
+                vert: EChildItemPosition.BottomWithShift,
+                hor: EChildItemPosition.RightWithShift));
+            data.items[^1].SetParameter(EParameter.Event, new EventParameter(mouseClick: true, command: ECommand.HiddenItem, commandParameter: int.Parse(option.itmStringContent[1])));
+            data.items[^1].SetParameter(EParameter.Image, new ImageParameter("..\\..\\assets\\item14.png"));
+
+
+            ((ButtonItem)data.items[^1]).Item.BorderBrush = Brushes.Transparent;
+            ((ItemParameter)((ButtonItem)data.items[^1]).param[EParameter.Item]).addShift(
+                parentWidth: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Width,
+                parentHeight: ((ItemParameter)data.items[data.GetItemIndexByID(option.parentId)].param[EParameter.Item]).Height
+                );
+            Panel.SetZIndex(((ButtonItem)data.items[^1]).Item, 100);
+            ((CommonParameter)data.items[^1].param[EParameter.Common]).Name = "hidItem";
+            ((ButtonItem)data.items[^1]).ItemParentClickNotify += defMan.navPanel.NavigationPanel_VisibleHiddenItem;
+
+            return 1;
+        }
+
 
         public static int Make_PanelItem_EventCreateButton(
             DataHub data,

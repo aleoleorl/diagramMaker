@@ -75,5 +75,47 @@ namespace diagramMaker.helpers.containers
             }
             return null;
         }
+
+        public List<int> DeleteItem(int itemId)
+        {
+            List<int> _ret = new List<int>();
+            if (childrenId.IndexOf(itemId) != -1)
+            {
+                _ret.Add(itemId);
+                int _itemIndex = subPanel.FindIndex(item => item.itemId == itemId);
+                if (_itemIndex != -1)
+                {
+                    _ret.AddRange(GetAllChildrenById(subPanel[_itemIndex]));
+                    subPanel.RemoveAt(_itemIndex);
+                }
+
+                childrenId.Remove(itemId);
+                return _ret;
+            }
+            else
+            {
+                for (int _i = 0; _i < subPanel.Count; _i++)
+                {
+                    _ret = subPanel[_i].DeleteItem(itemId);
+                    if (_ret.Count != 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            return _ret;
+        }
+
+        public List<int> GetAllChildrenById(MenuContainer menu)
+        {
+            List<int> _ret = new List<int>();
+            _ret.AddRange(menu.childrenId);
+            for (int _i = 0; _i < menu.subPanel.Count; _i++)
+            {
+                _ret.AddRange(menu.subPanel[_i].GetAllChildrenById(menu.subPanel[_i]));
+            }
+
+            return _ret;
+        }
     }
 }

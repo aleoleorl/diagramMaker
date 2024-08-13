@@ -242,7 +242,7 @@ namespace diagramMaker.managers
         {
             ChoosenItemNotify?.Invoke(EBindParameter.Content, data.choosenItemID.ToString());
 
-            ItemMenuDelete(data.menuItemParametersID);
+            ItemTopMenuDelete(data.menuItemParametersID);
 
             Canvas _appCanvas = ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item;
             MenuMakeOptions _option = new MenuMakeOptions();
@@ -255,7 +255,7 @@ namespace diagramMaker.managers
             }
         }
 
-        public void ItemMenuDelete(int id)
+        public void ItemTopMenuDelete(int id)
         {
             foreach (var panel in data.panel)
             {
@@ -343,15 +343,24 @@ namespace diagramMaker.managers
             {
                 List<int> _ids = new List<int>();
                 _ids.Add(id);
-                _ids.AddRange(SearchItemChildren(id));
+                _ids.InsertRange(0, SearchItemChildren(id));
                 switch (((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ItemType)
                 {
                     case EItem.Canvas:
                         ((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item.Children.Clear();
-                        ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item);
+                        if (((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ParentId != -1)
+                        {
+                            ((CanvasItem)data.items[data.GetItemIndexByID(
+                                ((CommonParameter)data.items[data.GetItemIndexByID(id)].param[EParameter.Common]).ParentId
+                                )]).Item.Children.Remove(((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item);
+                        }
+                        else
+                        {
+                            ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((CanvasItem)data.items[data.GetItemIndexByID(id)]).Item);
+                        }
                         break;
                     case EItem.Painter:
-                        ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((PainterItem)data.items[data.GetItemIndexByID(id)]).item);
+                        ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item.Children.Remove(((PainterItem)data.items[data.GetItemIndexByID(id)]).Item);
                         break;
                     case EItem.Figure:
                         data.items[data.GetItemIndexByID(id)].HandleRemoveItem();
@@ -387,7 +396,7 @@ namespace diagramMaker.managers
                 //
                 if (id == data.choosenItemID)
                 {
-                    ItemMenuDelete(data.menuItemParametersID);
+                    ItemTopMenuDelete(data.menuItemParametersID);
                     ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuItem = false;
                     data.choosenItemID = -1;
@@ -396,11 +405,10 @@ namespace diagramMaker.managers
                 {
                     ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemPaintMakerID)]).Item.Visibility = Visibility.Hidden;
                     data.isMenuPainter = false;
-                    ItemMenuDelete(data.menuItemPaintMakerID);
+                    ItemTopMenuDelete(data.menuItemPaintMakerID);
                 }
-                defMan.layerControl.ClearUnexistItems();
+
                 defMan.navPanel.NavigationPanel_DeleteItem(id);
-                //EventNavigationPanelScrollCount(0);
             }
         }
 

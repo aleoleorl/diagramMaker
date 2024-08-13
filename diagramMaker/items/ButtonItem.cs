@@ -16,6 +16,7 @@ namespace diagramMaker.items
 
         public delegate void ItemClickHandler(int id, ECommand command);
         public event ItemClickHandler? ItemClickNotify;
+        public event ItemClickHandler? ItemParentClickNotify;
 
 
         public ButtonItem(DataHub data, Canvas? appCanvas, int parentId = -1) : 
@@ -287,6 +288,7 @@ namespace diagramMaker.items
             if (_eParam != null)
             {
                 ItemClickNotify?.Invoke(_send, _eParam.Command);
+                ItemParentClickNotify?.Invoke(((CommonParameter)param[EParameter.Common]).ParentId, _eParam.Command);
             }
         }
     }

@@ -105,10 +105,10 @@ namespace diagramMaker.managers.DefaultPanels
                                     break;
                                 case EItem.Painter:
                                     Canvas.SetLeft(
-                                    ((PainterItem)data.items[_i]).item,
+                                    ((PainterItem)data.items[_i]).Item,
                                     ((CommonParameter)data.items[_i].param[EParameter.Common]).AppX - data.topLeftX);
                                     Canvas.SetTop(
-                                    ((PainterItem)data.items[_i]).item,
+                                    ((PainterItem)data.items[_i]).Item,
                                         ((CommonParameter)data.items[_i].param[EParameter.Common]).AppY - data.topLeftY);
                                     if (data.items[_i].param.ContainsKey(EParameter.Item))
                                     {
@@ -238,6 +238,22 @@ namespace diagramMaker.managers.DefaultPanels
                             option: _option,
                             counter: -1
                         );
+                        //add navigation item controller content
+                        MenuMakeOptions _addOption = new MenuMakeOptions();
+                        _addOption.x = _option.x;
+                        _addOption.y = _option.y;
+                        _addOption.w = _option.w;
+                        _addOption.h = _option.h;
+                        _addOption.parentId = _id;
+                        _addOption.itmStringContent.Add(_id.ToString());
+                        _addOption.itmStringContent.Add(((CommonParameter)_itm.param[EParameter.Common]).Id.ToString());
+                        MenuMaker.Make_SubPanelAddItemContent_EventNavigationItem(
+                            data: data,
+                            defMan: defMan,
+                            appCanvas: ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
+                            option: _addOption,
+                            counter: -1
+                        );
 
                         //add the new item as a child into panel structure
                         if (_indexOfActive == -1)
@@ -341,6 +357,23 @@ namespace diagramMaker.managers.DefaultPanels
                         ((CanvasItem)data.items[data.GetItemIndexByID(_subMenu1.itemId)]).EEventNotify +=
                             defMan.navPanel.NavigationPanel_ChangeActivePersonalId;
 
+                        //add navigation item controller content
+                        MenuMakeOptions _addOption = new MenuMakeOptions();
+                        _addOption.x = _option.x;
+                        _addOption.y = _option.y;
+                        _addOption.w = _option.w;
+                        _addOption.h = _option.h;
+                        _addOption.parentId = _subMenu1.itemId;
+                        _addOption.itmStringContent.Add(_subMenu1.itemId.ToString());
+                        _addOption.itmStringContent.Add(_subMenu1.itemId.ToString());
+                        MenuMaker.Make_SubPanelAddItemContent_EventNavigationItem(
+                            data: data,
+                            defMan: defMan,
+                            appCanvas: ((CanvasItem)data.items[data.GetItemIndexByID(data.appCanvasID)]).Item,
+                            option: _addOption,
+                            counter: -1
+                        );
+
                         //add the new item as a child and as a layer member into panel structure
                         if (_indexOfActive == -1)
                         {
@@ -377,7 +410,8 @@ namespace diagramMaker.managers.DefaultPanels
                             }
                             else if (data.layerInfoItems[_indexOfActive].type == ENavigType.Layer)
                             {
-                                _parentMenu = _parentMenu.subPanel[_parentChain[^1]];
+                                //_parentMenu = _parentMenu.subPanel[_parentChain[^1]];
+                                _parentMenu = _parentMenu.subPanel.Find(item => item.itemId == _parentMenu.childrenId[_parentChain[^1]]);
                                 _parentMenu.childrenId.Insert(0, _subMenu1.itemId);
                                 _parentMenu.subPanel.Insert(0, _subMenu1);
                             }
@@ -411,14 +445,14 @@ namespace diagramMaker.managers.DefaultPanels
                     break;
             }
 
-            Navigation_PanelGraphicShift(_heightShift);
+            Navigation_PanelGraphicShift(_heightShift, data.activePersonalId);
         }
 
-        public void Navigation_PanelGraphicShift(double heightShift)
+        public void Navigation_PanelGraphicShift(double heightShift, int activePersonalId)
         {
-            //data.activePersonalId
-            int _indexOfActive = data.layerInfoItems.FindIndex(item => item.personalId == data.activePersonalId);
-            int _currParentItemId = data.layerInfoItems[_indexOfActive].parentItemId;
+            //activePersonalId
+            int _indexOfActive = data.layerInfoItems.FindIndex(item => item.personalId == activePersonalId);
+            int _currParentItemId = _indexOfActive!= -1 ? data.layerInfoItems[_indexOfActive].parentItemId : -1;
             bool _isParent = false;
             int _grandParentId = -1;
             bool _isGrandParent = false;
@@ -463,9 +497,10 @@ namespace diagramMaker.managers.DefaultPanels
                 }
 
                 //if current item is not the new added item
-                if (data.layerInfoItems[_indexOfActive].personalId != data.activePersonalId)
+                if (_indexOfActive != -1 && data.layerInfoItems[_indexOfActive].personalId != activePersonalId)
                 {
-                    if (data.layerInfoItems[_indexOfActive].parentItemId == _currParentItemId)
+                    if (data.layerInfoItems[_indexOfActive].parentItemId == _currParentItemId &&
+                        data.GetItemIndexByID(data.layerInfoItems[_indexOfActive].itemId) != -1)
                     {
                         CanvasItem _childItem = (CanvasItem)data.items[data.GetItemIndexByID(data.layerInfoItems[_indexOfActive].itemId)];
                         ((ItemParameter)_childItem.param[EParameter.Item]).Top += heightShift;
@@ -480,7 +515,7 @@ namespace diagramMaker.managers.DefaultPanels
                     _isGrandParent)
                 {
                     _isGrandParent = false;
-                    _indexOfActive = data.layerInfoItems.FindIndex(item => item.personalId == data.activePersonalId);
+                    _indexOfActive = data.layerInfoItems.FindIndex(item => item.personalId == activePersonalId);
                     _currParentItemId = _grandParentId;
                     _isParent = false;
                 }
@@ -541,55 +576,197 @@ namespace diagramMaker.managers.DefaultPanels
 
         public void NavigationPanel_DeleteItem(int id)
         {
-            MenuContainer _layer = data.panel["itemNavigationPanel"];
-            int _panelItemId = -1;
-            foreach (int _id in _layer.subPanel[0].childrenId)
+            int _index = data.layerInfoItems.FindIndex(item => item.itemOnStageId == id);
+            bool isLayer = false;
+            if (_index == -1)
             {
-                if (data.GetItemIndexByID(_id) != -1)
+                _index = data.layerInfoItems.FindIndex(item => item.itemId == id);
+                isLayer = true;
+                if (_index == -1)
                 {
-                    CommonParameter _comPar = (CommonParameter)data.items[data.GetItemIndexByID(_id)].param[EParameter.Common];
-                    if (_comPar.Connect.Users[0] == id)
-                    {
-                        _panelItemId = _id;
-                        break;
-                    }
+                    return;
                 }
             }
-            if (_panelItemId == -1)
+            //find the most closest item or get parent or -1 of it on top level
+            int _preDeletedItemPersonalId = -1;
+            for (int _i = _index-1; _i >= 0; _i--)
             {
-                return;
-            }
-            int _childIndex = _layer.subPanel[0].childrenId.IndexOf(_panelItemId);
-
-            //remove from parent item
-            for (int _i = 0; _i < data.items.Count; _i++)
-            {
-                if (((CommonParameter)data.items[_i].param[EParameter.Common]).Id == _layer.subPanel[0].itemId)
+                if (data.layerInfoItems[_i].itemId == data.layerInfoItems[_index].parentItemId)
                 {
-                    Canvas _parent = ((CanvasItem)data.items[_i]).Item;
-                    Canvas _child = ((CanvasItem)data.items[data.GetItemIndexByID(_panelItemId)]).Item;
-                    _parent.Children.Remove(_child);
+                    _preDeletedItemPersonalId = data.layerInfoItems[_index].personalId;
+                    break;
+                }
+                if (data.layerInfoItems[_i].parentItemId == data.layerInfoItems[_index].parentItemId)
+                {
+                    _preDeletedItemPersonalId = data.layerInfoItems[_index].personalId;
                     break;
                 }
             }
 
-            //delete from data items
-            defMan.eve.EventItemDeleteHandler(_panelItemId, ECommand.DeleteItem);
+            MenuContainer _layer = data.panel["itemNavigationPanel"];
 
-            //shift menu
-            if (_childIndex < _layer.subPanel[0].childrenId.Count - 1)
+            //delete from MenuContainer tree, create a List of _panelItemId
+            List<int> _itemsToDelete = _layer.DeleteItem(data.layerInfoItems[_index].itemId);
+            if (_itemsToDelete.Count == 0)
             {
-                for (int _i = _childIndex + 1; _i < _layer.subPanel[0].childrenId.Count; _i++)
+                return;
+            }
+
+            for (int _panelItemId = 0; _panelItemId < _itemsToDelete.Count; _panelItemId++)
+            {
+                //remove from parent item
+                LayerInfo _itm = data.layerInfoItems.Find(item => item.itemId == _itemsToDelete[_panelItemId]);
+                if (_itm.parentItemId != -1)
                 {
-                    int _id = _layer.subPanel[0].childrenId[_i];
-                    CanvasItem _item = (CanvasItem)data.items[data.GetItemIndexByID(_id)];
-                    ((ItemParameter)_item.param[EParameter.Item]).Top -= 30;
-                    Canvas.SetTop(_item.Item, ((ItemParameter)_item.param[EParameter.Item]).Top);
+                    if (data.GetItemIndexByID(_itemsToDelete[_panelItemId]) != -1)
+                    {
+                        for (int _j = 0; _j < data.items.Count; _j++)
+                        {
+                            if (((CommonParameter)data.items[_j].param[EParameter.Common]).Id == _itm.parentItemId)
+                            {
+                                Canvas _parent = ((CanvasItem)data.items[_j]).Item;
+                                Canvas _child = ((CanvasItem)data.items[data.GetItemIndexByID(_itemsToDelete[_panelItemId])]).Item;
+                                _parent.Children.Remove(_child);
+                                break;
+                            }
+                        }
+                    }
+                } else
+                {
+                    if (data.GetItemIndexByID(_itemsToDelete[_panelItemId]) != -1)
+                    {
+                        Canvas _parent = ((CanvasItem)data.items[data.GetItemIndexByID(data.menuNavigationPanelID)]).Item;
+                        Canvas _child = ((CanvasItem)data.items[data.GetItemIndexByID(_itemsToDelete[_panelItemId])]).Item;
+                        _parent.Children.Remove(_child);
+                    }
+                }
+
+                //delete from data items
+                if (!isLayer)
+                {
+                    defMan.eve.EventItemDeleteHandler(_itemsToDelete[_panelItemId], ECommand.DeleteItem);
                 }
             }
 
-            //delete from menu
-            _layer.subPanel[0].childrenId.RemoveAt(_childIndex);
+            //shift menu
+            Navigation_PanelGraphicShift(-_itemsToDelete.Count * 30, _preDeletedItemPersonalId);
+
+            //check data.activePersonalId
+            for (int _i = 0; _i < _itemsToDelete.Count; _i++)
+            {
+                if (data.layerInfoItems.FindIndex(item => 
+                item.personalId == data.activePersonalId && 
+                item.itemId == _itemsToDelete[_i]) != -1)
+                {
+                    data.activePersonalId = -1;
+                }
+            }                
+
+            //clear data.layerInfoItems
+            for (int _i = 0; _i < _itemsToDelete.Count; _i++)
+            {
+                data.layerInfoItems.Remove(data.layerInfoItems.Find(item => item.itemId == _itemsToDelete[_i]));
+            }
+        }
+
+        public void NavigationPanel_VisibleHiddenItem(int itemId, ECommand command = ECommand.None)
+        {
+            List<int> _itemsIndex = new List<int>();
+            int _i = 0;
+            int _begin = data.layerInfoItems.FindIndex(item => item.itemId == itemId);
+            _itemsIndex.Add(_begin);
+
+            while (_i < _itemsIndex.Count)
+            {
+                for (int _j = _begin + 1; _j < data.layerInfoItems.Count; _j++)
+                {
+                    if (data.layerInfoItems[_j].parentItemId == data.layerInfoItems[_itemsIndex[_i]].itemId)
+                    {
+                        _itemsIndex.Add(_j);
+                    }
+                }
+                _i++;
+            }
+
+            _i = 0;
+            for (_i = 0; _i < _itemsIndex.Count; _i++)
+            {
+                if (data.layerInfoItems[_itemsIndex[_i]].itemOnStageId != -1)
+                {
+                    _begin = data.GetItemIndexByID(data.layerInfoItems[_itemsIndex[_i]].itemOnStageId);
+                    DefaultItem _item = data.items[_begin];
+                    switch (((CommonParameter)_item.param[EParameter.Common]).ItemType)
+                    {
+                        case EItem.Canvas:
+                            if (command == ECommand.VisibleItem)
+                            {
+                                ((CanvasItem)_item).Item.Visibility = Visibility.Visible;
+                            }
+                            else if (command == ECommand.HiddenItem)
+                            {
+                                ((CanvasItem)_item).Item.Visibility = Visibility.Hidden;
+                            }
+                            break;
+                        case EItem.Figure:
+                            {
+                                for (int _j = 0; _j< ((FigureItem)_item).Item.Count; _j++)
+                                {
+                                    if (command == ECommand.VisibleItem)
+                                    {
+                                        ((FigureItem)_item).Item[_j].Visibility = Visibility.Visible;
+                                    }
+                                    else if (command == ECommand.HiddenItem)
+                                    {
+                                        ((FigureItem)_item).Item[_j].Visibility = Visibility.Hidden;
+                                    }
+                                }
+                            }
+                            break;
+                        case EItem.Painter:
+                            if (command == ECommand.VisibleItem)
+                            {
+                                ((PainterItem)_item).Item.Visibility = Visibility.Visible;
+                            }
+                            else if (command == ECommand.HiddenItem)
+                            {
+                                ((PainterItem)_item).Item.Visibility = Visibility.Hidden;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                _begin = data.GetItemIndexByID(itemId);
+                for (int _j = data.GetItemIndexByID(itemId) + 1; _j < data.items.Count; _j++)
+                {
+                    if (((CommonParameter)data.items[_j].param[EParameter.Common]).ParentId == data.layerInfoItems[_itemsIndex[_i]].itemId &&
+                        ((CommonParameter)data.items[_j].param[EParameter.Common]).Name == "visItem")
+                    {
+                        if (command == ECommand.HiddenItem)
+                        {
+                            ((ButtonItem)data.items[_j]).Item.Visibility = Visibility.Visible;
+                        }
+                        else if (command == ECommand.VisibleItem)
+                        {
+                            ((ButtonItem)data.items[_j]).Item.Visibility = Visibility.Hidden;
+                        }
+                    }
+                    if (((CommonParameter)data.items[_j].param[EParameter.Common]).ParentId == data.layerInfoItems[_itemsIndex[_i]].itemId &&
+                        ((CommonParameter)data.items[_j].param[EParameter.Common]).Name == "hidItem")
+                    {
+                        if (command == ECommand.HiddenItem)
+                        {
+                            ((ButtonItem)data.items[_j]).Item.Visibility = Visibility.Hidden;
+                        }
+                        else if (command == ECommand.VisibleItem)
+                        {
+                            ((ButtonItem)data.items[_j]).Item.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+
+            }
         }
 
         #endregion

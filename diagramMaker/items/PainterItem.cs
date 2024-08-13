@@ -19,7 +19,7 @@ namespace diagramMaker.items
         private int OldX { get; set; }
         private int OldY { get; set; }
 
-        public Border item;
+        public Border Item;
 
         public PainterItem(DataHub data, Canvas? appCanvas, int parentId = -1) :
             base(data, appCanvas, parentId, EItem.Painter)
@@ -42,26 +42,26 @@ namespace diagramMaker.items
             OldX = -1;
             OldY = -1;
 
-            item = new Border();
-            item.BorderThickness = new Thickness(2);
-            item.BorderBrush = Brushes.Black;
-            item.Child = Image;
+            Item = new Border();
+            Item.BorderThickness = new Thickness(2);
+            Item.BorderBrush = Brushes.Black;
+            Item.Child = Image;
 
-            Canvas.SetLeft(item, 100);
-            Canvas.SetTop(item, 100);
+            Canvas.SetLeft(Item, 100);
+            Canvas.SetTop(Item, 100);
 
             if (appCanvas != null)
             {
                 if (parentId == -1)
                 {
-                    appCanvas.Children.Add(item);
+                    appCanvas.Children.Add(Item);
                 }
                 else
                 {
                     int _id = data.GetItemIndexByID(parentId);
                     if (_id != -1 && data.items != null)
                     {
-                        ((CanvasItem)data.items[_id]).Item.Children.Add(item);
+                        ((CanvasItem)data.items[_id]).Item.Children.Add(Item);
                     }
                 }
             }
@@ -100,19 +100,19 @@ namespace diagramMaker.items
             {
                 if (((EventParameter)param[EParameter.Event]).IsMouseDown)
                 {
-                    item.MouseDown += Item_MouseDown;
+                    Item.MouseDown += Item_MouseDown;
                 }
                 if (((EventParameter)param[EParameter.Event]).IsMouseUp)
                 {
-                    item.MouseUp += Item_MouseUp;
+                    Item.MouseUp += Item_MouseUp;
                 }
                 if (((EventParameter)param[EParameter.Event]).IsMouseMove)
                 {
-                    item.MouseMove += Item_MouseMove;
+                    Item.MouseMove += Item_MouseMove;
                 }
                 if (((EventParameter)param[EParameter.Event]).IsMouseLeave)
                 {
-                    item.MouseLeave += Item_MouseLeave;
+                    Item.MouseLeave += Item_MouseLeave;
                 }
             }
         }
@@ -130,10 +130,10 @@ namespace diagramMaker.items
         {
             if (param[EParameter.Item] != null)
             {
-                item.Width = ((ItemParameter)param[EParameter.Item]).Width;
-                item.Height = ((ItemParameter)param[EParameter.Item]).Height;
-                Canvas.SetLeft(item, ((ItemParameter)param[EParameter.Item]).Left);
-                Canvas.SetTop(item, ((ItemParameter)param[EParameter.Item]).Top);
+                Item.Width = ((ItemParameter)param[EParameter.Item]).Width;
+                Item.Height = ((ItemParameter)param[EParameter.Item]).Height;
+                Canvas.SetLeft(Item, ((ItemParameter)param[EParameter.Item]).Left);
+                Canvas.SetTop(Item, ((ItemParameter)param[EParameter.Item]).Top);
             }
         }
 
@@ -249,7 +249,7 @@ namespace diagramMaker.items
             switch (Data.painterTool)
             {
                 case EPainterTool.Move:
-                Point mousePosition = e.GetPosition(item);
+                Point mousePosition = e.GetPosition(Item);
                 Data.tapXX = -mousePosition.X;
                 Data.tapYY = -mousePosition.Y;
                 Data.tapped = ((CommonParameter)param[EParameter.Common]).Id;
@@ -307,7 +307,7 @@ namespace diagramMaker.items
                     {
                         ((ItemParameter)param[EParameter.Item]).Width = Convert.ToDouble(txt);
                     }
-                    item.Width = Convert.ToDouble(txt); //border
+                    Item.Width = Convert.ToDouble(txt); //border
                     Image.Width = Convert.ToDouble(txt);
                     Painter = Painter.Resize(Convert.ToInt32(txt), Painter.PixelHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
                     Image.Source = Painter;
@@ -317,7 +317,7 @@ namespace diagramMaker.items
                     {
                         ((ItemParameter)param[EParameter.Item]).Height = Convert.ToDouble(txt);
                     }
-                    item.Height = Convert.ToDouble(txt); //border
+                    Item.Height = Convert.ToDouble(txt); //border
                     Image.Height = Convert.ToDouble(txt);
                     Painter = Painter.Resize(Painter.PixelWidth, Convert.ToInt32(txt), WriteableBitmapExtensions.Interpolation.Bilinear);
                     Image.Source = Painter;

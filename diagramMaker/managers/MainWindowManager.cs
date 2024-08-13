@@ -100,7 +100,7 @@ namespace diagramMaker.managers
             {
                 ((CanvasItem)data.items[data.GetItemIndexByID(data.menuItemParametersID)]).Item.Visibility = Visibility.Hidden;
                 data.isMenuItem = false;
-                defMan.eve.ItemMenuDelete(data.menuItemParametersID);
+                defMan.eve.ItemTopMenuDelete(data.menuItemParametersID);
                 data.items[data.GetItemIndexByID(data.choosenItemID)].FinishHandling();
                 data.choosenItemID = -1;
                 if (data.isMenuPainter)
